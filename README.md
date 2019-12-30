@@ -5,7 +5,7 @@ A GPU accerelated Mandelbrot explorer implemented in Java 8 using aparapi (https
 
 ## Some Examples
 
-![Mandel Home](examples/DistLightExample.png?raw=true "Mandelbrot")
+![Mandel Home](examples/Home.png?raw=true "Mandelbrot")
 
 ![Distance Lighting](examples/DistLightExample.png?raw=true "Distance Lighting")
 
