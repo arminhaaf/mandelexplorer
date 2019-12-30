@@ -16,3 +16,5 @@ Use mouse to explore:
 ![Distance Lighting](examples/DistLightExample.png?raw=true "Distance Lighting")
 
 ![Histo Palette](examples/HistoExample2.png?raw=true "Histo Palette")
+
+![Histo Palette](examples/HistoExample3.png?raw=true "Histo Palette")
