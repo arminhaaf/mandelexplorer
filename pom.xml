@@ -82,6 +82,17 @@
         <defaultGoal>clean package exec:java</defaultGoal>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>nimra.mandelexplorer.MandelExplorer</mainClass>
+                    <arguments>
+                        <argument>com.aparapi.executionMode=GPU</argument>
+                        <argument>com.aparapi.enableShowGeneratedOpenCL=true</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
