@@ -115,7 +115,7 @@ public class MandelExplorer {
             int tMaxIterations = explorerConfigPanel.getMaxIterations();
 
             if (tMaxIterations < 0) {
-                tMaxIterations = (int)(200 * Math.pow(mandelParams.getScale(), -0.8));
+                tMaxIterations = (int)(100 * Math.pow(mandelParams.getScale(), -0.4));
             }
             mandelParams.setMaxIterations(tMaxIterations);
             mandelParams.setEscapeRadius(explorerConfigPanel.getEscapeRadius());
