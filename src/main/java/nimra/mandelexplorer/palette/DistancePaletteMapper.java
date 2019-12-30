@@ -1,9 +1,7 @@
 package nimra.mandelexplorer.palette;
 
 import nimra.mandelexplorer.MandelParams;
-
-import java.awt.Color;
-import java.util.Properties;
+import org.json.JSONObject;
 
 /**
  * Created: 27.12.19   by: Armin Haaf
@@ -15,7 +13,30 @@ public class DistancePaletteMapper extends GradientPaletteMapper {
     protected double maxDistance;
 
     public DistancePaletteMapper() {
-        insideColor = new Color(0x2c0091);
+    }
+
+    @Override
+    protected void initDefaults() {
+        fromJson(new JSONObject("{\n" +
+                                "  \"insideColor\": \"black\",\n" +
+                                "  \"gradients\": [\n" +
+                                "    {\n" +
+                                "      \"slicePercent\": 80,\n" +
+                                "      \"toColor\": \"orange\",\n" +
+                                "      \"fromColor\": \"red\"\n" +
+                                "    },\n" +
+                                "    {\n" +
+                                "      \"slicePercent\": 10,\n" +
+                                "      \"toColor\": \"yellow\",\n" +
+                                "      \"fromColor\": \"orange\"\n" +
+                                "    },\n" +
+                                "    {\n" +
+                                "      \"slicePercent\": 10,\n" +
+                                "      \"toColor\": \"blue\",\n" +
+                                "      \"fromColor\": \"yellow\"\n" +
+                                "    }\n" +
+                                "  ]\n" +
+                                "}"));
     }
 
     @Override
@@ -35,7 +56,8 @@ public class DistancePaletteMapper extends GradientPaletteMapper {
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
         if (pIter != getMaxIterations()) {
-            final double tDistance = calcDistance(pLastR, pLastI, pDistanceR, pDistanceI);;
+            final double tDistance = calcDistance(pLastR, pLastI, pDistanceR, pDistanceI);
+            ;
             if (!Double.isFinite(tDistance)) {
                 return insideColor.getRGB();
             }
@@ -60,7 +82,7 @@ public class DistancePaletteMapper extends GradientPaletteMapper {
 
     @Override
     public String getName() {
-        return "Distance";
+        return "Distance (Escape-Radius>100)";
     }
 
 }

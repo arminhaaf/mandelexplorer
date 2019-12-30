@@ -17,6 +17,14 @@ import java.util.List;
 public abstract class GradientPaletteMapper extends PaletteMapper {
     protected List<Gradient> gradients = new ArrayList<>();
 
+    public GradientPaletteMapper() {
+        initDefaults();
+    }
+
+    protected void initDefaults() {
+        gradients.add(new Gradient(Color.red, Color.blue));
+    }
+
     // expect value between 0 and 1
     protected int getRBGColor(float pValue) {
         float tRatio = Math.abs(pValue) % 1.0f;
@@ -78,6 +86,11 @@ public abstract class GradientPaletteMapper extends PaletteMapper {
         int slicePercent = 100;
 
         GradientType type = GradientType.LINEAR;
+
+        public Gradient(final Color pFromColor, final Color pToColor) {
+            fromColor = pFromColor;
+            toColor = pToColor;
+        }
 
         public Gradient() {
         }
