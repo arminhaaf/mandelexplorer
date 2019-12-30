@@ -306,7 +306,7 @@ public class MandelConfigPanel {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new FormLayout("fill:max(d;4px):noGrow,left:4dlu:noGrow,fill:d:grow,left:4dlu:noGrow", "center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:d:grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
+        mainPanel.setLayout(new FormLayout("fill:max(d;4px):noGrow,left:4dlu:noGrow,fill:d:grow,left:4dlu:noGrow", "center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:d:grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
         final JLabel label1 = new JLabel();
         label1.setText("max.Iterations");
         CellConstraints cc = new CellConstraints();
@@ -351,11 +351,11 @@ public class MandelConfigPanel {
         algorithmComboBox.setModel(defaultComboBoxModel1);
         mainPanel.add(algorithmComboBox, cc.xy(3, 5));
         final JLabel label6 = new JLabel();
-        label6.setText("renderMillis");
-        mainPanel.add(label6, cc.xy(1, 31));
+        label6.setText("renderTime");
+        mainPanel.add(label6, cc.xy(1, 33));
         renderMillisTextField = new JTextField();
         renderMillisTextField.setEditable(false);
-        mainPanel.add(renderMillisTextField, cc.xy(3, 31, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(renderMillisTextField, cc.xy(3, 33, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label7 = new JLabel();
         label7.setText("Palette");
         mainPanel.add(label7, cc.xy(1, 9));
@@ -398,6 +398,14 @@ public class MandelConfigPanel {
         paletteConfigTextArea.setRows(3);
         paletteConfigTextArea.setText("");
         scrollPane1.setViewportView(paletteConfigTextArea);
+        final JLabel label10 = new JLabel();
+        label10.setText("Zoom-Speed");
+        mainPanel.add(label10, cc.xy(1, 31));
+        zoomSpeedSlider = new JSlider();
+        zoomSpeedSlider.setMaximum(10);
+        zoomSpeedSlider.setMinimum(1);
+        zoomSpeedSlider.setValue(5);
+        mainPanel.add(zoomSpeedSlider, cc.xy(3, 31, CellConstraints.FILL, CellConstraints.DEFAULT));
     }
 
     /**
