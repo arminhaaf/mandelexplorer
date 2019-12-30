@@ -89,6 +89,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -137,13 +138,12 @@ public class MandelExplorer {
         }
     };
 
-    JComponent panel = new JPanel(new BorderLayout());
+    private final JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false, explorerConfigPanel.getComponent(), viewer);
 
     public MandelExplorer() {
         setSize(1024, 1024);
 
-        panel.add(viewer, BorderLayout.CENTER);
-        panel.add(explorerConfigPanel.getComponent(), BorderLayout.WEST);
+        panel.setOneTouchExpandable(true);
 
         prepareMouse();
 
@@ -288,6 +288,7 @@ public class MandelExplorer {
     private MandelKernel getMandelKernel() {
         MandelKernel tMandelKernel = explorerConfigPanel.getSelectedAlgorithm();
 
+        // auto choose kernel
         if (tMandelKernel == null) {
             final double tMinPixelSize = mandelParams.getScale() / Math.max(getImageHeight(), getImageWidth());
             if (tMinPixelSize < 1E-7) {
