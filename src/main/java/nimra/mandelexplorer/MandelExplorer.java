@@ -258,8 +258,14 @@ public class MandelExplorer {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    toX = mandelParams.getX() + ((e.getX() - getImageWidth() / 2.0) * mandelParams.getScale()) / getImageWidth();
-                    toY = mandelParams.getY() + ((e.getY() - getImageHeight() / 2.0) * mandelParams.getScale()) / getImageHeight();
+                    final double tScaleX = mandelParams.getScale() * (getImageWidth() / (double)getImageHeight());
+                    final double tScaleY = mandelParams.getScale();
+
+                    final int tX = e.getX();
+                    final int tY = e.getY();
+
+                    toX = (((tX * tScaleX) - ((tScaleX / 2) * getImageWidth())) / getImageWidth()) + mandelParams.getX();
+                    toY = (((tY * tScaleY) - ((tScaleY / 2) * getImageHeight())) / getImageHeight()) + mandelParams.getY();
 
                     if (e.isControlDown()) {
                         toScale = toScale * explorerConfigPanel.getZoomSpeed();
