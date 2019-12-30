@@ -15,7 +15,7 @@ Use mouse to explore:
 
 ## Performance
 
-Some performance data for a Ryzen 7 3500 with a GeForce RTX2070S on a WHQD (2.560 x 1.440) Display
+Some performance data for a Ryzen 5 3600 with a GeForce RTX2070S on a WHQD (2.560 x 1.440) Display
 
 Float calculation on a GPU is blazing fast: WHQD (2.560 x 1.440) inside only rendering with max iterations 10000 
 about 130ms (with distance calculation). Wheras JTP (Java Threads) float calculation takes about 10s.
