@@ -16,7 +16,7 @@ public class DefaultPaletteMapper extends PaletteMapper {
 
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
+        if (pIter != getMaxIterations()) {
             final float h = (float)(pIter % 256) / 256;
             final float b = 1.0f - (h * h);
             return Color.HSBtoRGB(h, saturation, b);

@@ -18,13 +18,13 @@ public class HistoPaletteMapper extends GradientPaletteMapper {
     public void init(final MandelParams pMandelParams) {
         super.init(pMandelParams);
 
-        numIterations = new int[pMandelParams.getMaxIterations()];
+        numIterations = new int[getMaxIterations()];
         totalIterations = 0;
     }
 
     @Override
     public void prepare(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
+        if (pIter != getMaxIterations()) {
             numIterations[pIter]+=pIter;
             totalIterations+=pIter;
         }
@@ -32,7 +32,7 @@ public class HistoPaletteMapper extends GradientPaletteMapper {
 
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
+        if (pIter != getMaxIterations()) {
             int tAddedIter = 0;
             for ( int i=0; i<pIter; i++) {
                 tAddedIter+=numIterations[i];

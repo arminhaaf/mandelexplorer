@@ -34,7 +34,7 @@ public class DistancePaletteMapper extends GradientPaletteMapper {
 
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
+        if (pIter != getMaxIterations()) {
             final double tDistance = calcDistance(pLastR, pLastI, pDistanceR, pDistanceI);;
             if (!Double.isFinite(tDistance)) {
                 return insideColor.getRGB();

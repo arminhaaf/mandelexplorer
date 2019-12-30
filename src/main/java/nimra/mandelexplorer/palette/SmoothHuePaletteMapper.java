@@ -19,10 +19,10 @@ public class SmoothHuePaletteMapper extends HuePaletteMapper {
 
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
+        if (pIter != getMaxIterations()) {
             double log_zn = Math.log(pLastR * pLastR + pLastI * pLastI) / 2.0;
             double nu = Math.log(log_zn / Math.log(mandelParams.getEscapeRadius())) / Math.log(2.0);
-            final float h = (float)((pIter + 1 - nu) / (double)mandelParams.getMaxIterations());
+            final float h = (float)((pIter + 1 - nu) / (double)getMaxIterations());
             return Color.HSBtoRGB(hueOffset + hueMulti * h, saturation, brightness);
         } else {
             return insideColor.getRGB();

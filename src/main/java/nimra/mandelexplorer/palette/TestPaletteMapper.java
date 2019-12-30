@@ -23,14 +23,14 @@ public class TestPaletteMapper extends PaletteMapper {
 
     @Override
     public void prepare(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
+        if (pIter != getMaxIterations()) {
             histo[pIter]++;
         }
     }
 
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
+        if (pIter != getMaxIterations()) {
             double tPow = Math.pow(2, pIter);
             double tR = pLastR*pLastR+pLastI*pLastI;
             double tValue = (Math.log(tR) / tPow);

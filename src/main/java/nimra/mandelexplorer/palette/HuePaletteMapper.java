@@ -17,8 +17,8 @@ public class HuePaletteMapper extends PaletteMapper {
 
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
-            final float h = (float)(pIter) / (float)mandelParams.getMaxIterations();
+        if (pIter != getMaxIterations()) {
+            final float h = (float)(pIter) / (float)getMaxIterations();
             return Color.HSBtoRGB(h, saturation, brightness);
         } else {
             return insideColor.getRGB();

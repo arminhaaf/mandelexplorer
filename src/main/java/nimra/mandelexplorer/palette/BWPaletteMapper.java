@@ -16,8 +16,8 @@ public class BWPaletteMapper extends PaletteMapper {
 
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
-        if (pIter != mandelParams.getMaxIterations()) {
-            if ( pIter%2 == mandelParams.getMaxIterations() % 2) {
+        if (pIter != getMaxIterations()) {
+            if ( pIter%2 == getMaxIterations() % 2) {
                 return blackInside ? Color.black.getRGB() : Color.white.getRGB();
             } else {
                 return blackInside ? Color.white.getRGB() : Color.black.getRGB();

@@ -28,6 +28,10 @@ public abstract class PaletteMapper {
 
     public abstract int map(int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI);
 
+    protected int getMaxIterations() {
+        return mandelParams.getMaxIterations();
+    }
+
     public String getDescription() {
         return getName();
     }

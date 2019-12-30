@@ -34,7 +34,7 @@ public class DistanceLightPaletteMapper extends PaletteMapper {
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
 
 
-        if (pIter != mandelParams.getMaxIterations()) {
+        if (pIter != getMaxIterations()) {
             final Complex z = new Complex(pLastR, pLastI);
             final Complex der = new Complex(pDistanceR, pDistanceI);
 
