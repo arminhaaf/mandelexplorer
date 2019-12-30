@@ -192,6 +192,7 @@ public class MandelExplorer {
 
     MandelKernel doubleMandel;
     MandelKernel floatMandel;
+    MandelKernel ddMantel;
 
     private void prepareMandelKernel() {
         if (doubleMandel != null) {
@@ -203,8 +204,9 @@ public class MandelExplorer {
 
         doubleMandel = new DoubleMandelImpl(getImageWidth(), getImageHeight());
         floatMandel = new FloatMandelImpl(getImageWidth(), getImageHeight());
+        ddMantel = new DDMandelImpl(getImageWidth(), getImageHeight());
 
-        explorerConfigPanel.setAlgorithms(floatMandel, doubleMandel);
+        explorerConfigPanel.setAlgorithms(floatMandel, doubleMandel, ddMantel);
     }
 
     private MandelKernel getMandelKernel() {
