@@ -306,7 +306,7 @@ public class MandelExplorer {
         viewer.addMouseWheelListener(new MouseAdapter() {
             @Override
             public void mouseWheelMoved(final MouseWheelEvent e) {
-                toScale += toScale * 0.01f * e.getWheelRotation();
+                toScale += toScale * 0.005f * e.getPreciseWheelRotation() * e.getScrollAmount() * explorerConfigPanel.getZoomSpeed();
                 render();
             }
         });

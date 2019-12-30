@@ -16,6 +16,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
@@ -60,6 +61,7 @@ public class MandelConfigPanel {
     private JButton removeSelectedConfig;
     private JTextField escapeRadiusTextField;
     private JTextArea paletteConfigTextArea;
+    private JSlider zoomSpeedSlider;
 
     private ChangeListener changeListener;
     private boolean changeEnabled = true;
@@ -469,6 +471,10 @@ public class MandelConfigPanel {
             }
         }
         configsComboBox.setSelectedItem(null);
+    }
+
+    public int getZoomSpeed() {
+        return zoomSpeedSlider.getValue();
     }
 
     static class MandelConfig {
