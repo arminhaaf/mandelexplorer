@@ -6,6 +6,7 @@ Use mouse to explore:
 
 - scroll wheel to zoom
 - left click to move
+- [Control] double click to to [un-]zoom
 
 
 ## Some Examples
