@@ -272,6 +272,46 @@
       "scale": 0.028510108340344887
     }
   },
+  "Histoexample5": {
+    "name": "Annabelle1",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [
+        {
+          "toColor": "orange",
+          "fromColor": "red"
+        },
+        {
+          "toColor": "yellow",
+          "fromColor": "orange"
+        },
+        {
+          "toColor": "aqua",
+          "fromColor": "yellow"
+        },
+        {
+          "toColor": "blue",
+          "fromColor": "aqua"
+        },
+        {
+          "toColor": "#380B61",
+          "fromColor": "blue"
+        },
+        {
+          "toColor": "#DF013A",
+          "fromColor": "#380B61"
+        }
+      ]
+    },
+    "palette": "SmoothGradient",
+    "coords": {
+      "escapeRadius": 120,
+      "maxIterations": 10000,
+      "x": -1.1193802146697243,
+      "y": -0.27181088621256605,
+      "scale": 1.1146992856978543E-6
+    }
+  },
   "Example6": {
     "name": "Example6",
     "paletteConfigJson": {
