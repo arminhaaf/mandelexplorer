@@ -4,10 +4,7 @@ import com.aparapi.Range;
 import com.aparapi.device.Device;
 import com.aparapi.internal.kernel.KernelManager;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -304,6 +301,7 @@ public class MandelExplorer {
         final MandelExplorer tMandelExplorer = new MandelExplorer();
 
 
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.add(tMandelExplorer.getComponent(), BorderLayout.CENTER);
         frame.pack();
         frame.setLocationRelativeTo(null);
