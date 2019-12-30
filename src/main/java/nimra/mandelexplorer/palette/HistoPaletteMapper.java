@@ -25,21 +25,20 @@ public class HistoPaletteMapper extends GradientPaletteMapper {
     @Override
     public void prepare(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
         if (pIter != getMaxIterations()) {
-            numIterations[pIter]+=pIter;
-            totalIterations+=pIter;
+            numIterations[pIter]++;
+            totalIterations++;
         }
     }
 
     @Override
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
         if (pIter != getMaxIterations()) {
-            int tAddedIter = 0;
+            float tHue = 0;
             for ( int i=0; i<pIter; i++) {
-                tAddedIter+=numIterations[i];
+                tHue+=numIterations[i]/(float)totalIterations;
             }
-            final float h = tAddedIter / (float)totalIterations;
 
-            return getRBGColor(h);
+            return getRBGColor(tHue);
         } else {
             return insideColor.getRGB();
         }
