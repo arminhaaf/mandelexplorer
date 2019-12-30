@@ -19,14 +19,20 @@ public class HistoPaletteMapper extends GradientPaletteMapper {
         super.init(pMandelParams);
 
         numIterations = new int[getMaxIterations()];
-        totalIterations = 0;
     }
 
     @Override
     public void prepare(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
         if (pIter != getMaxIterations()) {
             numIterations[pIter]++;
-            totalIterations++;
+        }
+    }
+
+    @Override
+    public void startMap() {
+        totalIterations = 0;
+        for (int tNumIteration : numIterations) {
+            totalIterations += tNumIteration;
         }
     }
 
@@ -38,6 +44,7 @@ public class HistoPaletteMapper extends GradientPaletteMapper {
                 tHue+=numIterations[i]/(float)totalIterations;
             }
 
+            // this is not normalized (not between 0 and 1)
             return getRBGColor(tHue);
         } else {
             return insideColor.getRGB();

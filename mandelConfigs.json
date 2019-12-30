@@ -152,6 +152,34 @@
       "scale": 0.12208408838867257
     }
   },
+  "BuggedHistoExample3": {
+    "name": "BuggedHistoExample3",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [
+        {
+          "toColor": "yellow",
+          "fromColor": "red"
+        },
+        {
+          "toColor": "green",
+          "fromColor": "yellow"
+        },
+        {
+          "toColor": "blue",
+          "fromColor": "green"
+        }
+      ]
+    },
+    "palette": "Bugged Histo",
+    "coords": {
+      "escapeRadius": 2,
+      "maxIterations": 1500,
+      "x": -1.6242869646818903,
+      "y": 2.8350116786467352E-5,
+      "scale": 1.6559549269440405E-5
+    }
+  },
   "Example9": {
     "name": "Example9",
     "paletteConfigJson": {
