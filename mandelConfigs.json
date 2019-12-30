@@ -1,0 +1,341 @@
+{"mandelConfigs": {
+  "HistoExample2": {
+    "name": "HistoExample2",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [
+        {
+          "toColor": "yellow",
+          "fromColor": "red"
+        },
+        {
+          "toColor": "green",
+          "fromColor": "yellow"
+        },
+        {
+          "toColor": "blue",
+          "fromColor": "green"
+        }
+      ]
+    },
+    "palette": "Histo",
+    "coords": {
+      "escapeRadius": 1.7,
+      "maxIterations": 1000,
+      "x": -1.6743082288138342,
+      "y": 5.121395164665247E-5,
+      "scale": 0.0019239338381522454
+    }
+  },
+  "DistanceExample": {
+    "name": "DistanceExample",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [
+        {
+          "slicePercent": 80,
+          "toColor": "orange",
+          "fromColor": "red"
+        },
+        {
+          "slicePercent": 10,
+          "toColor": "yellow",
+          "fromColor": "orange"
+        },
+        {
+          "slicePercent": 10,
+          "toColor": "blue",
+          "fromColor": "yellow"
+        }
+      ]
+    },
+    "palette": "Distance",
+    "coords": {
+      "escapeRadius": 1000,
+      "maxIterations": 100,
+      "x": -0.4666078485682064,
+      "y": 0,
+      "scale": 2.827120844232374
+    }
+  },
+  "HistoExample3": {
+    "name": "HistoExample3",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [
+        {
+          "slicePercent": 80,
+          "toColor": "orange",
+          "fromColor": "red"
+        },
+        {
+          "slicePercent": 10,
+          "toColor": "yellow",
+          "fromColor": "orange"
+        },
+        {
+          "slicePercent": 10,
+          "toColor": "blue",
+          "fromColor": "yellow"
+        }
+      ]
+    },
+    "palette": "Histo",
+    "coords": {
+      "escapeRadius": 2,
+      "maxIterations": 1500,
+      "x": -1.6242869646818903,
+      "y": 2.8350116786467352E-5,
+      "scale": 1.6559549269440405E-5
+    }
+  },
+  "DistanceExample2": {
+    "name": "DistanceExample2",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [
+        {
+          "slicePercent": 80,
+          "toColor": "orange",
+          "fromColor": "red"
+        },
+        {
+          "slicePercent": 10,
+          "toColor": "yellow",
+          "fromColor": "orange"
+        },
+        {
+          "slicePercent": 10,
+          "toColor": "blue",
+          "fromColor": "yellow"
+        }
+      ]
+    },
+    "palette": "Distance",
+    "coords": {
+      "escapeRadius": 1000,
+      "maxIterations": 1000,
+      "x": -1.7654029735836707,
+      "y": -0.03493185945680659,
+      "scale": 5.948400329480636E-11
+    }
+  },
+  "Example1": {
+    "name": "Example1",
+    "paletteConfigJson": {
+      "saturation": 1,
+      "insideColor": "black"
+    },
+    "palette": "Default",
+    "coords": {
+      "escapeRadius": 1.7,
+      "maxIterations": 10000,
+      "x": -0.0452407411,
+      "y": 0.9868162204352258,
+      "scale": 9.039671783602813E-9
+    }
+  },
+  "DistLightExample": {
+    "name": "DistLightExample",
+    "paletteConfigJson": {
+      "inverse": false,
+      "insideColor": "#2C0091",
+      "angle": 45,
+      "height": 1.5
+    },
+    "palette": "DistanceLight",
+    "coords": {
+      "escapeRadius": 1000,
+      "maxIterations": -1,
+      "x": -0.9226404106880963,
+      "y": -0.2778495495468911,
+      "scale": 0.12208408838867257
+    }
+  },
+  "Example9": {
+    "name": "Example9",
+    "paletteConfigJson": {
+      "saturation": 1,
+      "hueMulti": 1,
+      "brightness": 1,
+      "hueOffset": 0.95,
+      "insideColor": "black"
+    },
+    "palette": "SmoothHue",
+    "coords": {
+      "escapeRadius": 2,
+      "maxIterations": 1000,
+      "x": -0.7339490208392934,
+      "y": -0.24136019909832437,
+      "scale": 0.01951433684330353
+    }
+  },
+  "Example8": {
+    "name": "Example8",
+    "paletteConfigJson": {
+      "saturation": 1,
+      "insideColor": "black"
+    },
+    "palette": "Default",
+    "coords": {
+      "escapeRadius": 2,
+      "maxIterations": -1,
+      "x": -0.742408627427318,
+      "y": -0.25937963877195225,
+      "scale": 0.10650117993683209
+    }
+  },
+  "HistoExample": {
+    "name": "HistoExample",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [
+        {
+          "toColor": "yellow",
+          "fromColor": "red"
+        },
+        {
+          "toColor": "green",
+          "fromColor": "yellow"
+        },
+        {
+          "toColor": "blue",
+          "fromColor": "green"
+        }
+      ]
+    },
+    "palette": "Histo",
+    "coords": {
+      "escapeRadius": 1.7,
+      "maxIterations": 10000,
+      "x": -0.0452407411,
+      "y": 0.9868162204352258,
+      "scale": 9.039671783602813E-9
+    }
+  },
+  "Example7": {
+    "name": "Example7",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [
+        {
+          "slicePercent": 20,
+          "toColor": "yellow",
+          "fromColor": "red"
+        },
+        {
+          "slicePercent": 20,
+          "toColor": "blue",
+          "fromColor": "yellow"
+        },
+        {
+          "slicePercent": 80,
+          "toColor": "blue",
+          "fromColor": "red"
+        }
+      ]
+    },
+    "palette": "Histo",
+    "coords": {
+      "escapeRadius": 2,
+      "maxIterations": 1000,
+      "x": -0.7338440237131456,
+      "y": -0.20539578520156954,
+      "scale": 0.028510108340344887
+    }
+  },
+  "Example6": {
+    "name": "Example6",
+    "paletteConfigJson": {
+      "insideColor": "black",
+      "gradients": [{
+        "slicePercent": 100,
+        "toColor": "blue",
+        "fromColor": "red"
+      }]
+    },
+    "palette": "Histo",
+    "coords": {
+      "escapeRadius": 2,
+      "maxIterations": 1000,
+      "x": -0.8339574606280152,
+      "y": -0.20330573057248436,
+      "scale": 0.015170248477398934
+    }
+  },
+  "Example5": {
+    "name": "Example5",
+    "palette": "SmoothHue",
+    "coords": {
+      "escapeRadius": 2,
+      "maxIterations": 700,
+      "x": -1.8612460972400686,
+      "y": -0.0043263098370223815,
+      "scale": 3.1121414128994127E-6
+    }
+  },
+  "Example4": {
+    "name": "Example4",
+    "paletteConfigJson": {
+      "saturation": 1,
+      "insideColor": "black"
+    },
+    "palette": "Default",
+    "coords": {
+      "escapeRadius": 1.7,
+      "maxIterations": 1000,
+      "x": -1.6743082288138342,
+      "y": 5.121395164665247E-5,
+      "scale": 0.0019239338381522454
+    }
+  },
+  "Home": {
+    "name": "Home",
+    "paletteConfigJson": {
+      "saturation": 1,
+      "hueMulti": 1,
+      "brightness": 1,
+      "hueOffset": 0.95,
+      "insideColor": "black"
+    },
+    "palette": "SmoothHue",
+    "coords": {
+      "escapeRadius": 3,
+      "maxIterations": 200,
+      "x": -0.7579036309171636,
+      "y": -0.007169016551092833,
+      "scale": 2.6632757243333254
+    }
+  },
+  "Example3": {
+    "name": "Example3",
+    "paletteConfigJson": {
+      "saturation": 1,
+      "brightness": 1,
+      "insideColor": "black"
+    },
+    "palette": "Hue",
+    "coords": {
+      "escapeRadius": 1.7,
+      "maxIterations": 7000,
+      "x": -0.04524866463765892,
+      "y": 0.9867993062320961,
+      "scale": 1.820085013524327E-5
+    }
+  },
+  "Example2": {
+    "name": "Example2",
+    "paletteConfigJson": {
+      "saturation": 1,
+      "insideColor": "black"
+    },
+    "palette": "Default",
+    "coords": {
+      "escapeRadius": 1.7,
+      "maxIterations": 10000,
+      "x": -0.04524073515002468,
+      "y": 0.9868162245473872,
+      "scale": 2.4778407904426764E-10
+    }
+  }
+}}

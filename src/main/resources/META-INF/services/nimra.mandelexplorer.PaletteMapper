@@ -1,0 +1,9 @@
+nimra.mandelexplorer.palette.DefaultPaletteMapper
+nimra.mandelexplorer.palette.HistoPaletteMapper
+nimra.mandelexplorer.palette.SmoothHuePaletteMapper
+nimra.mandelexplorer.palette.DistanceLightPaletteMapper
+nimra.mandelexplorer.palette.DistancePaletteMapper
+nimra.mandelexplorer.palette.HuePaletteMapper
+nimra.mandelexplorer.palette.SmoothGradientPaletteMapper
+nimra.mandelexplorer.palette.BWPaletteMapper
+nimra.mandelexplorer.palette.BrightnessPaletteMapper
