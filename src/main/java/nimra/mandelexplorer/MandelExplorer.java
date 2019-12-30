@@ -9,9 +9,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -75,6 +77,8 @@ public class MandelExplorer {
                 render();
             }
         });
+
+        viewer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }
 
     private void render() {
@@ -134,6 +138,7 @@ public class MandelExplorer {
             MandelKernel tMandelKernel = getMandelKernel();
             explorerConfigPanel.setAlgoInfo(tMandelKernel);
             try {
+                viewer.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 long tStartCalcMillis = System.currentTimeMillis();
                 calc(tMandelKernel);
                 long tCalcMillis = System.currentTimeMillis() - tStartCalcMillis;
@@ -145,6 +150,8 @@ public class MandelExplorer {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, ex.getMessage());
+            } finally {
+                viewer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
             }
 
             // Wait for the user to click somewhere
