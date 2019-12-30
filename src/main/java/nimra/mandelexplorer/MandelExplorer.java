@@ -30,6 +30,33 @@
  * <p>
  * For additional credits (generally to people who reported problems)
  * see CREDITS file.
+ * <p>
+ * This product currently only contains code developed by authors
+ * of specific components, as identified by the source code files.
+ * <p>
+ * Since product implements StAX API, it has dependencies to StAX API
+ * classes.
+ * <p>
+ * For additional credits (generally to people who reported problems)
+ * see CREDITS file.
+ * <p>
+ * This product currently only contains code developed by authors
+ * of specific components, as identified by the source code files.
+ * <p>
+ * Since product implements StAX API, it has dependencies to StAX API
+ * classes.
+ * <p>
+ * For additional credits (generally to people who reported problems)
+ * see CREDITS file.
+ * <p>
+ * This product currently only contains code developed by authors
+ * of specific components, as identified by the source code files.
+ * <p>
+ * Since product implements StAX API, it has dependencies to StAX API
+ * classes.
+ * <p>
+ * For additional credits (generally to people who reported problems)
+ * see CREDITS file.
  */
 /**
  * This product currently only contains code developed by authors
@@ -88,7 +115,6 @@ import com.aparapi.internal.kernel.KernelManager;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -335,6 +361,18 @@ public class MandelExplorer {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    toX = mandelParams.getX() + ((e.getX() - getImageWidth() / 2.0) * mandelParams.getScale()) / getImageWidth();
+                    toY = mandelParams.getY() + ((e.getY() - getImageHeight() / 2.0) * mandelParams.getScale()) / getImageHeight();
+
+                    if (e.isControlDown()) {
+                        toScale = toScale * explorerConfigPanel.getZoomSpeed();
+                    } else {
+                        toScale = toScale / explorerConfigPanel.getZoomSpeed();
+                    }
+
+                    render();
+                }
             }
         });
 
