@@ -2,6 +2,11 @@
 
 A GPU accerelated Mandelbrot explorer implemented in Java 8 using aparapi (https://gitter.im/Syncleus/aparapi)
 
+Use mouse to explore:
+
+- scroll wheel to zoom
+- left click to move
+
 
 ## Some Examples
 
