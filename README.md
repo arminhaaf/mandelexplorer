@@ -2,6 +2,11 @@
 
 A GPU accerelated Mandelbrot explorer implemented in Java 8 using aparapi (https://gitter.im/Syncleus/aparapi)
 
+Start nimra.mandelexplorer.MandelExplore from your IDE
+
+With maven just start mvn (using exec plugin to start mandelExplorer)
+
+
 Use mouse to explore:
 
 - scroll wheel to zoom
