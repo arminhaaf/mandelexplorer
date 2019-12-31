@@ -17,14 +17,14 @@ public class DoubleMandelImpl extends MandelKernel {
     /**
      * Mutable values of scale, offsetx and offsety so that we can modify the zoom level and position of a view.
      */
-    private double scaleX = .0f;
-    private double scaleY = .0f;
+    private double scaleX = 0.0;
+    private double scaleY = 0.0;
 
-    private double offsetx = .0f;
+    private double offsetx = 0.0;
 
-    private double offsety = .0f;
+    private double offsety = 0.0;
 
-    private double escapeSqr = 4;
+    private double escapeSqr = 4.0;
 
     public DoubleMandelImpl(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
