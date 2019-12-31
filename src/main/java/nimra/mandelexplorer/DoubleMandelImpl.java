@@ -44,11 +44,13 @@ public class DoubleMandelImpl extends MandelKernel {
         final int tX = getGlobalId(0);
         final int tY = getGlobalId(1);
 
+        final double tScaledWidth = (scaleX / 2) * width;
+        final double tScaledHeight = (scaleY / 2) * height;
 
         /** Translate the gid into an x an y value. */
-        final double x = (((tX * scaleX) - ((scaleX / 2) * width)) / width) + offsetx;
+        final double x = (((tX * scaleX) - tScaledWidth) / width) + offsetx;
 
-        final double y = (((tY * scaleY) - ((scaleY / 2) * height)) / height) + offsety;
+        final double y = (((tY * scaleY) - tScaledHeight) / height) + offsety;
 
         int count = 0;
 

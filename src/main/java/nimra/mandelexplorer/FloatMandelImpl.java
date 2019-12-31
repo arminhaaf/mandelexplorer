@@ -47,9 +47,11 @@ public class FloatMandelImpl extends MandelKernel {
 
 
         /** Translate the gid into an x an y value. */
-        final float x = (((tX * scaleX) - ((scaleX / 2) * width)) / width) + offsetx;
+        final float tScaledWidth = (scaleX / 2) * width;
+        final float x = (((tX * scaleX) - tScaledWidth) / width) + offsetx;
 
-        final float y = (((tY * scaleY) - ((scaleY / 2) * height)) / height) + offsety;
+        final float tScaledHeight = (scaleY / 2) * height;
+        final float y = (((tY * scaleY) - tScaledHeight) / height) + offsety;
 
         int count = 0;
 
