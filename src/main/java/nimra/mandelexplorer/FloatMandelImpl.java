@@ -77,7 +77,7 @@ public class FloatMandelImpl extends MandelKernel {
 
         while ((count < maxIterations) && ((zrsqr + zisqr) < escapeSqr)) {
 
-            if ( calcDistance) {
+            if ( calcDistance[0]) {
                 new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
                 di = 2.0f * (zr * di + zi * dr);
                 dr = new_dr;
@@ -101,7 +101,7 @@ public class FloatMandelImpl extends MandelKernel {
         iters[tIndex] = count;
         lastValuesR[tIndex] = zr;
         lastValuesI[tIndex] = zi;
-        if ( calcDistance ) {
+        if ( calcDistance[0] ) {
             distancesR[tIndex] = dr;
             distancesI[tIndex] = di;
         }

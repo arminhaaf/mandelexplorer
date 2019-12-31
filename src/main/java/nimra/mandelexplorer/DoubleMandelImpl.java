@@ -75,8 +75,7 @@ public class DoubleMandelImpl extends MandelKernel {
         double new_dr;
 
         while ((count < maxIterations) && ((zrsqr + zisqr) < escapeSqr)) {
-
-            if ( calcDistance ) {
+            if ( calcDistance[0] ) {
                 new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
                 di = 2.0 * (zr * di + zi * dr);
                 dr = new_dr;
@@ -100,7 +99,7 @@ public class DoubleMandelImpl extends MandelKernel {
         iters[tIndex] = count;
         lastValuesR[tIndex] = zr;
         lastValuesI[tIndex] = zi;
-        if ( calcDistance ) {
+        if ( calcDistance[0] ) {
             distancesR[tIndex] = dr;
             distancesI[tIndex] = di;
         }
