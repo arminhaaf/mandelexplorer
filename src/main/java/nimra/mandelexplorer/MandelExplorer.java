@@ -227,12 +227,16 @@ public class MandelExplorer {
         // auto choose kernel
         if (tMandelKernel == null) {
             final double tMinPixelSize = mandelParams.getScale() / Math.max(getImageHeight(), getImageWidth());
-            if (tMinPixelSize < 1E-7) {
+            if (tMinPixelSize < 1E-14) {
+                tMandelKernel = ddMantel;
+            } else if (tMinPixelSize < 1E-7) {
                 tMandelKernel = doubleMandel;
             } else {
                 tMandelKernel = floatMandel;
             }
         }
+
+        tMandelKernel.setCalcDistance(explorerConfigPanel.calcDistance());
 
         return tMandelKernel;
     }
