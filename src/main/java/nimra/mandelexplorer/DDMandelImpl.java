@@ -9,7 +9,6 @@ package nimra.mandelexplorer;
  */
 public class DDMandelImpl extends MandelKernel {
 
-    private final boolean calcDistance;
     /**
      * Maximum iterations we will check for.
      */
@@ -27,11 +26,12 @@ public class DDMandelImpl extends MandelKernel {
 
     private DD escapeSqr = null;
 
+    private DD scaledWidth;
+    private DD scaledHeight;
+
 
     public DDMandelImpl(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
-
-        calcDistance = false;
     }
 
     @Override
@@ -42,16 +42,18 @@ public class DDMandelImpl extends MandelKernel {
         offsety = new DD(pMandelParams.getY());
         maxIterations = pMandelParams.getMaxIterations();
         escapeSqr = new DD(pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
+
+        scaledWidth = scaleX.divide(2).selfMultiply(width);
+        scaledHeight = scaleY.divide(2).selfMultiply(height);
     }
 
     public void run() {
         final int tX = getGlobalId(0);
         final int tY = getGlobalId(1);
 
-
         /** Translate the gid into an x an y value. */
-        final DD x = scaleX.multiply(tX).subtract(scaleX.divide(2).multiply(width)).divide(width).add(offsetx);
-        final DD y = scaleY.multiply(tY).subtract(scaleY.divide(2).multiply(height)).divide(height).add(offsety);
+        final DD x = scaleX.multiply(tX).selfSubtract(scaledWidth).selfDivide(width).selfAdd(offsetx);
+        final DD y = scaleY.multiply(tY).selfSubtract(scaledHeight).selfDivide(height).selfAdd(offsety);
 
         int count = 0;
 
@@ -79,14 +81,14 @@ public class DDMandelImpl extends MandelKernel {
 
         while ((count < maxIterations) && ((zrsqr.add(zisqr)).lt(escapeSqr))) {
 
-            if (calcDistance) {
-                new_dr = zr.multiply(dr).subtract(zi.multiply(di)).multiply(2.0).add(1.0);
-                di = zr.multiply(di).add(zi.multiply(dr)).multiply(2.0);
+            if (calcDistance[0]) {
+                new_dr = zr.multiply(dr).selfSubtract(zi.multiply(di)).selfMultiply(2.0).selfAdd(1.0);
+                di = zr.multiply(di).selfAdd(zi.multiply(dr)).selfMultiply(2.0);
                 dr = new_dr;
             }
 
-            new_zr = zrsqr.subtract(zisqr).add(x);
-            zi = zr.multiply(zi).multiply(2.0).add(y);
+            new_zr = zrsqr.subtract(zisqr).selfAdd(x);
+            zi = zi.multiply(zr).selfMultiply(2.0).selfAdd(y);
             zr = new_zr;
 
             //If in a periodic orbit, assume it is trapped
@@ -104,7 +106,7 @@ public class DDMandelImpl extends MandelKernel {
         lastValuesR[tIndex] = zr.doubleValue();
         lastValuesI[tIndex] = zi.doubleValue();
 
-        if (calcDistance) {
+        if (calcDistance[0]) {
             distancesR[tIndex] = dr.doubleValue();
             distancesI[tIndex] = di.doubleValue();
         }
