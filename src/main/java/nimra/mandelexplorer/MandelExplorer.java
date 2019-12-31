@@ -4,13 +4,16 @@ import com.aparapi.Range;
 import com.aparapi.device.Device;
 import com.aparapi.internal.kernel.KernelManager;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
+import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -30,7 +33,9 @@ public class MandelExplorer {
 
     private final MandelParams mandelParams = new MandelParams();
 
-    /** User selected zoom-in point on the Mandelbrot view. */
+    /**
+     * User selected zoom-in point on the Mandelbrot view.
+     */
     private Point lastMouseDrag;
     private double toX = mandelParams.getX();
     private double toY = mandelParams.getY();
@@ -68,6 +73,11 @@ public class MandelExplorer {
             render();
         });
 
+        explorerConfigPanel.setPaletteChangeListener(e -> {
+            paint(currentMandelKernel);
+            viewer.repaint();
+        });
+
         viewer.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(final ComponentEvent e) {
@@ -89,6 +99,8 @@ public class MandelExplorer {
     public JComponent getComponent() {
         return panel;
     }
+
+    private MandelKernel currentMandelKernel;
 
     private void start() {
 
@@ -132,15 +144,15 @@ public class MandelExplorer {
                 }
             });
 
-            MandelKernel tMandelKernel = getMandelKernel();
-            explorerConfigPanel.setAlgoInfo(tMandelKernel);
+            currentMandelKernel = getMandelKernel();
+            explorerConfigPanel.setAlgoInfo(currentMandelKernel);
             try {
                 viewer.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 long tStartCalcMillis = System.currentTimeMillis();
-                calc(tMandelKernel);
+                calc(currentMandelKernel);
                 long tCalcMillis = System.currentTimeMillis() - tStartCalcMillis;
                 long tStartColorMillis = System.currentTimeMillis();
-                paint(tMandelKernel);
+                paint(currentMandelKernel);
                 long tColorMillis = System.currentTimeMillis() - tStartColorMillis;
                 explorerConfigPanel.setRenderMillis(tCalcMillis, tColorMillis);
                 viewer.repaint();

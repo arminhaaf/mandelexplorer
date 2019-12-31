@@ -64,6 +64,7 @@ public class MandelConfigPanel {
     private JSlider zoomSpeedSlider;
 
     private ChangeListener changeListener;
+    private ChangeListener paletteChangeListener;
     private boolean changeEnabled = true;
 
     private DefaultComboBoxModel<MandelKernel> algorithmModel = new DefaultComboBoxModel<>();
@@ -100,7 +101,7 @@ public class MandelConfigPanel {
 
         paletteComboBox.addActionListener(e -> {
             paletteConfigTextArea.setText(((PaletteMapper)paletteComboBox.getSelectedItem()).toJson().toString(2));
-            changed();
+            paletteChanged();
         });
 
         xTextField.addActionListener(tActionToChange);
@@ -110,7 +111,7 @@ public class MandelConfigPanel {
         paletteConfigTextArea.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(final FocusEvent e) {
-                changed();
+                paletteChanged();
             }
         });
 
@@ -218,6 +219,16 @@ public class MandelConfigPanel {
     private void changed() {
         if (changeListener != null && changeEnabled) {
             changeListener.stateChanged(null);
+        }
+    }
+
+    public void setPaletteChangeListener(final ChangeListener pPaletteChangeListener) {
+        paletteChangeListener = pPaletteChangeListener;
+    }
+
+    private void paletteChanged() {
+        if (paletteChangeListener != null && changeEnabled) {
+            paletteChangeListener.stateChanged(null);
         }
     }
 
