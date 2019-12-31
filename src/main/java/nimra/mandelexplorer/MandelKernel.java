@@ -38,6 +38,7 @@ public abstract class MandelKernel extends Kernel {
     final protected double distancesR[];
     final protected double distancesI[];
 
+    protected boolean calcDistance = true;
 
     public MandelKernel(int pWidth, int pHeight) {
         width = pWidth;
@@ -51,6 +52,9 @@ public abstract class MandelKernel extends Kernel {
         KERNELS.add(this);
     }
 
+    public void setCalcDistance(final boolean pCalcDistance) {
+        calcDistance = pCalcDistance;
+    }
 
     // prepare the calculation
     public abstract void init(final MandelParams pMandelParams);

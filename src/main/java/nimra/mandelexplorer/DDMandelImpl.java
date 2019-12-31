@@ -26,10 +26,11 @@ public class DDMandelImpl extends MandelKernel {
 
     private DD escapeSqr = null;
 
-    private boolean calcDistance = false;
 
     public DDMandelImpl(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
+
+        calcDistance = false;
     }
 
     @Override
@@ -91,8 +92,8 @@ public class DDMandelImpl extends MandelKernel {
             if (zr.isZero() && zi.isZero()) {
                 count = maxIterations;
             } else {
-                zrsqr = zr.sqr();
-                zisqr = zi.sqr();
+                zrsqr.setValue(zr).selfSqr();
+                zisqr.setValue(zi).selfSqr();
                 count++;
             }
         }
