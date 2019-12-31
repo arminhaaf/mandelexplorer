@@ -90,7 +90,7 @@ import java.io.Serializable;
  *
  * @author Martin Davis
  */
-public strictfp final class DD
+public final class DD
         implements Serializable, Comparable, Cloneable {
     /**
      * The value nearest to the constant Pi.
