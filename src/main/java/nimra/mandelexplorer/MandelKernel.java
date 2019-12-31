@@ -38,7 +38,7 @@ public abstract class MandelKernel extends Kernel {
     final protected double distancesR[];
     final protected double distancesI[];
 
-    protected boolean calcDistance = true;
+    protected final boolean[] calcDistance = new boolean[1];
 
     public MandelKernel(int pWidth, int pHeight) {
         width = pWidth;
@@ -53,7 +53,7 @@ public abstract class MandelKernel extends Kernel {
     }
 
     public void setCalcDistance(final boolean pCalcDistance) {
-        calcDistance = pCalcDistance;
+        calcDistance[0] = pCalcDistance;
     }
 
     // prepare the calculation

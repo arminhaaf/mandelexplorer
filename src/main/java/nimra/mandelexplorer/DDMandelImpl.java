@@ -9,6 +9,7 @@ package nimra.mandelexplorer;
  */
 public class DDMandelImpl extends MandelKernel {
 
+    private final boolean calcDistance;
     /**
      * Maximum iterations we will check for.
      */
