@@ -220,8 +220,9 @@ public class MandelExplorer {
 
         explorerConfigPanel.setAlgorithms(floatMandel, doubleMandel, ddMantel,
                 new FloatCLMandelKernel(getImageWidth(), getImageHeight()),
-                new FFCLMandelKernel(getImageWidth(), getImageHeight())
-        );
+                new FFCLMandelKernel(getImageWidth(), getImageHeight()),
+                new QFCLMandelKernel(getImageWidth(), getImageHeight())
+                );
     }
 
     private MandelKernel getMandelKernel() {
