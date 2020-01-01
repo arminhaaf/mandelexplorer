@@ -12,11 +12,20 @@ import com.aparapi.internal.kernel.KernelManager;
  *
  * @author Armin Haaf
  */
-public class FloatCLMandelImpl extends MandelKernel {
+public class FloatCLMandelKernel extends MandelKernel {
 
 
+    private static final FloatCLMandel floatCLMandel;
 
-    private static  final FloatCLMandel floatCLMandel = ((OpenCLDevice) KernelManager.instance().bestDevice()).bind(FloatCLMandel.class);
+    static {
+        FloatCLMandel tImpl = null;
+        try {
+            tImpl = ((OpenCLDevice)KernelManager.instance().bestDevice()).bind(FloatCLMandel.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        floatCLMandel = tImpl;
+    }
 
     /**
      * Maximum iterations we will check for.
@@ -32,30 +41,31 @@ public class FloatCLMandelImpl extends MandelKernel {
     private float escapeSqr;
 
 
-    public FloatCLMandelImpl(final int pWidth, final int pHeight) {
+    public FloatCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
 
     @Override
     public void init(final MandelParams pMandelParams) {
         maxIterations = pMandelParams.getMaxIterations();
-        escapeSqr = (float) (pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
+        escapeSqr = (float)(pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
 
-        double tScaleX = pMandelParams.getScale() * (width / (double) height);
+        double tScaleX = pMandelParams.getScale() * (width / (double)height);
         double tScaleY = pMandelParams.getScale();
-        xStart =  (float)(pMandelParams.getX() - tScaleX / 2.0);
-        yStart =  (float)(pMandelParams.getY() - tScaleY / 2.0);
-        xInc = (float)(tScaleX/(double)width);
-        yInc = (float)(tScaleY/(double)height);
+        xStart = (float)(pMandelParams.getX() - tScaleX / 2.0);
+        yStart = (float)(pMandelParams.getY() - tScaleY / 2.0);
+        xInc = (float)(tScaleX / (double)width);
+        yInc = (float)(tScaleY / (double)height);
     }
-
-
 
 
     @Override
     public synchronized Kernel execute(Range pRange) {
+        if ( floatCLMandel==null ) {
+            throw new RuntimeException("need open cl for " + this);
+        }
         floatCLMandel.computeMandelBrot(pRange, iters, xStart, yStart,
-                xInc, yInc, maxIterations, escapeSqr);
+                                        xInc, yInc, maxIterations, escapeSqr);
 
         return this;
     }

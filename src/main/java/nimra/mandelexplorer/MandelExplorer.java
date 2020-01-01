@@ -219,8 +219,8 @@ public class MandelExplorer {
         ddMantel = new DDMandelImpl(getImageWidth(), getImageHeight());
 
         explorerConfigPanel.setAlgorithms(floatMandel, doubleMandel, ddMantel,
-                new FloatCLMandelImpl(getImageWidth(), getImageHeight()),
-                new FFCLMandelImpl(getImageWidth(), getImageHeight())
+                new FloatCLMandelKernel(getImageWidth(), getImageHeight()),
+                new FFCLMandelKernel(getImageWidth(), getImageHeight())
         );
     }
 

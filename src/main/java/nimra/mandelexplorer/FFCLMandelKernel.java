@@ -12,10 +12,19 @@ import com.aparapi.internal.kernel.KernelManager;
  *
  * @author Armin Haaf
  */
-public class FFCLMandelImpl extends MandelKernel {
+public class FFCLMandelKernel extends MandelKernel {
 
+    private static final FFCLMandel ffCLMandel;
 
-    private static final FFCLMandel ffCLMandel = ((OpenCLDevice) KernelManager.instance().bestDevice()).bind(FFCLMandel.class);
+    static {
+        FFCLMandel tImpl = null;
+        try {
+            tImpl = ((OpenCLDevice)KernelManager.instance().bestDevice()).bind(FFCLMandel.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        ffCLMandel = tImpl;
+    }
 
 
     /**
@@ -32,7 +41,7 @@ public class FFCLMandelImpl extends MandelKernel {
     private double escapeSqr;
 
 
-    public FFCLMandelImpl(final int pWidth, final int pHeight) {
+    public FFCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
 
@@ -51,6 +60,10 @@ public class FFCLMandelImpl extends MandelKernel {
 
     @Override
     public synchronized Kernel execute(Range pRange) {
+        if (ffCLMandel == null) {
+            throw new RuntimeException("need open cl for " + this);
+        }
+
         ffCLMandel.computeMandelBrot(pRange, iters, xStart, yStart,
                 xInc, yInc, maxIterations, escapeSqr);
 
