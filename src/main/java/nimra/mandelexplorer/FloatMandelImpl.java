@@ -14,17 +14,13 @@ public class FloatMandelImpl extends MandelKernel {
      */
     private int maxIterations = 100;
 
-    /**
-     * Mutable values of scale, offsetx and offsety so that we can modify the zoom level and position of a view.
-     */
-    private float scaleX = .0f;
-    private float scaleY = .0f;
+    private float xStart;
+    private float yStart;
 
-    private float offsetx = .0f;
+    private float xInc;
+    private float yInc;
 
-    private float offsety = .0f;
-
-    private float escapeSqr = 4;
+    private float escapeSqr;
 
 
     public FloatMandelImpl(final int pWidth, final int pHeight) {
@@ -33,12 +29,18 @@ public class FloatMandelImpl extends MandelKernel {
 
     @Override
     public void init(final MandelParams pMandelParams) {
-        scaleX = (float)pMandelParams.getScale() * width / (float)height;
-        scaleY = (float)pMandelParams.getScale();
-        offsetx = (float)pMandelParams.getX();
-        offsety = (float)pMandelParams.getY();
         maxIterations = pMandelParams.getMaxIterations();
-        escapeSqr = (float)(pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
+        escapeSqr = (float) (pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
+
+        double tScaleX = pMandelParams.getScale() * (width / (double) height);
+        double tScaleY = pMandelParams.getScale();
+        xStart =  (float)(pMandelParams.getX() - tScaleX / 2.0);
+        yStart =  (float)(pMandelParams.getY() - tScaleY / 2.0);
+        xInc = (float)(tScaleX/(double)width);
+        yInc = (float)(tScaleY/(double)height);
+
+        final float escape = escapeSqr;
+
     }
 
     public void run() {
@@ -47,11 +49,8 @@ public class FloatMandelImpl extends MandelKernel {
 
 
         /** Translate the gid into an x an y value. */
-        final float tScaledWidth = (scaleX / 2) * width;
-        final float x = (((tX * scaleX) - tScaledWidth) / width) + offsetx;
-
-        final float tScaledHeight = (scaleY / 2) * height;
-        final float y = (((tY * scaleY) - tScaledHeight) / height) + offsety;
+        final float x = xStart + tX*xInc;
+        final float y = yStart + tY*yInc;
 
         int count = 0;
 

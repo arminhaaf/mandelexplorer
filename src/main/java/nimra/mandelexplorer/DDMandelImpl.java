@@ -9,57 +9,46 @@ package nimra.mandelexplorer;
  */
 public class DDMandelImpl extends MandelKernel {
 
-    /**
-     * Maximum iterations we will check for.
-     */
     private int maxIterations = 100;
 
-    /**
-     * Mutable values of scale, offsetx and offsety so that we can modify the zoom level and position of a view.
-     */
-    private DD scaleX = null;
-    private DD scaleY = null;
+    private DD xStart;
+    private DD yStart;
 
-    private DD offsetx = null;
+    private DD xInc;
+    private DD yInc;
 
-    private DD offsety = null;
-
-    private DD escapeSqr = null;
-
-    private DD scaledWidth;
-    private DD scaledHeight;
-
+    private DD escapeSqr;
 
     public DDMandelImpl(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
 
+
     @Override
     public void init(final MandelParams pMandelParams) {
-        scaleX = new DD(pMandelParams.getScale() * (width / (double)height));
-        scaleY = new DD(pMandelParams.getScale());
-        offsetx = new DD(pMandelParams.getX());
-        offsety = new DD(pMandelParams.getY());
         maxIterations = pMandelParams.getMaxIterations();
-        escapeSqr = new DD(pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
 
-        scaledWidth = scaleX.divide(2).selfMultiply(width);
-        scaledHeight = scaleY.divide(2).selfMultiply(height);
+        double tScaleX = pMandelParams.getScale() * (width / (double) height);
+        double tScaleY = pMandelParams.getScale();
+        xStart = new DD(pMandelParams.getX() - tScaleX / 2.0);
+        yStart = new DD(pMandelParams.getY() - tScaleY / 2.0);
+        xInc = new DD(tScaleX/(double)width);
+        yInc = new DD(tScaleY/(double)height);
+
+        escapeSqr = new DD(pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
     }
 
     public void run() {
         final int tX = getGlobalId(0);
         final int tY = getGlobalId(1);
 
-        /** Translate the gid into an x an y value. */
-        final DD x = scaleX.multiply(tX).selfSubtract(scaledWidth).selfDivide(width).selfAdd(offsetx);
-        final DD y = scaleY.multiply(tY).selfSubtract(scaledHeight).selfDivide(height).selfAdd(offsety);
+        final DD x = xInc.multiply(tX).selfAdd(xStart);
+        final DD y = yInc.multiply(tY).selfAdd(yStart);
 
         int count = 0;
 
-        DD zr = x;
-        DD zi = y;
-        DD new_zr;
+        final DD zr = new DD(x);
+        final DD zi = new DD(y);
 
 //        // Iterate until the algorithm converges or until maxIterations are reached.
 //        while ((count < maxIterations) && (((zx * zx) + (zy * zy)) < 8)) {
@@ -71,25 +60,26 @@ public class DDMandelImpl extends MandelKernel {
 //
 
         // cache the squares -> 10% faster
-        DD zrsqr = zr.sqr();
-        DD zisqr = zi.sqr();
+        final DD zrsqr = zr.sqr();
+        final DD zisqr = zi.sqr();
 
         // distance
-        DD dr = new DD(1);
-        DD di = new DD(0);
-        DD new_dr;
+        final DD dr = new DD(1);
+        final DD di = new DD(0);
+
+        final DD tmpDD = new DD();
 
         while ((count < maxIterations) && ((zrsqr.add(zisqr)).lt(escapeSqr))) {
 
             if (calcDistance[0]) {
-                new_dr = zr.multiply(dr).selfSubtract(zi.multiply(di)).selfMultiply(2.0).selfAdd(1.0);
-                di = zr.multiply(di).selfAdd(zi.multiply(dr)).selfMultiply(2.0);
-                dr = new_dr;
+                tmpDD.setValue(zr).selfMultiply(dr).selfSubtract(zi.multiply(di)).selfMultiply(2.0).selfAdd(1.0);
+                di.selfMultiply(zr).selfAdd(zi.multiply(dr)).selfMultiply(2.0);
+                dr.setValue(tmpDD);
             }
 
-            new_zr = zrsqr.subtract(zisqr).selfAdd(x);
-            zi = zi.multiply(zr).selfMultiply(2.0).selfAdd(y);
-            zr = new_zr;
+            tmpDD.setValue(zrsqr).selfSubtract(zisqr).selfAdd(x);
+            zi.selfMultiply(zr).selfMultiply(2.0).selfAdd(y);
+            zr.setValue(tmpDD);
 
             //If in a periodic orbit, assume it is trapped
             if (zr.isZero() && zi.isZero()) {

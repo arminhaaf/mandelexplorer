@@ -9,22 +9,16 @@ package nimra.mandelexplorer;
  */
 public class DoubleMandelImpl extends MandelKernel {
 
-    /**
-     * Maximum iterations we will check for.
-     */
     private int maxIterations = 100;
 
-    /**
-     * Mutable values of scale, offsetx and offsety so that we can modify the zoom level and position of a view.
-     */
-    private double scaleX = 0.0;
-    private double scaleY = 0.0;
+    private double xStart;
+    private double yStart;
 
-    private double offsetx = 0.0;
+    private double xInc;
+    private double yInc;
 
-    private double offsety = 0.0;
+    private double escapeSqr;
 
-    private double escapeSqr = 4.0;
 
     public DoubleMandelImpl(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
@@ -32,25 +26,26 @@ public class DoubleMandelImpl extends MandelKernel {
 
     @Override
     public void init(final MandelParams pMandelParams) {
-        scaleX = pMandelParams.getScale() * (width / (double)height);
-        scaleY = pMandelParams.getScale();
-        offsetx = pMandelParams.getX();
-        offsety = pMandelParams.getY();
         maxIterations = pMandelParams.getMaxIterations();
-        escapeSqr = pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius();
+        escapeSqr = (double) (pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
+
+        double tScaleX = pMandelParams.getScale() * (width / (double) height);
+        double tScaleY = pMandelParams.getScale();
+        xStart = pMandelParams.getX() - tScaleX / 2.0;
+        yStart = pMandelParams.getY() - tScaleY / 2.0;
+        xInc = tScaleX/(double)width;
+        yInc = tScaleY/(double)height;
+
+        final double escape = escapeSqr;
+
     }
 
     public void run() {
         final int tX = getGlobalId(0);
         final int tY = getGlobalId(1);
 
-        final double tScaledWidth = (scaleX / 2) * width;
-        final double tScaledHeight = (scaleY / 2) * height;
-
-        /** Translate the gid into an x an y value. */
-        final double x = (((tX * scaleX) - tScaledWidth) / width) + offsetx;
-
-        final double y = (((tY * scaleY) - tScaledHeight) / height) + offsety;
+        final double x = xStart + tX*xInc;
+        final double y = yStart + tY*yInc;
 
         int count = 0;
 
