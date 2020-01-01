@@ -124,7 +124,7 @@ public class MandelExplorer {
             int tMaxIterations = explorerConfigPanel.getMaxIterations();
 
             if (tMaxIterations < 0) {
-                tMaxIterations = (int)(100 * Math.pow(mandelParams.getScale(), -0.4));
+                tMaxIterations = (int) (100 * Math.pow(mandelParams.getScale(), -0.4));
             }
             mandelParams.setMaxIterations(tMaxIterations);
             mandelParams.setEscapeRadius(explorerConfigPanel.getEscapeRadius());
@@ -132,7 +132,7 @@ public class MandelExplorer {
             explorerConfigPanel.setData(mandelParams);
 
             if (viewer.getSize().width != getImageWidth() ||
-                viewer.getSize().height != getImageHeight()) {
+                    viewer.getSize().height != getImageHeight()) {
                 setSize(viewer.getSize().width, viewer.getSize().height);
             }
 
@@ -179,7 +179,7 @@ public class MandelExplorer {
 
     private void paint(MandelKernel pMandelKernel) {
 
-        final int[] imageRgb = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        final int[] imageRgb = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         final PaletteMapper tPaletteMapper = explorerConfigPanel.getPaletteMapper();
         final int[] tIters = pMandelKernel.getIters();
@@ -218,7 +218,10 @@ public class MandelExplorer {
         floatMandel = new FloatMandelImpl(getImageWidth(), getImageHeight());
         ddMantel = new DDMandelImpl(getImageWidth(), getImageHeight());
 
-        explorerConfigPanel.setAlgorithms(floatMandel, doubleMandel, ddMantel);
+        explorerConfigPanel.setAlgorithms(floatMandel, doubleMandel, ddMantel,
+                new FloatCLMandelImpl(getImageWidth(), getImageHeight()),
+                new FFCLMandelImpl(getImageWidth(), getImageHeight())
+        );
     }
 
     private MandelKernel getMandelKernel() {
@@ -276,7 +279,7 @@ public class MandelExplorer {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    final double tScaleX = mandelParams.getScale() * (getImageWidth() / (double)getImageHeight());
+                    final double tScaleX = mandelParams.getScale() * (getImageWidth() / (double) getImageHeight());
                     final double tScaleY = mandelParams.getScale();
 
                     final int tX = e.getX();
