@@ -70,7 +70,6 @@ inline float2 mulFloat( float2 pFF1, float pFloat) {
 
 
 inline float2 add(float2 pFF1,  float2 pFF2) {
-
     float hi = pFF1.x;
     float lo = pFF1.y;
     float yhi = pFF2.x;
@@ -96,6 +95,23 @@ inline float2 add(float2 pFF1,  float2 pFF2) {
     return (float2)(zhi,zlo);
 }
 
+inline float2 addFloat(float2 pFF1,  double y) {
+    float hi = pFF1.x;
+    float lo = pFF1.y;
+
+    float H, h, S, s, e, f;
+    S = hi + y;
+    e = S - hi;
+    s = S - e;
+    s = (y - e) + (hi - s);
+    f = s + lo;
+    H = S + f;
+    h = f + (S - H);
+    hi = H + h;
+    lo = h + (H - hi);
+
+    return (float2)(hi,lo);
+}
 
 inline float2 sub( float2 pFF1,  float2 pFF2) {
     return add(pFF1, (float2)(-pFF2.x, -pFF2.y));
@@ -111,6 +127,12 @@ inline float2 fromDouble(double pDouble) {
 
 __kernel void computeMandelBrot(
        __global int *iters,
+       __global double *lastValuesR,
+       __global double *lastValuesI,
+       __global double *distancesR,
+       __global double *distancesI,
+       int calcDistance,
+
        double xStart,
        double yStart,
        double xInc,
@@ -131,9 +153,24 @@ __kernel void computeMandelBrot(
 
     float2 tmp;
 
+       // distance
+    float2 dr = (float2)(1,0);
+    float2 di = (float2)(0,0);
+    float2 new_dr;
+
+    const bool tCalcDistance = calcDistance>0;
+
     int count = 0;
 
    for (; count<maxIterations && add(zrsqr,zisqr).x < escape; count++){
+      if ( tCalcDistance) {
+ //        new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
+        new_dr = addFloat(mulFloat(sub(mul(zr,dr),mul(zi,di)),2.0f),1.0f);
+//        di = 2.0f * (zr * di + zi * dr);
+        di = mulFloat(add(mul(zr,di),mul(zi,dr)),2.0f);
+         dr = new_dr;
+      }
+
       tmp = add(sub(zrsqr,zisqr),x);
       zi = add(mulFloat(mul(zr,zi),2.0f),y);
       zr = tmp;
@@ -141,5 +178,12 @@ __kernel void computeMandelBrot(
       zrsqr = mul(zr,zr);
       zisqr = mul(zi,zi);
     }
-   iters[X + Y*WIDTH]  = count;
+    const int tIndex = X + Y * WIDTH;
+    iters[tIndex]  = count;
+    lastValuesR[tIndex] = (double)zr.x + (double)zr.y;
+    lastValuesI[tIndex] = (double)zi.x + (double)zi.y;
+    if ( tCalcDistance ) {
+       distancesR[tIndex] = (double)dr.x + (double)dr.y;
+       distancesI[tIndex] = (double)di.x + (double)di.y;
+    }
 }

@@ -19,7 +19,7 @@ public class FFCLMandelKernel extends MandelKernel {
     static {
         FFCLMandel tImpl = null;
         try {
-            tImpl = ((OpenCLDevice)KernelManager.instance().bestDevice()).bind(FFCLMandel.class);
+            tImpl = ((OpenCLDevice) KernelManager.instance().bestDevice()).bind(FFCLMandel.class);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -54,8 +54,8 @@ public class FFCLMandelKernel extends MandelKernel {
         double tScaleY = pMandelParams.getScale();
         xStart = pMandelParams.getX() - (tScaleX / 2.0);
         yStart = pMandelParams.getY() - tScaleY / 2.0;
-        xInc = tScaleX/(double)width;
-        yInc = tScaleY/(double)height;
+        xInc = tScaleX / (double) width;
+        yInc = tScaleY / (double) height;
     }
 
     @Override
@@ -64,8 +64,8 @@ public class FFCLMandelKernel extends MandelKernel {
             throw new RuntimeException("need open cl for " + this);
         }
 
-        ffCLMandel.computeMandelBrot(pRange, iters, xStart, yStart,
-                xInc, yInc, maxIterations, escapeSqr);
+        ffCLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
+                xStart, yStart, xInc, yInc, maxIterations, escapeSqr);
 
         return this;
     }
