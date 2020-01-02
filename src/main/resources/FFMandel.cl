@@ -7,20 +7,6 @@
 
 #define SPLIT  4097.0f // 2^12+1, for IEEE float
 
-
-inline float computeLo(const double a) {
-    const double temp = ((1<<27)+1) * a;
-    const double hi = temp - (temp - a);
-    const double lo = a - (float)hi;
-    return (float)lo;
-}
-
-inline float computeHi(const double a) {
-    const double temp = ((1<<27)+1) * a;
-    const double hi = temp - (temp - a);
-    return (float)hi;
-}
-
 inline float2 mul(const float2 pFF1, const float2 pFF2) {
     const float hi = pFF1.x;
     const float lo = pFF1.y;
@@ -115,13 +101,6 @@ inline float2 addFloat(const float2 pFF1,const  float y) {
 
 inline float2 sub(const float2 pFF1,const  float2 pFF2) {
     return add(pFF1, (float2)(-pFF2.x, -pFF2.y));
-}
-
-inline float2 fromDouble(const double pDouble) {
-    const float2 tResult;
-    tResult.x = computeHi(pDouble);
-    tResult.y = computeLo(pDouble);
-    return tResult;
 }
 
 
