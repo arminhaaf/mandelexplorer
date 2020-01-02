@@ -10,7 +10,10 @@ import java.math.BigDecimal;
 /**
  * Created: 31.12.19   by: Armin Haaf
  * <p>
- * A DoubleDouble implementation
+ *
+ * QF Double implementation from https://github.com/gpu/JOCLSamples
+ *
+ * Should provide precision near to DoubleDouble implemention. However precision is only Double. Its unclear why, maybe QuadFloat implementation is broken
  *
  * @author Armin Haaf
  */
