@@ -7,6 +7,12 @@
 
 __kernel void computeMandelBrot(
       __global int *iters,
+      __global double *lastValuesR,
+      __global double *lastValuesI,
+      __global double *distancesR,
+      __global double *distancesI,
+      int calcDistance,
+
       float xStart,
       float yStart,
       float xInc,
@@ -20,26 +26,47 @@ __kernel void computeMandelBrot(
 
    const float escape = sqrEscapeRadius;
 
-   float zx = x;
-   float zy = y;
-   float zxsqr = zx * zx;
-   float zysqr = zy * zy;
+   float zr = x;
+   float zi = y;
+   float zrsqr = zr * zr;
+   float zisqr = zi * zi;
+   float new_zr = 0.0f;
 
-   float new_zx = 0.0f;
+   // distance
+   float dr = 1;
+   float di = 0;
+   float new_dr;
+
+   const bool tCalcDistance = calcDistance>0;
+
+
    int count = 0;
-   for (; count<maxIterations && (zxsqr + zysqr)<escape; count++){
-      new_zx = (zxsqr - zysqr) + x;
-      zy = ((2.0f * zx) * zy) + y;
-      zx = new_zx;
+   for (; count<maxIterations && (zrsqr + zisqr)<escape; count++){
+      if ( tCalcDistance) {
+         new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
+         di = 2.0f * (zr * di + zi * dr);
+         dr = new_dr;
+      }
 
-       //If in a periodic orbit, assume it is trapped
-                  if (zx == 0.0 && zy == 0.0) {
-                      count = maxIterations;
-                      break;
-                  } else {
-          zxsqr = zx * zx;
-           zysqr = zy * zy;
-                  }
+      new_zr = (zrsqr - zisqr) + x;
+      zi = ((2.0f * zr) * zi) + y;
+      zr = new_zr;
+
+     //If in a periodic orbit, assume it is trapped
+      if (zr == 0.0 && zi == 0.0) {
+         count = maxIterations;
+         break;
+      } else {
+         zrsqr = zr * zr;
+         zisqr = zi * zi;
+      }
    }
-   iters[X + Y*WIDTH]  = count;
+   const int tIndex = X + Y * WIDTH;
+   iters[tIndex]  = count;
+   lastValuesR[tIndex] = (double)zr;
+   lastValuesI[tIndex] = (double)zi;
+   if ( tCalcDistance ) {
+      distancesR[tIndex] = (double)dr;
+      distancesI[tIndex] = (double)di;
+   }
 }

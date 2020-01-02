@@ -20,7 +20,7 @@ public class FloatCLMandelKernel extends MandelKernel {
     static {
         FloatCLMandel tImpl = null;
         try {
-            tImpl = ((OpenCLDevice)KernelManager.instance().bestDevice()).bind(FloatCLMandel.class);
+            tImpl = ((OpenCLDevice) KernelManager.instance().bestDevice()).bind(FloatCLMandel.class);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -48,24 +48,24 @@ public class FloatCLMandelKernel extends MandelKernel {
     @Override
     public void init(final MandelParams pMandelParams) {
         maxIterations = pMandelParams.getMaxIterations();
-        escapeSqr = (float)(pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
+        escapeSqr = (float) (pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
 
-        double tScaleX = pMandelParams.getScale() * (width / (double)height);
+        double tScaleX = pMandelParams.getScale() * (width / (double) height);
         double tScaleY = pMandelParams.getScale();
-        xStart = (float)(pMandelParams.getX() - tScaleX / 2.0);
-        yStart = (float)(pMandelParams.getY() - tScaleY / 2.0);
-        xInc = (float)(tScaleX / (double)width);
-        yInc = (float)(tScaleY / (double)height);
+        xStart = (float) (pMandelParams.getX() - tScaleX / 2.0);
+        yStart = (float) (pMandelParams.getY() - tScaleY / 2.0);
+        xInc = (float) (tScaleX / (double) width);
+        yInc = (float) (tScaleY / (double) height);
     }
 
 
     @Override
     public synchronized Kernel execute(Range pRange) {
-        if ( floatCLMandel==null ) {
+        if (floatCLMandel == null) {
             throw new RuntimeException("need open cl for " + this);
         }
-        floatCLMandel.computeMandelBrot(pRange, iters, xStart, yStart,
-                                        xInc, yInc, maxIterations, escapeSqr);
+        floatCLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
+                xStart, yStart, xInc, yInc, maxIterations, escapeSqr);
 
         return this;
     }
