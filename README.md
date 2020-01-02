@@ -30,8 +30,8 @@ All calculations without distance calc. QuadFloat implementation is broken for m
   
 > (-0.743643887037151 + 0.131825904205330i scale 0.000000000051299) 
 
-|Implementation  | Duration Millis|
-| --- | --- :|
+|Implementation  | Duration Millis |
+| --- | --- |
 | GPU Double | 700 |
 | GPU FloatFloat | 320 |
 | GPU QuadFloat | 2200 |
@@ -44,8 +44,8 @@ All calculations without distance calc. QuadFloat implementation is broken for m
   
 > (-1.1193802146697243 -0.27181088621256605i scale 1.1146992856978543E-6) 
 
-|Implementation  | Duration Millis|
-| --- | --- :|
+|Implementation  | Duration Millis |
+| --- | --- |
 | GPU Double | 1200 |
 | GPU FloatFloat | 470 |
 | GPU QuadFloat | 2900 |
