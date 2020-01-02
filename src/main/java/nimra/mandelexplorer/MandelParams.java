@@ -5,43 +5,71 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+
+import static java.math.MathContext.DECIMAL128;
 
 /**
  * Created: 27.12.19   by: Armin Haaf
- *
+ * <p>
  * mandelbrot calc parameters
  *
  * @author Armin Haaf
  */
 public class MandelParams {
-    private double x = -1f;
-    private double y = 0f;
-    private double scale = 3;
+    private BigDecimal x = new BigDecimal(-1);
+    private BigDecimal y = new BigDecimal(0);
+    private BigDecimal scale = new BigDecimal(3);
+
     private int maxIterations = 100;
     private double escapeRadius = 2;
 
-    public double getX() {
-        return x;
+    public double getX_Double() {
+        return x.doubleValue();
     }
 
     public void setX(final double pX) {
-        x = pX;
+        x = new BigDecimal(pX);
     }
 
-    public double getY() {
-        return y;
+    public double getY_Double() {
+        return y.doubleValue();
     }
 
     public void setY(final double pY) {
-        y = pY;
+        y = new BigDecimal(pY);
     }
 
-    public double getScale() {
-        return scale;
+    public double getScale_double() {
+        return scale.doubleValue();
     }
 
     public void setScale(final double pScale) {
-        scale = pScale;
+        scale = new BigDecimal(pScale);
+    }
+
+    public BigDecimal getX() {
+        return x;
+    }
+
+    public void setX(BigDecimal x) {
+        this.x = x;
+    }
+
+    public BigDecimal getY() {
+        return y;
+    }
+
+    public void setY(BigDecimal y) {
+        this.y = y;
+    }
+
+    public BigDecimal getScale() {
+        return scale;
+    }
+
+    public void setScale(BigDecimal scale) {
+        this.scale = scale;
     }
 
     public int getMaxIterations() {
@@ -66,16 +94,30 @@ public class MandelParams {
     }
 
     public JSONObject toJson() {
-        return new JSONObject(toString());
+        final JSONObject tJSONObject = new JSONObject();
+        tJSONObject.put("x", x.toString());
+        tJSONObject.put("y", y.toString());
+        tJSONObject.put("scale", scale.toString());
+        tJSONObject.put("maxIterations", maxIterations);
+        tJSONObject.put("escapeRadius", escapeRadius);
+        return tJSONObject;
     }
 
     public MandelParams fromJson(JSONObject pJSONObject) {
         try {
             for (Field tField : getClass().getDeclaredFields()) {
                 tField.setAccessible(true);
-                if ( pJSONObject.has(tField.getName())) {
+                if (pJSONObject.has(tField.getName())) {
                     final Object tValue = pJSONObject.get(tField.getName());
-                    tField.set(this, tValue == JSONObject.NULL ? null : tValue);
+                    if (BigDecimal.class == tField.getType() && tValue!=JSONObject.NULL) {
+                        if ( tValue instanceof String ) {
+                            tField.set(this, new BigDecimal((String) tValue, DECIMAL128));
+                        } else if ( tValue instanceof Double ) {
+                            tField.set(this, new BigDecimal(Double.toString((Double) tValue), DECIMAL128));
+                        }
+                    } else {
+                        tField.set(this, tValue == JSONObject.NULL ? null : tValue);
+                    }
                 }
             }
         } catch (IllegalAccessException pE) {
@@ -83,5 +125,11 @@ public class MandelParams {
         }
 
         return this;
+    }
+
+    public static void main(String[] args) {
+
+        MandelParams mandelParams = new MandelParams();
+        System.out.println(mandelParams.toString());
     }
 }

@@ -14,10 +14,10 @@ public interface FFCLMandel extends OpenCL<FFCLMandel> {
                                      @GlobalWriteOnly("iters")  double[] distancesR,
                                      @GlobalWriteOnly("iters")  double[] distancesI,
                                      @Arg("calcDistance") int calcDistance,
-                                     @Arg("startX") double startX, //
-                                     @Arg("startY") double startY,//
-                                     @Arg("incX") double incX,
-                                     @Arg("incY") double incY,
+                                     @GlobalReadOnly("startX") float[] startX, //
+                                     @GlobalReadOnly("startY") float[] startY, //
+                                     @GlobalReadOnly("incX") float[] incX,
+                                     @GlobalReadOnly("incY") float[] incY,
                                      @Arg("maxIterations") int maxIterations,
                                      @Arg("sqrEscapeRadius") double sqrEscapeRadius
         );

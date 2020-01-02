@@ -133,16 +133,16 @@ __kernel void computeMandelBrot(
        __global double *distancesI,
        int calcDistance,
 
-       double xStart,
-       double yStart,
-       double xInc,
-       double yInc,
+       __global float *xStart,
+       __global float *yStart,
+       __global float *xInc,
+       __global float *yInc,
        int maxIterations,
        double sqrEscapeRadius
        ) {
 
-    const float2 x = add(fromDouble(xStart),mulFloat(fromDouble(xInc),X));
-    const float2 y = add(fromDouble(yStart),mulFloat(fromDouble(yInc),Y));
+    const float2 x = add((float2)(xStart[0], xStart[1]),mulFloat((float2)(xInc[0],xInc[1]),X));
+    const float2 y = add((float2)(yStart[0], yStart[1]),mulFloat((float2)(yInc[0],yInc[1]),Y));
 
     const float escape = (float)sqrEscapeRadius;
 

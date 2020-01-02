@@ -27,6 +27,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -135,9 +136,9 @@ public class MandelConfigPanel {
                 }
                 tMandelConfig.name = tName;
                 tMandelConfig.mandelParams = new MandelParams();
-                tMandelConfig.mandelParams.setX(Double.parseDouble(xInfoTextField.getText()));
-                tMandelConfig.mandelParams.setY(Double.parseDouble(yInfoTextField.getText()));
-                tMandelConfig.mandelParams.setScale(Double.parseDouble(scaleInfoTextField.getText()));
+                tMandelConfig.mandelParams.setX(new BigDecimal(xInfoTextField.getText()));
+                tMandelConfig.mandelParams.setY(new BigDecimal(yInfoTextField.getText()));
+                tMandelConfig.mandelParams.setScale(new BigDecimal(scaleInfoTextField.getText()));
                 tMandelConfig.mandelParams.setMaxIterations(getMaxIterations());
                 tMandelConfig.mandelParams.setEscapeRadius(getEscapeRadius());
                 tMandelConfig.palette = ((PaletteMapper)paletteComboBox.getSelectedItem()).getName();
@@ -191,9 +192,9 @@ public class MandelConfigPanel {
         changeEnabled = false;
 
         try {
-            xTextField.setText(Double.toString(tMandelConfig.mandelParams.getX()));
-            yTextField.setText(Double.toString(tMandelConfig.mandelParams.getY()));
-            scaleTextField.setText(Double.toString(tMandelConfig.mandelParams.getScale()));
+            xTextField.setText(Double.toString(tMandelConfig.mandelParams.getX_Double()));
+            yTextField.setText(Double.toString(tMandelConfig.mandelParams.getY_Double()));
+            scaleTextField.setText(Double.toString(tMandelConfig.mandelParams.getScale_double()));
             escapeRadiusTextField.setText(Double.toString(tMandelConfig.mandelParams.getEscapeRadius()));
             if (tMandelConfig.mandelParams.getMaxIterations() < 0) {
                 maxIterationChooser.setSelectedIndex(0);
@@ -269,32 +270,32 @@ public class MandelConfigPanel {
         return -1;
     }
 
-    public Double getX() {
-        return getDoubleOrNull(xTextField.getText());
+    public BigDecimal getX() {
+        return getBDOrNull(xTextField.getText());
     }
 
-    public Double getY() {
-        return getDoubleOrNull(yTextField.getText());
+    public BigDecimal getY() {
+        return getBDOrNull(yTextField.getText());
     }
 
-    public Double getScale() {
-        return getDoubleOrNull(scaleTextField.getText());
+    public BigDecimal getScale() {
+        return getBDOrNull(scaleTextField.getText());
     }
 
-    private Double getDoubleOrNull(String pText) {
+    private BigDecimal getBDOrNull(String pText) {
         try {
-            return Double.parseDouble(pText);
+            return new BigDecimal(pText);
         } catch (Exception ex) {
             return null;
         }
     }
 
     public void setData(MandelParams pMandelParams) {
-        xInfoTextField.setText(Double.toString(pMandelParams.getX()));
+        xInfoTextField.setText(Double.toString(pMandelParams.getX_Double()));
         xTextField.setText(null);
-        yInfoTextField.setText(Double.toString(pMandelParams.getY()));
+        yInfoTextField.setText(Double.toString(pMandelParams.getY_Double()));
         yTextField.setText(null);
-        scaleInfoTextField.setText(Double.toString(pMandelParams.getScale()));
+        scaleInfoTextField.setText(Double.toString(pMandelParams.getScale_double()));
         scaleTextField.setText(null);
         maxIterInfoTextField.setText(Integer.toString(pMandelParams.getMaxIterations()));
         escapeRadiusTextField.setText(Double.toString(pMandelParams.getEscapeRadius()));

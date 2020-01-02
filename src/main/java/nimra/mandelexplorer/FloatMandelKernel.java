@@ -7,23 +7,23 @@ package nimra.mandelexplorer;
  *
  * @author Armin Haaf
  */
-public class FloatMandelImpl extends MandelKernel {
+public class FloatMandelKernel extends MandelKernel {
 
     /**
      * Maximum iterations we will check for.
      */
-    private int maxIterations = 100;
+    protected int maxIterations = 100;
 
-    private float xStart;
-    private float yStart;
+    protected float xStart;
+    protected float yStart;
 
-    private float xInc;
-    private float yInc;
+    protected float xInc;
+    protected float yInc;
 
-    private float escapeSqr;
+    protected float escapeSqr;
 
 
-    public FloatMandelImpl(final int pWidth, final int pHeight) {
+    public FloatMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
 
@@ -32,15 +32,12 @@ public class FloatMandelImpl extends MandelKernel {
         maxIterations = pMandelParams.getMaxIterations();
         escapeSqr = (float) (pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
 
-        double tScaleX = pMandelParams.getScale() * (width / (double) height);
-        double tScaleY = pMandelParams.getScale();
-        xStart =  (float)(pMandelParams.getX() - tScaleX / 2.0);
-        yStart =  (float)(pMandelParams.getY() - tScaleY / 2.0);
+        double tScaleX = pMandelParams.getScale_double() * (width / (double) height);
+        double tScaleY = pMandelParams.getScale_double();
+        xStart =  (float)(pMandelParams.getX_Double() - tScaleX / 2.0);
+        yStart =  (float)(pMandelParams.getY_Double() - tScaleY / 2.0);
         xInc = (float)(tScaleX/(double)width);
         yInc = (float)(tScaleY/(double)height);
-
-        final float escape = escapeSqr;
-
     }
 
     public void run() {

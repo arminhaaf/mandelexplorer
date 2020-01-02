@@ -21,6 +21,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,9 +39,9 @@ public class MandelExplorer {
      * User selected zoom-in point on the Mandelbrot view.
      */
     private Point lastMouseDrag;
-    private double toX = mandelParams.getX();
-    private double toY = mandelParams.getY();
-    private double toScale = mandelParams.getScale();
+    private BigDecimal toX = mandelParams.getX();
+    private BigDecimal toY = mandelParams.getY();
+    private BigDecimal toScale = mandelParams.getScale();
 
     private MandelConfigPanel explorerConfigPanel = new MandelConfigPanel();
 
@@ -69,9 +71,7 @@ public class MandelExplorer {
 
         prepareMouse();
 
-        explorerConfigPanel.setChangeListener(e -> {
-            render();
-        });
+        explorerConfigPanel.setChangeListener(e -> render());
 
         explorerConfigPanel.setPaletteChangeListener(e -> {
             paint(currentMandelKernel);
@@ -124,7 +124,7 @@ public class MandelExplorer {
             int tMaxIterations = explorerConfigPanel.getMaxIterations();
 
             if (tMaxIterations < 0) {
-                tMaxIterations = (int) (100 * Math.pow(mandelParams.getScale(), -0.4));
+                tMaxIterations = (int) (100 * Math.pow(mandelParams.getScale_double(), -0.4));
             }
             mandelParams.setMaxIterations(tMaxIterations);
             mandelParams.setEscapeRadius(explorerConfigPanel.getEscapeRadius());
@@ -215,7 +215,7 @@ public class MandelExplorer {
         }
 
         doubleMandel = new DoubleMandelImpl(getImageWidth(), getImageHeight());
-        floatMandel = new FloatMandelImpl(getImageWidth(), getImageHeight());
+        floatMandel = new FloatMandelKernel(getImageWidth(), getImageHeight());
         ddMantel = new DDMandelImpl(getImageWidth(), getImageHeight());
 
         explorerConfigPanel.setAlgorithms(floatMandel, doubleMandel, ddMantel,
@@ -230,7 +230,7 @@ public class MandelExplorer {
 
         // auto choose kernel
         if (tMandelKernel == null) {
-            final double tMinPixelSize = mandelParams.getScale() / Math.max(getImageHeight(), getImageWidth());
+            final double tMinPixelSize = mandelParams.getScale_double() / Math.max(getImageHeight(), getImageWidth());
             if (tMinPixelSize < 1E-14) {
                 tMandelKernel = ddMantel;
             } else if (tMinPixelSize < 1E-7) {
@@ -245,12 +245,16 @@ public class MandelExplorer {
         return tMandelKernel;
     }
 
+    private final BigDecimal BD_0_5 = new BigDecimal("0.5");
+
     private void prepareMouse() {
 
         viewer.addMouseWheelListener(new MouseAdapter() {
             @Override
             public void mouseWheelMoved(final MouseWheelEvent e) {
-                toScale += toScale * 0.005f * e.getPreciseWheelRotation() * e.getScrollAmount() * explorerConfigPanel.getZoomSpeed();
+                //toScale += toScale * 0.005f * e.getPreciseWheelRotation() * e.getScrollAmount() * explorerConfigPanel.getZoomSpeed();
+                toScale = toScale.add(toScale.divide(new BigDecimal(200), MathContext.DECIMAL128).multiply(new BigDecimal(e.getWheelRotation() * e.getScrollAmount() * explorerConfigPanel.getZoomSpeed())));
+
                 render();
             }
         });
@@ -260,8 +264,10 @@ public class MandelExplorer {
             @Override
             public void mouseDragged(final MouseEvent e) {
                 if (!lastMouseDrag.equals(e.getPoint())) {
-                    toX = toX + ((lastMouseDrag.x - e.getX()) * mandelParams.getScale()) / getImageWidth();
-                    toY = toY + ((lastMouseDrag.y - e.getY()) * mandelParams.getScale()) / getImageHeight();
+                    //toX = toX + ((lastMouseDrag.x - e.getX()) * mandelParams.getScale_double()) / getImageWidth();
+                    toX = toX.add(new BigDecimal(lastMouseDrag.x - e.getX()).multiply(mandelParams.getScale()).divide(new BigDecimal(getImageWidth()), MathContext.DECIMAL128));
+                    //toY = toY + ((lastMouseDrag.y - e.getY()) * mandelParams.getScale_double()) / getImageHeight();
+                    toY = toY.add(new BigDecimal(lastMouseDrag.y - e.getY()).multiply(mandelParams.getScale()).divide(new BigDecimal(getImageHeight()), MathContext.DECIMAL128));
 
                     render();
 
@@ -270,6 +276,7 @@ public class MandelExplorer {
 
             }
         });
+
         // Mouse listener which reads the user clicked zoom-in point on the Mandelbrot view
         viewer.addMouseListener(new MouseAdapter() {
             @Override
@@ -280,19 +287,25 @@ public class MandelExplorer {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    final double tScaleX = mandelParams.getScale() * (getImageWidth() / (double) getImageHeight());
-                    final double tScaleY = mandelParams.getScale();
+                    // final double tScaleX = mandelParams.getScale_double() * (getImageWidth() / (double) getImageHeight());
+                    final BigDecimal tScaleX =  mandelParams.getScale().multiply(new BigDecimal(getImageWidth())).divide(new BigDecimal(getImageHeight()), MathContext.DECIMAL128);
+                    // final double tScaleY = mandelParams.getScale_double();
+                    final BigDecimal tScaleY = mandelParams.getScale();
 
-                    final int tX = e.getX();
-                    final int tY = e.getY();
+                    //final double xStart =  mandelParams.getX_Double() - tScaleX / 2.0;
+                    final BigDecimal xStart =  mandelParams.getX().subtract(tScaleX.multiply(BD_0_5));
+                    //final double yStart =  mandelParams.getY_Double() - tScaleY / 2.0;
+                    final BigDecimal yStart =  mandelParams.getY().subtract(tScaleY.multiply(BD_0_5));
 
-                    toX = (((tX * tScaleX) - ((tScaleX / 2) * getImageWidth())) / getImageWidth()) + mandelParams.getX();
-                    toY = (((tY * tScaleY) - ((tScaleY / 2) * getImageHeight())) / getImageHeight()) + mandelParams.getY();
+//                    double tToX = xStart + e.getX() * tScaleX/(double) getImageWidth();
+                    toX = xStart.add(tScaleX.multiply(new BigDecimal(e.getX())).divide(new BigDecimal(getImageWidth()), MathContext.DECIMAL128));
+//                    double tToY = yStart + e.getY() * tScaleY/(double) getImageHeight();
+                    toY = yStart.add(tScaleY.multiply(new BigDecimal(e.getY())).divide(new BigDecimal(getImageHeight()), MathContext.DECIMAL128));
 
                     if (e.isControlDown()) {
-                        toScale = toScale * explorerConfigPanel.getZoomSpeed();
+                        toScale = toScale.multiply(new BigDecimal(explorerConfigPanel.getZoomSpeed()));
                     } else {
-                        toScale = toScale / explorerConfigPanel.getZoomSpeed();
+                        toScale = toScale.divide(new BigDecimal(explorerConfigPanel.getZoomSpeed()), MathContext.DECIMAL128);
                     }
 
                     render();

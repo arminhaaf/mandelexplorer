@@ -49,10 +49,10 @@ public class QFCLMandelKernel extends MandelKernel {
         maxIterations = pMandelParams.getMaxIterations();
         escapeSqr = pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius();
 
-        double tScaleX = pMandelParams.getScale() * (width / (double) height);
-        double tScaleY = pMandelParams.getScale();
-        xStart = pMandelParams.getX() - (tScaleX / 2.0);
-        yStart = pMandelParams.getY() - tScaleY / 2.0;
+        double tScaleX = pMandelParams.getScale_double() * (width / (double) height);
+        double tScaleY = pMandelParams.getScale_double();
+        xStart = pMandelParams.getX_Double() - (tScaleX / 2.0);
+        yStart = pMandelParams.getY_Double() - tScaleY / 2.0;
         xInc = tScaleX/(double)width;
         yInc = tScaleY/(double)height;
     }

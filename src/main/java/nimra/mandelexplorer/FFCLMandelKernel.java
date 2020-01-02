@@ -5,6 +5,9 @@ import com.aparapi.Range;
 import com.aparapi.device.OpenCLDevice;
 import com.aparapi.internal.kernel.KernelManager;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * Created: 31.12.19   by: Armin Haaf
  * <p>
@@ -32,14 +35,15 @@ public class FFCLMandelKernel extends MandelKernel {
      */
     private int maxIterations = 100;
 
-    private double xStart;
-    private double yStart;
+    private BigDecimal xStart;
+    private BigDecimal yStart;
 
-    private double xInc;
-    private double yInc;
+    private BigDecimal xInc;
+    private BigDecimal yInc;
 
     private double escapeSqr;
 
+    private final BigDecimal BD_TWO = new BigDecimal(2);
 
     public FFCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
@@ -50,13 +54,43 @@ public class FFCLMandelKernel extends MandelKernel {
         maxIterations = pMandelParams.getMaxIterations();
         escapeSqr = pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius();
 
-        double tScaleX = pMandelParams.getScale() * (width / (double) height);
-        double tScaleY = pMandelParams.getScale();
-        xStart = pMandelParams.getX() - (tScaleX / 2.0);
-        yStart = pMandelParams.getY() - tScaleY / 2.0;
-        xInc = tScaleX / (double) width;
-        yInc = tScaleY / (double) height;
+        final BigDecimal tScaleX =  pMandelParams.getScale().multiply(new BigDecimal(width)).divide(new BigDecimal(height), MathContext.DECIMAL128);
+        final BigDecimal tScaleY = pMandelParams.getScale();
+
+        //xStart =  mandelParams.getX_Double() - tScaleX / 2.0;
+        xStart =  pMandelParams.getX().subtract(tScaleX.divide(BD_TWO, MathContext.DECIMAL128));
+        //yStart =  mandelParams.getY_Double() - tScaleY / 2.0;
+        yStart =  pMandelParams.getY().subtract(tScaleY.divide(BD_TWO, MathContext.DECIMAL128));
+
+        xInc = tScaleX.divide(new BigDecimal(width), MathContext.DECIMAL128);
+        yInc = tScaleY.divide(new BigDecimal(height), MathContext.DECIMAL128);
     }
+
+    private float[] convertToFF(BigDecimal pBigDecimal) {
+        return convertToFF(pBigDecimal.doubleValue());
+    }
+
+    private float[] convertToFF(double pDouble) {
+        float[] tFF = new float[2];
+
+        tFF[0] = computeHi(pDouble);
+        tFF[1] = computeLo(pDouble);
+        return tFF;
+    }
+
+    private float computeLo(final double a) {
+        final double temp = ((1 << 27) + 1) * a;
+        final double hi = temp - (temp - a);
+        final double lo = a - (float) hi;
+        return (float) lo;
+    }
+
+    private float computeHi(final double a) {
+        final double temp = ((1 << 27) + 1) * a;
+        final double hi = temp - (temp - a);
+        return (float) hi;
+    }
+
 
     @Override
     public synchronized Kernel execute(Range pRange) {
@@ -65,7 +99,7 @@ public class FFCLMandelKernel extends MandelKernel {
         }
 
         ffCLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
-                xStart, yStart, xInc, yInc, maxIterations, escapeSqr);
+                convertToFF(xStart), convertToFF(yStart), convertToFF(xInc), convertToFF(yInc), maxIterations, escapeSqr);
 
         return this;
     }

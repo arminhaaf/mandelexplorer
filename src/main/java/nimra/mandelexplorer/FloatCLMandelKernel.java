@@ -12,9 +12,7 @@ import com.aparapi.internal.kernel.KernelManager;
  *
  * @author Armin Haaf
  */
-public class FloatCLMandelKernel extends MandelKernel {
-
-
+public class FloatCLMandelKernel extends FloatMandelKernel {
     private static final FloatCLMandel floatCLMandel;
 
     static {
@@ -27,39 +25,10 @@ public class FloatCLMandelKernel extends MandelKernel {
         floatCLMandel = tImpl;
     }
 
-    /**
-     * Maximum iterations we will check for.
-     */
-    private int maxIterations = 100;
-
-    private float xStart;
-    private float yStart;
-
-    private float xInc;
-    private float yInc;
-
-    private float escapeSqr;
-
-
     public FloatCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
 
-    @Override
-    public void init(final MandelParams pMandelParams) {
-        maxIterations = pMandelParams.getMaxIterations();
-        escapeSqr = (float) (pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
-
-        double tScaleX = pMandelParams.getScale() * (width / (double) height);
-        double tScaleY = pMandelParams.getScale();
-        xStart = (float) (pMandelParams.getX() - tScaleX / 2.0);
-        yStart = (float) (pMandelParams.getY() - tScaleY / 2.0);
-        xInc = (float) (tScaleX / (double) width);
-        yInc = (float) (tScaleY / (double) height);
-    }
-
-
-    @Override
     public synchronized Kernel execute(Range pRange) {
         if (floatCLMandel == null) {
             throw new RuntimeException("need open cl for " + this);
