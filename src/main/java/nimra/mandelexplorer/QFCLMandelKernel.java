@@ -63,8 +63,8 @@ public class QFCLMandelKernel extends MandelKernel {
             throw new RuntimeException("need open cl for " + this);
         }
 
-        qfCLMandel.computeMandelBrot(pRange, iters, xStart, yStart,
-                xInc, yInc, maxIterations, escapeSqr);
+        qfCLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
+                xStart, yStart,xInc, yInc, maxIterations, escapeSqr);
 
         return this;
     }

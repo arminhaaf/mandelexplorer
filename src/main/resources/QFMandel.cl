@@ -649,6 +649,12 @@ float4 qfDiv(const float4 a, const float4 b)
 
 __kernel void computeMandelBrot(
        __global int *iters,
+       __global double *lastValuesR,
+       __global double *lastValuesI,
+       __global double *distancesR,
+       __global double *distancesI,
+       int calcDistance,
+
        double xStart,
        double yStart,
        double xInc,
@@ -686,11 +692,34 @@ __kernel void computeMandelBrot(
     float4 ziSqr = qfAssign(0);
     float4 magnitudeSquared = qfAssign(0);
 
+    // distance
+    float4 dr = (float4)(1);
+    float4 di = (float4)(0);
+    float4 new_dr;
+
+    const bool tCalcDistance = calcDistance>0;
+
+
     int iteration = 0;
 
-    while (iteration<maxIterations && qfLessThan(&magnitudeSquared, escape))
+    while (iteration<maxIterations && qfLessThan(&magnitudeSquared, escape))  {
+       if ( tCalcDistance) {
+//         new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
+           qfMul(&new_dr, zr,dr);
+           qfMul(&qfTemp, zi,di);
+           qfAdd(&new_dr, new_dr, qfNegate(qfTemp));
+           qfMulFloat(&new_dr, new_dr, 2.0f);
+           qfAdd(&new_dr, new_dr,(float4)(1.0f));
 
-    {
+//         di = 2.0f * (zr * di + zi * dr);
+           qfMul(&di, zr, di);
+           qfMul(&qfTemp, zi, dr);
+           qfAdd(&di, di, qfTemp);
+           qfMulFloat(&di, di, 2.0f);
+
+           dr = new_dr;
+        }
+
         // float xx = x*x;
         qfMul(&zrSqr, zr,zr);
         // float yy = y*y;
@@ -716,5 +745,12 @@ __kernel void computeMandelBrot(
         iteration++;
     }
 
-   iters[X + Y*WIDTH]  = iteration;
+    const int tIndex = X + Y * WIDTH;
+    iters[tIndex]  = iteration;
+    lastValuesR[tIndex] = (double)zr.x + (double)zr.y;
+    lastValuesI[tIndex] = (double)zi.x + (double)zi.y;
+    if ( tCalcDistance ) {
+       distancesR[tIndex] = (double)dr.x + (double)dr.y;
+       distancesI[tIndex] = (double)di.x + (double)di.y;
+    }
 }
