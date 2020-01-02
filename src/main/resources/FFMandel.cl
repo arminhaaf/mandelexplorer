@@ -153,7 +153,7 @@ __kernel void computeMandelBrot(
 
     float2 tmp;
 
-       // distance
+    // distance
     float2 dr = (float2)(1,0);
     float2 di = (float2)(0,0);
     float2 new_dr;
@@ -164,10 +164,10 @@ __kernel void computeMandelBrot(
 
    for (; count<maxIterations && add(zrsqr,zisqr).x < escape; count++){
       if ( tCalcDistance) {
- //        new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
-        new_dr = addFloat(mulFloat(sub(mul(zr,dr),mul(zi,di)),2.0f),1.0f);
-//        di = 2.0f * (zr * di + zi * dr);
-        di = mulFloat(add(mul(zr,di),mul(zi,dr)),2.0f);
+//         new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
+         new_dr = addFloat(mulFloat(sub(mul(zr,dr),mul(zi,di)),2.0f),1.0f);
+//         di = 2.0f * (zr * di + zi * dr);
+         di = mulFloat(add(mul(zr,di),mul(zi,dr)),2.0f);
          dr = new_dr;
       }
 
