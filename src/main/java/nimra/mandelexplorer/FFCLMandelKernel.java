@@ -15,7 +15,7 @@ import java.math.MathContext;
  *
  * @author Armin Haaf
  */
-public class FFCLMandelKernel extends MandelKernel {
+public class FFCLMandelKernel extends BDMandelKernel {
 
     private static final FFCLMandel ffCLMandel;
 
@@ -30,40 +30,8 @@ public class FFCLMandelKernel extends MandelKernel {
     }
 
 
-    /**
-     * Maximum iterations we will check for.
-     */
-    private int maxIterations = 100;
-
-    private BigDecimal xStart;
-    private BigDecimal yStart;
-
-    private BigDecimal xInc;
-    private BigDecimal yInc;
-
-    private double escapeSqr;
-
-    private final BigDecimal BD_TWO = new BigDecimal(2);
-
     public FFCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
-    }
-
-    @Override
-    public void init(final MandelParams pMandelParams) {
-        maxIterations = pMandelParams.getMaxIterations();
-        escapeSqr = pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius();
-
-        final BigDecimal tScaleX =  pMandelParams.getScale().multiply(new BigDecimal(width)).divide(new BigDecimal(height), MathContext.DECIMAL128);
-        final BigDecimal tScaleY = pMandelParams.getScale();
-
-        //xStart =  mandelParams.getX_Double() - tScaleX / 2.0;
-        xStart =  pMandelParams.getX().subtract(tScaleX.divide(BD_TWO, MathContext.DECIMAL128));
-        //yStart =  mandelParams.getY_Double() - tScaleY / 2.0;
-        yStart =  pMandelParams.getY().subtract(tScaleY.divide(BD_TWO, MathContext.DECIMAL128));
-
-        xInc = tScaleX.divide(new BigDecimal(width), MathContext.DECIMAL128);
-        yInc = tScaleY.divide(new BigDecimal(height), MathContext.DECIMAL128);
     }
 
     private float[] convertToFF(BigDecimal pBigDecimal) {

@@ -5,6 +5,8 @@ import com.aparapi.Range;
 import com.aparapi.device.OpenCLDevice;
 import com.aparapi.internal.kernel.KernelManager;
 
+import java.math.BigDecimal;
+
 /**
  * Created: 31.12.19   by: Armin Haaf
  * <p>
@@ -12,7 +14,7 @@ import com.aparapi.internal.kernel.KernelManager;
  *
  * @author Armin Haaf
  */
-public class QFCLMandelKernel extends MandelKernel {
+public class QFCLMandelKernel extends BDMandelKernel {
 
     private static final QFCLMandel qfCLMandel;
 
@@ -26,35 +28,35 @@ public class QFCLMandelKernel extends MandelKernel {
         qfCLMandel = tImpl;
     }
 
-    /**
-     * Maximum iterations we will check for.
-     */
-    private int maxIterations = 100;
-
-    private double xStart;
-    private double yStart;
-
-    private double xInc;
-    private double yInc;
-
-    private double escapeSqr;
-
 
     public QFCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
 
-    @Override
-    public void init(final MandelParams pMandelParams) {
-        maxIterations = pMandelParams.getMaxIterations();
-        escapeSqr = pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius();
+    private float[] convertToQF(BigDecimal pBigDecimal) {
+        // how should this be done?
+        return convertToQF(pBigDecimal.doubleValue());
+    }
 
-        double tScaleX = pMandelParams.getScale_double() * (width / (double) height);
-        double tScaleY = pMandelParams.getScale_double();
-        xStart = pMandelParams.getX_Double() - (tScaleX / 2.0);
-        yStart = pMandelParams.getY_Double() - tScaleY / 2.0;
-        xInc = tScaleX/(double)width;
-        yInc = tScaleY/(double)height;
+    private float[] convertToQF(double pDouble) {
+        float[] tFF = new float[4];
+
+        tFF[0] = computeHi(pDouble);
+        tFF[1] = computeLo(pDouble);
+        return tFF;
+    }
+
+    private float computeLo(double a) {
+        double temp = ((1<<27)+1) * a;
+        double hi = temp - (temp - a);
+        double lo = a - (float)hi;
+        return (float)lo;
+    }
+
+    private float computeHi(double a) {
+        double temp = ((1<<27)+1) * a;
+        double hi = temp - (temp - a);
+        return (float)hi;
     }
 
     @Override
@@ -64,7 +66,7 @@ public class QFCLMandelKernel extends MandelKernel {
         }
 
         qfCLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
-                xStart, yStart,xInc, yInc, maxIterations, escapeSqr);
+                convertToQF(xStart), convertToQF(yStart), convertToQF(xInc), convertToQF(yInc), maxIterations, escapeSqr);
 
         return this;
     }
