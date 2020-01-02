@@ -8,24 +8,24 @@
 #define SPLIT  4097.0f // 2^12+1, for IEEE float
 
 
-inline float computeLo(double a) {
-    double temp = ((1<<27)+1) * a;
-    double hi = temp - (temp - a);
-    double lo = a - (float)hi;
+inline float computeLo(const double a) {
+    const double temp = ((1<<27)+1) * a;
+    const double hi = temp - (temp - a);
+    const double lo = a - (float)hi;
     return (float)lo;
 }
 
-inline float computeHi(double a) {
-    double temp = ((1<<27)+1) * a;
-    double hi = temp - (temp - a);
+inline float computeHi(const double a) {
+    const double temp = ((1<<27)+1) * a;
+    const double hi = temp - (temp - a);
     return (float)hi;
 }
 
-inline float2 mul( float2 pFF1,  float2 pFF2) {
-    float hi = pFF1.x;
-    float lo = pFF1.y;
-    float yhi = pFF2.x;
-    float ylo = pFF2.y;
+inline float2 mul(const float2 pFF1, const float2 pFF2) {
+    const float hi = pFF1.x;
+    const float lo = pFF1.y;
+    const float yhi = pFF2.x;
+    const float ylo = pFF2.y;
 
     float hx, tx, hy, ty, C, c;
     C = SPLIT * hi;
@@ -38,17 +38,17 @@ inline float2 mul( float2 pFF1,  float2 pFF2) {
     hy = c - hy;
     ty = yhi - hy;
     c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
-    float zhi = C + c;
+    const float zhi = C + c;
     hx = C - zhi;
-    float zlo = c + hx;
+    const float zlo = c + hx;
 
     return (float2)(zhi,zlo);
 }
 
-inline float2 mulFloat( float2 pFF1, float pFloat) {
-    float hi = pFF1.x;
-    float lo = pFF1.y;
-    float yhi = pFloat;
+inline float2 mulFloat(const float2 pFF1, const float pFloat) {
+    const float hi = pFF1.x;
+    const float lo = pFF1.y;
+    const float yhi = pFloat;
 
     float hx, tx, hy, ty, C, c;
     C = SPLIT * hi;
@@ -61,19 +61,19 @@ inline float2 mulFloat( float2 pFF1, float pFloat) {
     hy = c - hy;
     ty = yhi - hy;
     c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
-    float zhi = C + c;
+    const float zhi = C + c;
     hx = C - zhi;
-    float zlo = c + hx;
+    const float zlo = c + hx;
 
     return (float2)(zhi,zlo);
 }
 
 
-inline float2 add(float2 pFF1,  float2 pFF2) {
-    float hi = pFF1.x;
-    float lo = pFF1.y;
-    float yhi = pFF2.x;
-    float ylo = pFF2.y;
+inline float2 add(const float2 pFF1,  const float2 pFF2) {
+    const float hi = pFF1.x;
+    const float lo = pFF1.y;
+    const float yhi = pFF2.x;
+    const float ylo = pFF2.y;
 
     float H, h, T, t, S, s, e, f;
     S = hi + yhi;
@@ -89,13 +89,13 @@ inline float2 add(float2 pFF1,  float2 pFF2) {
     h = e + (S - H);
     e = t + h;
 
-    float zhi = H + e;
-    float zlo = e + (H - zhi);
+    const float zhi = H + e;
+    const float zlo = e + (H - zhi);
 
     return (float2)(zhi,zlo);
 }
 
-inline float2 addFloat(float2 pFF1,  double y) {
+inline float2 addFloat(const float2 pFF1,const  float y) {
     float hi = pFF1.x;
     float lo = pFF1.y;
 
@@ -113,12 +113,12 @@ inline float2 addFloat(float2 pFF1,  double y) {
     return (float2)(hi,lo);
 }
 
-inline float2 sub( float2 pFF1,  float2 pFF2) {
+inline float2 sub(const float2 pFF1,const  float2 pFF2) {
     return add(pFF1, (float2)(-pFF2.x, -pFF2.y));
 }
 
-inline float2 fromDouble(double pDouble) {
-    float2 tResult;
+inline float2 fromDouble(const double pDouble) {
+    const float2 tResult;
     tResult.x = computeHi(pDouble);
     tResult.y = computeLo(pDouble);
     return tResult;
@@ -162,28 +162,28 @@ __kernel void computeMandelBrot(
 
     int count = 0;
 
-   for (; count<maxIterations && add(zrsqr,zisqr).x < escape; count++){
-      if ( tCalcDistance) {
-//         new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
-         new_dr = addFloat(mulFloat(sub(mul(zr,dr),mul(zi,di)),2.0f),1.0f);
-//         di = 2.0f * (zr * di + zi * dr);
-         di = mulFloat(add(mul(zr,di),mul(zi,dr)),2.0f);
-         dr = new_dr;
-      }
+    for (; count<maxIterations && add(zrsqr,zisqr).x < escape; count++){
+        if ( tCalcDistance) {
+//            new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
+            new_dr = addFloat(mulFloat(sub(mul(zr,dr),mul(zi,di)),2.0f),1.0f);
+//            di = 2.0f * (zr * di + zi * dr);
+            di = mulFloat(add(mul(zr,di),mul(zi,dr)),2.0f);
+            dr = new_dr;
+        }
 
-      tmp = add(sub(zrsqr,zisqr),x);
-      zi = add(mulFloat(mul(zr,zi),2.0f),y);
-      zr = tmp;
+        tmp = add(sub(zrsqr,zisqr),x);
+        zi = add(mulFloat(mul(zr,zi),2.0f),y);
+        zr = tmp;
 
-      zrsqr = mul(zr,zr);
-      zisqr = mul(zi,zi);
+        zrsqr = mul(zr,zr);
+        zisqr = mul(zi,zi);
     }
     const int tIndex = X + Y * WIDTH;
     iters[tIndex]  = count;
     lastValuesR[tIndex] = (double)zr.x + (double)zr.y;
     lastValuesI[tIndex] = (double)zi.x + (double)zi.y;
     if ( tCalcDistance ) {
-       distancesR[tIndex] = (double)dr.x + (double)dr.y;
-       distancesI[tIndex] = (double)di.x + (double)di.y;
+        distancesR[tIndex] = (double)dr.x + (double)dr.y;
+        distancesI[tIndex] = (double)di.x + (double)di.y;
     }
 }
