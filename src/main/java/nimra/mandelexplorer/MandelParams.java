@@ -28,24 +28,12 @@ public class MandelParams {
         return x.doubleValue();
     }
 
-    public void setX(final double pX) {
-        x = new BigDecimal(pX);
-    }
-
     public double getY_Double() {
         return y.doubleValue();
     }
 
-    public void setY(final double pY) {
-        y = new BigDecimal(pY);
-    }
-
     public double getScale_double() {
         return scale.doubleValue();
-    }
-
-    public void setScale(final double pScale) {
-        scale = new BigDecimal(pScale);
     }
 
     public BigDecimal getX() {
@@ -127,9 +115,4 @@ public class MandelParams {
         return this;
     }
 
-    public static void main(String[] args) {
-
-        MandelParams mandelParams = new MandelParams();
-        System.out.println(mandelParams.toString());
-    }
 }
