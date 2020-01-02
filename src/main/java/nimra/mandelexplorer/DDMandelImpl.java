@@ -9,15 +9,15 @@ package nimra.mandelexplorer;
  */
 public class DDMandelImpl extends MandelKernel {
 
-    private int maxIterations = 100;
+    protected int maxIterations = 100;
 
-    private DD xStart;
-    private DD yStart;
+    protected DD xStart;
+    protected DD yStart;
 
-    private DD xInc;
-    private DD yInc;
+    protected DD xInc;
+    protected DD yInc;
 
-    private DD escapeSqr;
+    protected DD escapeSqr;
 
     public DDMandelImpl(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
@@ -28,12 +28,12 @@ public class DDMandelImpl extends MandelKernel {
     public void init(final MandelParams pMandelParams) {
         maxIterations = pMandelParams.getMaxIterations();
 
-        double tScaleX = pMandelParams.getScale_double() * (width / (double) height);
-        double tScaleY = pMandelParams.getScale_double();
-        xStart = new DD(pMandelParams.getX_Double() - tScaleX / 2.0);
-        yStart = new DD(pMandelParams.getY_Double() - tScaleY / 2.0);
-        xInc = new DD(tScaleX/(double)width);
-        yInc = new DD(tScaleY/(double)height);
+        final DD tScaleX = new DD(pMandelParams.getScale_double()).multiply(width).divide(height);
+        final DD tScaleY = new DD(pMandelParams.getScale_double());
+        xStart = new DD(pMandelParams.getX_Double()).subtract(tScaleX.divide(2.0));
+        yStart = new DD(pMandelParams.getY_Double()).subtract(tScaleY.divide(2.0));
+        xInc = new DD(tScaleX).divide(width);
+        yInc = new DD(tScaleY).divide(height);
 
         escapeSqr = new DD(pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
     }

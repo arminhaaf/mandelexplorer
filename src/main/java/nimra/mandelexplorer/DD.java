@@ -197,6 +197,14 @@ public final class DD
         init(hi, lo);
     }
 
+    public double getHi() {
+        return hi;
+    }
+
+    public double getLo() {
+        return lo;
+    }
+
     /**
      * Creates a new DoubleDouble with value equal to the argument.
      *
@@ -324,11 +332,11 @@ public final class DD
      * this method <b>must only</b> be used on values known to
      * be newly created.
      *
-     * @param y the addend
+     * @param pDouble the addend
      * @return this object, increased by y
      */
-    public final DD selfAdd(DD y) {
-        return selfAdd(y.hi, y.lo);
+    public final DD selfAdd(DD pDouble) {
+        return selfAdd(pDouble.hi, pDouble.lo);
     }
 
     /**
@@ -337,15 +345,15 @@ public final class DD
      * this method <b>must only</b> be used on values known to
      * be newly created.
      *
-     * @param y the addend
+     * @param pDouble the addend
      * @return this object, increased by y
      */
-    public final DD selfAdd(double y) {
+    public final DD selfAdd(double pDouble) {
         double H, h, S, s, e, f;
-        S = hi + y;
+        S = hi + pDouble;
         e = S - hi;
         s = S - e;
-        s = (y - e) + (hi - s);
+        s = (pDouble - e) + (hi - s);
         f = s + lo;
         H = S + f;
         h = f + (S - H);
@@ -450,12 +458,12 @@ public final class DD
     /**
      * Returns a new DoubleDouble whose value is <tt>(this * y)</tt>.
      *
-     * @param y the multiplicand
+     * @param pDouble the multiplicand
      * @return <tt>(this * y)</tt>
      */
-    public final DD multiply(double y) {
-        if (Double.isNaN(y)) return createNaN();
-        return copy(this).selfMultiply(y, 0.0);
+    public final DD multiply(double pDouble) {
+        if (Double.isNaN(pDouble)) return createNaN();
+        return copy(this).selfMultiply(pDouble, 0.0);
     }
 
     /**
@@ -464,11 +472,11 @@ public final class DD
      * this method <b>must only</b> be used on values known to
      * be newly created.
      *
-     * @param y the value to multiply by
+     * @param pDouble the value to multiply by
      * @return this object, multiplied by y
      */
-    public final DD selfMultiply(DD y) {
-        return selfMultiply(y.hi, y.lo);
+    public final DD selfMultiply(DD pDouble) {
+        return selfMultiply(pDouble.hi, pDouble.lo);
     }
 
     /**
@@ -534,12 +542,12 @@ public final class DD
     /**
      * Computes a new DoubleDouble whose value is <tt>(this / y)</tt>.
      *
-     * @param y the divisor
+     * @param pDouble the divisor
      * @return a new object with the value <tt>(this / y)</tt>
      */
-    public final DD divide(double y) {
-        if (Double.isNaN(y)) return createNaN();
-        return copy(this).selfDivide(y, 0.0);
+    public final DD divide(double pDouble) {
+        if (Double.isNaN(pDouble)) return createNaN();
+        return copy(this).selfDivide(pDouble, 0.0);
     }
 
     /**
@@ -548,11 +556,11 @@ public final class DD
      * this method <b>must only</b> be used on values known to
      * be newly created.
      *
-     * @param y the value to divide by
+     * @param pDouble the value to divide by
      * @return this object, divided by y
      */
-    public final DD selfDivide(DD y) {
-        return selfDivide(y.hi, y.lo);
+    public final DD selfDivide(DD pDouble) {
+        return selfDivide(pDouble.hi, pDouble.lo);
     }
 
     /**
