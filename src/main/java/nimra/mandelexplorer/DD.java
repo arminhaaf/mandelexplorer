@@ -187,6 +187,14 @@ public final class DD
         init(x);
     }
 
+    public void setHi(double hi) {
+        this.hi = hi;
+    }
+
+    public void setLo(double lo) {
+        this.lo = lo;
+    }
+
     /**
      * Creates a new DoubleDouble with value (hi, lo).
      *
