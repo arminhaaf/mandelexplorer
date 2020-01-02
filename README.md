@@ -34,7 +34,8 @@ All calculations without distance calc. QuadFloat implementation is broken for m
 | --- | --- |
 | GPU Double | 700 |
 | GPU FloatFloat | 320 |
-| GPU QuadFloat | 2200 |
+| GPU QuadFloat (unprecise) | 2200 |
+| GPU DoubleDouble | 5500 |
 | CPU Double | 1400 |
 | CPU DoubleDouble | 38000 |
 
@@ -48,7 +49,8 @@ All calculations without distance calc. QuadFloat implementation is broken for m
 | --- | --- |
 | GPU Double | 1200 |
 | GPU FloatFloat | 470 |
-| GPU QuadFloat | 2900 |
+| GPU QuadFloat (unprecise)| 2900 |
+| GPU DoubleDouble| 16000 |
 | CPU Double | 2350 |
 | CPU DoubleDouble | 41000 |
 
