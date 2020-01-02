@@ -32,11 +32,11 @@ All calculations without distance calc. QuadFloat implementation is broken for m
 
 |Implementation  | Duration Millis|
 | --- | --- :|
-GPU Double | 700  
-GPU FloatFloat | 320  
-GPU QuadFloat | 2200  
-CPU Double | 1400
-CPU DoubleDouble | 38000
+| GPU Double | 700 |
+| GPU FloatFloat | 320 |
+| GPU QuadFloat | 2200 |
+| CPU Double | 1400 |
+| CPU DoubleDouble | 38000 |
 
 
 
@@ -46,11 +46,11 @@ CPU DoubleDouble | 38000
 
 |Implementation  | Duration Millis|
 | --- | --- :|
-GPU Double | 1200  
-GPU FloatFloat | 470  
-GPU QuadFloat | 2900  
-CPU Double | 2350
-CPU DoubleDouble | 41000
+| GPU Double | 1200 |
+| GPU FloatFloat | 470 |
+| GPU QuadFloat | 2900 |
+| CPU Double | 2350 |
+| CPU DoubleDouble | 41000 |
 
 
 ## Some Examples
