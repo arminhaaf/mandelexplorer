@@ -127,8 +127,6 @@ __kernel void computeMandelBrot(
 
     float2 zr = x;
     float2 zi = y;
-    float2 zrsqr = mul(zr,zr);
-    float2 zisqr = mul(zi,zi);
 
     float2 tmp;
 
@@ -141,7 +139,14 @@ __kernel void computeMandelBrot(
 
     int count = 0;
 
-    for (; count<maxIterations && add(zrsqr,zisqr).x < escape; count++){
+    for (; count<maxIterations; count++){
+        const float2 zrsqr = mul(zr,zr);
+        const float2 zisqr = mul(zi,zi);
+
+        if ( add(zrsqr,zisqr).x >= escape ) {
+            break;
+        }
+
         if ( tCalcDistance) {
 //            new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
             new_dr = addFloat(mulFloat(sub(mul(zr,dr),mul(zi,di)),2.0f),1.0f);
@@ -154,8 +159,6 @@ __kernel void computeMandelBrot(
         zi = add(mulFloat(mul(zr,zi),2.0f),y);
         zr = tmp;
 
-        zrsqr = mul(zr,zr);
-        zisqr = mul(zi,zi);
     }
     const int tIndex = X + Y * WIDTH;
     iters[tIndex]  = count;

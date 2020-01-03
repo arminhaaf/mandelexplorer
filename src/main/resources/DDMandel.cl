@@ -127,9 +127,6 @@ __kernel void computeMandelBrot(
 
     double2 zr = x;
     double2 zi = y;
-    double2 zrsqr = mul(zr,zr);
-    double2 zisqr = mul(zi,zi);
-
     double2 tmp;
 
     // distance
@@ -141,7 +138,14 @@ __kernel void computeMandelBrot(
 
     int count = 0;
 
-    for (; count<maxIterations && add(zrsqr,zisqr).x < escape; count++){
+    for (; count<maxIterations; count++){
+        const double2 zrsqr = mul(zr,zr);
+        const double2 zisqr = mul(zi,zi);
+
+        if ( add(zrsqr,zisqr).x >= escape ) {
+            break;
+        }
+
         if ( tCalcDistance) {
 //            new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
             new_dr = addDouble(mulDouble(sub(mul(zr,dr),mul(zi,di)),2.0),1.0);
@@ -153,10 +157,8 @@ __kernel void computeMandelBrot(
         tmp = add(sub(zrsqr,zisqr),x);
         zi = add(mulDouble(mul(zr,zi),2.0),y);
         zr = tmp;
-
-        zrsqr = mul(zr,zr);
-        zisqr = mul(zi,zi);
     }
+       
     const int tIndex = X + Y * WIDTH;
     iters[tIndex]  = count;
     lastValuesR[tIndex] = (double)zr.x + (double)zr.y;

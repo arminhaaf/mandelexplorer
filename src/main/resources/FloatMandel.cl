@@ -28,8 +28,6 @@ __kernel void computeMandelBrot(
 
    float zr = x;
    float zi = y;
-   float zrsqr = zr * zr;
-   float zisqr = zi * zi;
    float new_zr = 0.0f;
 
    // distance
@@ -39,27 +37,30 @@ __kernel void computeMandelBrot(
 
    const bool tCalcDistance = calcDistance>0;
 
-
    int count = 0;
-   for (; count<maxIterations && (zrsqr + zisqr)<escape; count++){
-      if ( tCalcDistance) {
-         new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
-         di = 2.0f * (zr * di + zi * dr);
-         dr = new_dr;
-      }
+   for (; count<maxIterations; count++){
+        const float zrsqr = zr * zr;
+        const float zisqr = zi * zi;
 
-      new_zr = (zrsqr - zisqr) + x;
-      zi = ((2.0f * zr) * zi) + y;
-      zr = new_zr;
+        if ( (zrsqr + zisqr) >= escape ) {
+            break;
+        }
 
-     //If in a periodic orbit, assume it is trapped
-      if (zr == 0.0 && zi == 0.0) {
-         count = maxIterations;
-         break;
-      } else {
-         zrsqr = zr * zr;
-         zisqr = zi * zi;
-      }
+        if ( tCalcDistance) {
+            new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
+            di = 2.0f * (zr * di + zi * dr);
+            dr = new_dr;
+        }
+
+        new_zr = (zrsqr - zisqr) + x;
+        zi = ((2.0f * zr) * zi) + y;
+        zr = new_zr;
+
+        //If in a periodic orbit, assume it is trapped
+        if (zr == 0.0 && zi == 0.0) {
+            count = maxIterations;
+            break;
+        }
    }
    const int tIndex = X + Y * WIDTH;
    iters[tIndex]  = count;
