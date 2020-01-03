@@ -23,6 +23,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -95,7 +96,12 @@ public class MandelConfigPanel {
             }
         });
 
-        calcDistanceCheckBox.addActionListener(tActionToChange);
+        calcDistanceCheckBox.addActionListener(e -> {
+            if (getEscapeRadius() < 100 && calcDistanceCheckBox.isSelected()) {
+                escapeRadiusTextField.setText("100");
+            }
+            changed();
+        });
 
         deviceComboBox.setModel(new DefaultComboBoxModel<>(Device.TYPE.values()));
         deviceComboBox.setSelectedItem(Device.TYPE.GPU);
