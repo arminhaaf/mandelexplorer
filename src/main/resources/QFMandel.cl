@@ -379,7 +379,7 @@ __kernel void computeMandelBrot(
     const float4 dx = (float4)(xInc[0], xInc[1], xInc[2], xInc[3]);
     const float4 dy = (float4)(yInc[0], yInc[1], yInc[2], yInc[3]);
 
-    const float4 qfTemp = qfAssign(0);
+    float4 qfTemp = qfAssign(0);
 
     const float4 x = qfAssign(0);
     const float4 y = qfAssign(0);
