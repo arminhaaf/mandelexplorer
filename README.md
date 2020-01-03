@@ -1,6 +1,6 @@
 # Mandelbrot Explorer
 
-A GPU accerelated Mandelbrot explorer implemented in Java 8 using aparapi (https://gitter.im/Syncleus/aparapi)
+A GPU accerelated Mandelbrot explorer implemented in Java 8 using aparapi (http://aparapi.com/)
 
 Start nimra.mandelexplorer.MandelExplore from your IDE
 
