@@ -8,12 +8,15 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -144,8 +147,21 @@ public class MandelExplorer {
                 }
             });
 
+            Timer tInfoTimer = new Timer(10, new ActionListener() {
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+//                    if ( currentMandelKernel.isExecuting()) {
+//                        System.out.println(currentMandelKernel.getCurrentPass());
+//                    } else {
+//                        System.out.println("done");
+//                    }
+                }
+            });
+
             currentMandelKernel = getMandelKernel();
             explorerConfigPanel.setAlgoInfo(currentMandelKernel);
+
+            tInfoTimer.start();
             try {
                 viewer.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 long tStartCalcMillis = System.currentTimeMillis();
@@ -160,6 +176,7 @@ public class MandelExplorer {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, ex.getMessage());
             } finally {
+                tInfoTimer.stop();
                 viewer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
             }
 
@@ -222,7 +239,8 @@ public class MandelExplorer {
                 new FloatCLMandelKernel(getImageWidth(), getImageHeight()),
                 new FFCLMandelKernel(getImageWidth(), getImageHeight()),
                 new QFCLMandelKernel(getImageWidth(), getImageHeight()),
-                new DDCLMandelKernel(getImageWidth(), getImageHeight())
+                new DDCLMandelKernel(getImageWidth(), getImageHeight()),
+                new FP128CLMandelKernel(getImageWidth(), getImageHeight())
                 );
     }
 

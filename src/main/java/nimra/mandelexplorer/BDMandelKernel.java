@@ -50,6 +50,29 @@ public abstract class BDMandelKernel extends MandelKernel {
         yInc = tScaleY.divide(new BigDecimal(height), MathContext.DECIMAL128);
     }
 
+    public int getMaxIterations() {
+        return maxIterations;
+    }
+
+    public BigDecimal getxStart() {
+        return xStart;
+    }
+
+    public BigDecimal getyStart() {
+        return yStart;
+    }
+
+    public BigDecimal getxInc() {
+        return xInc;
+    }
+
+    public BigDecimal getyInc() {
+        return yInc;
+    }
+
+    public double getEscapeSqr() {
+        return escapeSqr;
+    }
 
     @Override
     public void run() {
