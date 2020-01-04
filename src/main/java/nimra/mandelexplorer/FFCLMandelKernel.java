@@ -17,18 +17,6 @@ import java.math.MathContext;
  */
 public class FFCLMandelKernel extends BDMandelKernel {
 
-    private static final FFCLMandel ffCLMandel;
-
-    static {
-        FFCLMandel tImpl = null;
-        try {
-            tImpl = ((OpenCLDevice) KernelManager.instance().bestDevice()).bind(FFCLMandel.class);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        ffCLMandel = tImpl;
-    }
-
 
     public FFCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
@@ -62,11 +50,10 @@ public class FFCLMandelKernel extends BDMandelKernel {
 
     @Override
     public synchronized Kernel execute(Range pRange) {
-        if (ffCLMandel == null) {
-            throw new RuntimeException("need open cl for " + this);
-        }
 
-        ffCLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
+        FFCLMandel tImpl = CLImplCache.getImpl(this, FFCLMandel.class);
+
+        tImpl.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
                 convertToFF(xStart), convertToFF(yStart), convertToFF(xInc), convertToFF(yInc), maxIterations, escapeSqr);
 
         return this;

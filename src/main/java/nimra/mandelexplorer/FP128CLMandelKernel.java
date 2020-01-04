@@ -13,20 +13,6 @@ import com.aparapi.internal.kernel.KernelManager;
  * @author Armin Haaf
  */
 public class FP128CLMandelKernel extends BDMandelKernel {
-
-    private static final FP128CLMandel fp128CLMandel;
-
-    static {
-        FP128CLMandel tImpl = null;
-        try {
-            tImpl = ((OpenCLDevice)KernelManager.instance().bestDevice()).bind(FP128CLMandel.class);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        fp128CLMandel = tImpl;
-    }
-
-
     public FP128CLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
@@ -34,11 +20,9 @@ public class FP128CLMandelKernel extends BDMandelKernel {
 
     @Override
     public synchronized Kernel execute(Range pRange) {
-        if (fp128CLMandel == null) {
-            throw new RuntimeException("need open cl for " + this);
-        }
+        FP128CLMandel tImpl = CLImplCache.getImpl(this, FP128CLMandel.class);
 
-        fp128CLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
+        tImpl.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
                                         FP128.from(xStart).vec, FP128.from(yStart).vec, FP128.from(xInc).vec, FP128.from(yInc).vec,
                                         maxIterations, (int)escapeSqr);
 

@@ -64,6 +64,12 @@ public class FP128 {
         }
     }
 
+    public void copy(int[] pData, int tIndex) {
+        for (int i = 0; i < vec.length; i++) {
+            pData[tIndex*4+i] = vec[i];
+        }
+    }
+
     public static FP128 from(final BigDecimal pValue) {
         final boolean tNeg = pValue.compareTo(BigDecimal.ZERO) < 0;
 
@@ -118,7 +124,7 @@ public class FP128 {
     public String toHexString() {
         StringBuilder tStringBuilder = new StringBuilder();
         for (int tX : vec) {
-            tStringBuilder.append(Integer.toHexString(tX));
+            tStringBuilder.append(String.format("0x%08x,", tX));
         }
         return tStringBuilder.toString();
     }

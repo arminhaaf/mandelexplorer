@@ -13,27 +13,14 @@ import com.aparapi.internal.kernel.KernelManager;
  * @author Armin Haaf
  */
 public class FloatCLMandelKernel extends FloatMandelKernel {
-    private static final FloatCLMandel floatCLMandel;
-
-    static {
-        FloatCLMandel tImpl = null;
-        try {
-            tImpl = ((OpenCLDevice) KernelManager.instance().bestDevice()).bind(FloatCLMandel.class);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        floatCLMandel = tImpl;
-    }
-
     public FloatCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
 
     public synchronized Kernel execute(Range pRange) {
-        if (floatCLMandel == null) {
-            throw new RuntimeException("need open cl for " + this);
-        }
-        floatCLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
+        FloatCLMandel tImpl = CLImplCache.getImpl(this, FloatCLMandel.class);
+
+        tImpl.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
                 xStart, yStart, xInc, yInc, maxIterations, escapeSqr);
 
         return this;

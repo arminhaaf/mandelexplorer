@@ -27,6 +27,7 @@ import java.awt.image.DataBufferInt;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
@@ -139,14 +140,6 @@ public class MandelExplorer {
                 setSize(viewer.getSize().width, viewer.getSize().height);
             }
 
-            KernelManager.setKernelManager(new KernelManager() {
-
-                @Override
-                protected List<Device.TYPE> getPreferredDeviceTypes() {
-                    return Collections.singletonList(explorerConfigPanel.getDeviceType());
-                }
-            });
-
             Timer tInfoTimer = new Timer(10, new ActionListener() {
                 @Override
                 public void actionPerformed(final ActionEvent e) {
@@ -159,6 +152,11 @@ public class MandelExplorer {
             });
 
             currentMandelKernel = getMandelKernel();
+
+            final LinkedHashSet<Device> tPreferredDevices = new LinkedHashSet<>();
+            tPreferredDevices.add(explorerConfigPanel.getDevice());
+            KernelManager.instance().setPreferredDevices(currentMandelKernel, tPreferredDevices);
+
             explorerConfigPanel.setAlgoInfo(currentMandelKernel);
 
             tInfoTimer.start();

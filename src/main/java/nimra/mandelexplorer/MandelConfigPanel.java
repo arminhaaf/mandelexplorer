@@ -1,6 +1,8 @@
 package nimra.mandelexplorer;
 
 import com.aparapi.device.Device;
+import com.aparapi.device.JavaDevice;
+import com.aparapi.device.OpenCLDevice;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +25,6 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -58,7 +59,7 @@ public class MandelConfigPanel {
     private JTextField renderMillisTextField;
     private JComboBox<PaletteMapper> paletteComboBox;
     private JTextField algoInfoTextField;
-    private JComboBox<Device.TYPE> deviceComboBox;
+    private JComboBox<Device> deviceComboBox;
     private JComboBox<MandelConfig> configsComboBox;
     private JButton addAsConfigButton;
     private JButton removeSelectedConfig;
@@ -103,8 +104,18 @@ public class MandelConfigPanel {
             changed();
         });
 
-        deviceComboBox.setModel(new DefaultComboBoxModel<>(Device.TYPE.values()));
-        deviceComboBox.setSelectedItem(Device.TYPE.GPU);
+        deviceComboBox.setModel(new DefaultComboBoxModel<>(getAvailableDevices().toArray(new Device[0])));
+        deviceComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
+                String tLabel = "JCP";
+                if ( value!=null ) {
+                    tLabel = ((Device)value).getShortDescription();
+                }
+                return super.getListCellRendererComponent(list, tLabel, index, isSelected, cellHasFocus);
+            }
+        });
+        deviceComboBox.setSelectedIndex(0);
         deviceComboBox.addActionListener(tActionToChange);
 
         paletteComboBox.setModel(paletteModel);
@@ -170,6 +181,15 @@ public class MandelConfigPanel {
 
         configsComboBox.addActionListener(e -> setSelectedConfig());
 
+    }
+
+    private List<Device> getAvailableDevices() {
+        List<Device> tAvailableDevices = new ArrayList<>();
+        for (Device.TYPE tType : Device.TYPE.values()) {
+            tAvailableDevices.addAll(OpenCLDevice.listDevices(tType));
+        }
+        tAvailableDevices.add(null); // -> JCP
+        return tAvailableDevices;
     }
 
     public double getEscapeRadius() {
@@ -471,8 +491,12 @@ public class MandelConfigPanel {
         }
     }
 
-    public Device.TYPE getDeviceType() {
-        return (Device.TYPE)deviceComboBox.getSelectedItem();
+    public Device getDevice() {
+        Device tSelectedDevice = (Device) deviceComboBox.getSelectedItem();
+        if ( tSelectedDevice==null ) {
+            return JavaDevice.THREAD_POOL;
+        }
+        return (Device) tSelectedDevice;
     }
 
 

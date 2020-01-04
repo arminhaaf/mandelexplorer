@@ -19,19 +19,6 @@ import java.math.BigDecimal;
  */
 public class QFCLMandelKernel extends BDMandelKernel {
 
-    private static final QFCLMandel qfCLMandel;
-
-    static {
-        QFCLMandel tImpl = null;
-        try {
-            tImpl = ((OpenCLDevice)KernelManager.instance().bestDevice()).bind(QFCLMandel.class);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        qfCLMandel = tImpl;
-    }
-
-
     public QFCLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
@@ -64,11 +51,9 @@ public class QFCLMandelKernel extends BDMandelKernel {
 
     @Override
     public synchronized Kernel execute(Range pRange) {
-        if (qfCLMandel == null) {
-            throw new RuntimeException("need open cl for " + this);
-        }
+        QFCLMandel tImpl = CLImplCache.getImpl(this, QFCLMandel.class);
 
-        qfCLMandel.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
+        tImpl.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
                 convertToQF(xStart), convertToQF(yStart), convertToQF(xInc), convertToQF(yInc), maxIterations, escapeSqr);
 
         return this;
