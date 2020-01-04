@@ -189,7 +189,12 @@ __kernel void computeMandelBrot(
     int sqrEscapeRadius)
 {
 
-    // Convert inputs
+// on my nvidia env FP128 fails. however with this constant it works....
+//      uint4 leftX = (uint4)(0xfffffffd,0x80000000,0x00000000,0x00000000);
+//      uint4 topY = (uint4)(0xfffffffe,0x80000000,0x00000000,0x00000000);
+//      uint4 stepX = (uint4)(0x00000000,0x00c00000,0x00000000,0x00000000);
+//      uint4 stepY = (uint4)(0x00000000,0x00c00000,0x00000000,0x00000000);
+
     uint4 leftX = vload4(0, xStart);
     uint4 topY = vload4(0, yStart);
     uint4 stepX = vload4(0, xInc);
