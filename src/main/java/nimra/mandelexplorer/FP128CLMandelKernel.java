@@ -53,7 +53,7 @@ public class FP128CLMandelKernel extends BDMandelKernel {
 
     @Override
     public String toString() {
-        return "FP128CL";
+        return "FP128CL (problems on nvidia)";
     }
 
 }

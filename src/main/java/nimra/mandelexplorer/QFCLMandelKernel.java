@@ -82,7 +82,7 @@ public class QFCLMandelKernel extends BDMandelKernel {
 
     @Override
     public String toString() {
-        return "QFCL";
+        return "QFCL (only double precision)";
     }
 }
 
