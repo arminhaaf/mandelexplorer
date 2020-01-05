@@ -35,11 +35,11 @@ uint4 set128(int k)
 // Return U+V
 uint4 add128(uint4 u, uint4 v)
 {
-    uint4 s = u + v;
-    uint4 h = (uint4)(s.x < u.x ? 1U : 0U, s.y < u.y ? 1U : 0U, s.z < u.z ? 1U : 0U, s.w < u.w ? 1U : 0U);
-    uint4 c1 = h.yzwx & (uint4)(1, 1, 1, 0); // Carry from U+V
-    h = (uint4)(s.x == 0xFFFFFFFFU ? 1U : 0U, s.y == 0xFFFFFFFFU ? 1U : 0U, s.z == 0xFFFFFFFFU ? 1U : 0U, s.w == 0xFFFFFFFFU ? 1U : 0U);
-    uint4 c2 = (uint4)((c1.y | (c1.z & h.z)) & h.y, c1.z & h.z, 0, 0); // Propagated carry
+    const uint4 s = u + v;
+    // carry to hi
+    const uint4 c1 = (uint4)(s.y < u.y ? 1U : 0U, s.z < u.z ? 1U : 0U, s.w < u.w ? 1U : 0U, 0);
+    const uint4 h = (uint4)(s.x == 0xFFFFFFFFU ? 1U : 0U, s.y == 0xFFFFFFFFU ? 1U : 0U, s.z == 0xFFFFFFFFU ? 1U : 0U, s.w == 0xFFFFFFFFU ? 1U : 0U);
+    const uint4 c2 = (uint4)((c1.y | (c1.z & h.z)) & h.y, c1.z & h.z, 0, 0); // Propagated carry
     return s + c1 + c2;
 }
 
