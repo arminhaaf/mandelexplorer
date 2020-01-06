@@ -55,7 +55,7 @@ public class MandelConfigPanel {
     private JTextField yInfoTextField;
     private JTextField scaleInfoTextField;
     private JTextField maxIterInfoTextField;
-    private JComboBox<MandelKernel> algorithmComboBox;
+    private JComboBox<MandelAlgo> algorithmComboBox;
     private JTextField renderMillisTextField;
     private JComboBox<PaletteMapper> paletteComboBox;
     private JTextField algoInfoTextField;
@@ -72,7 +72,7 @@ public class MandelConfigPanel {
     private ChangeListener paletteChangeListener;
     private boolean changeEnabled = true;
 
-    private DefaultComboBoxModel<MandelKernel> algorithmModel = new DefaultComboBoxModel<>();
+    private DefaultComboBoxModel<MandelAlgo> algorithmModel = new DefaultComboBoxModel<>();
     private DefaultComboBoxModel<PaletteMapper> paletteModel = new DefaultComboBoxModel<>();
 
     private final Map<String, MandelConfig> configs = new HashMap<>();
@@ -109,8 +109,8 @@ public class MandelConfigPanel {
             @Override
             public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
                 String tLabel = "JCP";
-                if ( value!=null ) {
-                    tLabel = ((Device)value).getShortDescription();
+                if (value != null) {
+                    tLabel = ((Device) value).getShortDescription();
                 }
                 return super.getListCellRendererComponent(list, tLabel, index, isSelected, cellHasFocus);
             }
@@ -122,7 +122,7 @@ public class MandelConfigPanel {
         ServiceLoader.load(PaletteMapper.class).forEach(this::addPalette);
 
         paletteComboBox.addActionListener(e -> {
-            paletteConfigTextArea.setText(((PaletteMapper)paletteComboBox.getSelectedItem()).toJson().toString(2));
+            paletteConfigTextArea.setText(((PaletteMapper) paletteComboBox.getSelectedItem()).toJson().toString(2));
             paletteChanged();
         });
 
@@ -158,14 +158,14 @@ public class MandelConfigPanel {
                 tMandelConfig.mandelParams.setScale(new BigDecimal(scaleInfoTextField.getText()));
                 tMandelConfig.mandelParams.setMaxIterations(getMaxIterations());
                 tMandelConfig.mandelParams.setEscapeRadius(getEscapeRadius());
-                tMandelConfig.palette = ((PaletteMapper)paletteComboBox.getSelectedItem()).getName();
+                tMandelConfig.palette = ((PaletteMapper) paletteComboBox.getSelectedItem()).getName();
                 tMandelConfig.paletteConfigJson = paletteConfigTextArea.getText();
             }
             saveConfigs(configFile);
         });
 
         removeSelectedConfig.addActionListener(e -> {
-            MandelConfig tMandelConfig = (MandelConfig)configsComboBox.getSelectedItem();
+            MandelConfig tMandelConfig = (MandelConfig) configsComboBox.getSelectedItem();
             if (tMandelConfig != null) {
                 configsComboBox.removeItemAt(configsComboBox.getSelectedIndex());
                 configs.remove(tMandelConfig.name);
@@ -209,7 +209,7 @@ public class MandelConfigPanel {
     }
 
     private void setSelectedConfig() {
-        MandelConfig tMandelConfig = (MandelConfig)configsComboBox.getSelectedItem();
+        MandelConfig tMandelConfig = (MandelConfig) configsComboBox.getSelectedItem();
 
         if (tMandelConfig == null) {
             return;
@@ -272,7 +272,7 @@ public class MandelConfigPanel {
     }
 
     public PaletteMapper getPaletteMapper() {
-        final PaletteMapper tPaletteMapper = (PaletteMapper)paletteComboBox.getSelectedItem();
+        final PaletteMapper tPaletteMapper = (PaletteMapper) paletteComboBox.getSelectedItem();
 
         final String tText = paletteConfigTextArea.getText();
         if (StringUtils.isNotEmpty(tText)) {
@@ -281,12 +281,12 @@ public class MandelConfigPanel {
         return tPaletteMapper;
     }
 
-    public MandelKernel getSelectedAlgorithm() {
-        return (MandelKernel)algorithmComboBox.getSelectedItem();
+    public MandelAlgo getSelectedAlgorithm() {
+        return (MandelAlgo) algorithmComboBox.getSelectedItem();
     }
 
     public int getMaxIterations() {
-        String tMaxIterationsString = (String)maxIterationChooser.getSelectedItem();
+        String tMaxIterationsString = (String) maxIterationChooser.getSelectedItem();
 
         try {
             return Integer.parseInt(tMaxIterationsString);
@@ -327,10 +327,19 @@ public class MandelConfigPanel {
         escapeRadiusTextField.setText(Double.toString(pMandelParams.getEscapeRadius()));
     }
 
-    public void setAlgoInfo(MandelKernel pAlgo) {
+    public void setAlgoInfo(MandelAlgo pAlgo) {
         algoInfoTextField.setText(pAlgo != null ? pAlgo.toString() : "");
     }
 
+    public List<MandelAlgo> getAlgos() {
+        final List<MandelAlgo> tResult = new ArrayList<>();
+        for (int i = 0; i < algorithmModel.getSize(); i++) {
+            if (algorithmModel.getElementAt(i) != null) {
+                tResult.add(algorithmModel.getElementAt(i));
+            }
+        }
+        return tResult;
+    }
 
     public void setRenderMillis(long pCalcMillis, long pColorMillis) {
         renderMillisTextField.setText(String.format("calc: %d color: %d", pCalcMillis, pColorMillis));
@@ -472,11 +481,11 @@ public class MandelConfigPanel {
         return mainPanel;
     }
 
-    public void setAlgorithms(final MandelKernel... pAlgos) {
-        MandelKernel tSelection = getSelectedAlgorithm();
+    public void setAlgorithms(final MandelAlgo... pAlgos) {
+        MandelAlgo tSelection = getSelectedAlgorithm();
         algorithmModel.removeAllElements();
         algorithmModel.addElement(null);
-        for (MandelKernel tAlgo : pAlgos) {
+        for (MandelAlgo tAlgo : pAlgos) {
             algorithmModel.addElement(tAlgo);
 
             if (tSelection != null && tSelection.toString().equals(tAlgo.toString())) {
@@ -493,7 +502,7 @@ public class MandelConfigPanel {
 
     public Device getDevice() {
         Device tSelectedDevice = (Device) deviceComboBox.getSelectedItem();
-        if ( tSelectedDevice==null ) {
+        if (tSelectedDevice == null) {
             return JavaDevice.THREAD_POOL;
         }
         return (Device) tSelectedDevice;

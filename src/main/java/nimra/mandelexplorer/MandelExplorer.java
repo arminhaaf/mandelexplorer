@@ -26,9 +26,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
@@ -78,7 +79,7 @@ public class MandelExplorer {
         explorerConfigPanel.setChangeListener(e -> render());
 
         explorerConfigPanel.setPaletteChangeListener(e -> {
-            paint(currentMandelKernel);
+            paint(currentMandelKernelAlgo.getMandelKernel());
             viewer.repaint();
         });
 
@@ -104,7 +105,7 @@ public class MandelExplorer {
         return panel;
     }
 
-    private MandelKernel currentMandelKernel;
+    private MandelAlgo currentMandelKernelAlgo;
 
     private void start() {
 
@@ -151,22 +152,25 @@ public class MandelExplorer {
                 }
             });
 
-            currentMandelKernel = getMandelKernel();
+            currentMandelKernelAlgo = getMandelAlgo();
+
+            final MandelKernel tMandelKernel = currentMandelKernelAlgo.getMandelKernel();
+            tMandelKernel.setCalcDistance(explorerConfigPanel.calcDistance());
 
             final LinkedHashSet<Device> tPreferredDevices = new LinkedHashSet<>();
             tPreferredDevices.add(explorerConfigPanel.getDevice());
-            KernelManager.instance().setPreferredDevices(currentMandelKernel, tPreferredDevices);
+            KernelManager.instance().setPreferredDevices(tMandelKernel, tPreferredDevices);
 
-            explorerConfigPanel.setAlgoInfo(currentMandelKernel);
+            explorerConfigPanel.setAlgoInfo(currentMandelKernelAlgo);
 
             tInfoTimer.start();
             try {
                 viewer.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 long tStartCalcMillis = System.currentTimeMillis();
-                calc(currentMandelKernel);
+                calc(tMandelKernel);
                 long tCalcMillis = System.currentTimeMillis() - tStartCalcMillis;
                 long tStartColorMillis = System.currentTimeMillis();
-                paint(currentMandelKernel);
+                paint(tMandelKernel);
                 long tColorMillis = System.currentTimeMillis() - tStartColorMillis;
                 explorerConfigPanel.setRenderMillis(tCalcMillis, tColorMillis);
                 viewer.repaint();
@@ -217,49 +221,44 @@ public class MandelExplorer {
         pMandelKernel.execute(range);
     }
 
-    MandelKernel doubleMandel;
-    MandelKernel floatMandel;
-    MandelKernel ddMantel;
-
     private void prepareMandelKernel() {
-        if (doubleMandel != null) {
-            doubleMandel.dispose();
-        }
-        if (floatMandel != null) {
-            floatMandel.dispose();
-        }
-
-        doubleMandel = new DoubleMandelImpl(getImageWidth(), getImageHeight());
-        floatMandel = new FloatMandelKernel(getImageWidth(), getImageHeight());
-        ddMantel = new DDMandelImpl(getImageWidth(), getImageHeight());
-
-        explorerConfigPanel.setAlgorithms(floatMandel, doubleMandel, ddMantel,
-                new FloatCLMandelKernel(getImageWidth(), getImageHeight()),
-                new FFCLMandelKernel(getImageWidth(), getImageHeight()),
-                new QFCLMandelKernel(getImageWidth(), getImageHeight()),
-                new DDCLMandelKernel(getImageWidth(), getImageHeight()),
-                new FP128CLMandelKernel(getImageWidth(), getImageHeight())
+       explorerConfigPanel.setAlgorithms(
+                new MandelAlgo("Float", 1E-4, () -> new FloatMandelKernel(getImageWidth(), getImageHeight())),
+                new MandelAlgo("Double", 1E-15,() -> new DoubleMandelImpl(getImageWidth(), getImageHeight())),
+                new MandelAlgo("FloatCL", 1E-4, () -> new FloatCLMandelKernel(getImageWidth(), getImageHeight())),
+                new MandelAlgo("FFCL", 1E-12, () -> new FFCLMandelKernel(getImageWidth(), getImageHeight())),
+                new MandelAlgo("DD", 1E-28, () -> new DDMandelImpl(getImageWidth(), getImageHeight())),
+                new MandelAlgo("DDCL",1E-27, () -> new DDCLMandelKernel(getImageWidth(), getImageHeight())),
+                new MandelAlgo("FP128CL", 1E-40, () -> new FP128CLMandelKernel(getImageWidth(), getImageHeight()))
+                // bugggy
+                //new MandelAlgo("QFCL",1E-14, () -> new QFCLMandelKernel(getImageWidth(), getImageHeight()))
                 );
     }
 
-    private MandelKernel getMandelKernel() {
-        MandelKernel tMandelKernel = explorerConfigPanel.getSelectedAlgorithm();
+    private MandelAlgo getMandelAlgo() {
+        MandelAlgo tMandelAlgo = explorerConfigPanel.getSelectedAlgorithm();
 
         // auto choose kernel
-        if (tMandelKernel == null) {
+        if (tMandelAlgo == null) {
+            boolean tGPU = explorerConfigPanel.getDevice().getType()== Device.TYPE.GPU;
             final double tMinPixelSize = mandelParams.getScale_double() / Math.max(getImageHeight(), getImageWidth());
-            if (tMinPixelSize < 1E-14) {
-                tMandelKernel = ddMantel;
-            } else if (tMinPixelSize < 1E-7) {
-                tMandelKernel = doubleMandel;
+            final List<MandelAlgo> tAlgos = explorerConfigPanel.getAlgos();
+            MandelAlgo tBestMatch = null;
+            for (MandelAlgo tAlgo : tAlgos) {
+                if ( tAlgo.getPrecision()<tMinPixelSize) {
+                    if ( tBestMatch==null ||tBestMatch.getPrecision()<tAlgo.getPrecision()) {
+                        tBestMatch = tAlgo;
+                    }
+                }
+            }
+            if ( tBestMatch!=null ) {
+                return tBestMatch;
             } else {
-                tMandelKernel = floatMandel;
+                return tAlgos.get(0);
             }
         }
 
-        tMandelKernel.setCalcDistance(explorerConfigPanel.calcDistance());
-
-        return tMandelKernel;
+        return tMandelAlgo;
     }
 
     private final BigDecimal BD_0_5 = new BigDecimal("0.5");
@@ -339,7 +338,13 @@ public class MandelExplorer {
         // Set the size of JComponent which displays Mandelbrot image
         viewer.setPreferredSize(new Dimension(getImageWidth(), getImageHeight()));
 
+        cleanupKernels();
+
         prepareMandelKernel();
+    }
+
+    private void cleanupKernels() {
+        MandelKernel.disposeAll();
     }
 
     private int getImageWidth() {
