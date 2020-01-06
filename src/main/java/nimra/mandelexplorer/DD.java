@@ -386,8 +386,8 @@ public final class DD
         h = e + (S - H);
         e = t + h;
 
-        double zhi = H + e;
-        double zlo = e + (H - zhi);
+        final double zhi = H + e;
+        final double zlo = e + (H - zhi);
         hi = zhi;
         lo = zlo;
         return this;
@@ -493,11 +493,28 @@ public final class DD
      * this method <b>must only</b> be used on values known to
      * be newly created.
      *
-     * @param y the value to multiply by
+     * @param yhi the value to multiply by
      * @return this object, multiplied by y
      */
-    public final DD selfMultiply(double y) {
-        return selfMultiply(y, 0.0);
+    public final DD selfMultiply(double yhi) {
+        double hx, tx, hy, ty, C, c;
+        C = SPLIT * hi;
+        hx = C - hi;
+        c = SPLIT * yhi;
+        hx = C - hx;
+        tx = hi - hx;
+        hy = c - yhi;
+        C = hi * yhi;
+        hy = c - hy;
+        ty = yhi - hy;
+        //c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
+        c = Math.fma(lo, yhi, Math.fma(tx, ty, Math.fma(tx, hy, Math.fma(hx, ty, Math.fma(hx, hy, -C)))));
+        final double zhi = C + c;
+        hx = C - zhi;
+        final double zlo = c + hx;
+        hi = zhi;
+        lo = zlo;
+        return this;
     }
 
     private final DD selfMultiply(double yhi, double ylo) {
@@ -511,13 +528,15 @@ public final class DD
         C = hi * yhi;
         hy = c - hy;
         ty = yhi - hy;
-        c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
+        //c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
+        c = Math.fma(tx,ty,Math.fma(tx,hy, Math.fma(hx,ty,Math.fma(hx,hy, - C)))) + Math.fma(hi,ylo,lo * yhi);
         double zhi = C + c;
         hx = C - zhi;
         double zlo = c + hx;
         hi = zhi;
         lo = zlo;
         return this;
+
     }
 
     /**
