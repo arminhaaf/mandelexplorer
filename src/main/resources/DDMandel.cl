@@ -24,6 +24,9 @@ inline double2 mul(const double2 pFF1, const double2 pFF2) {
     hy = c - hy;
     ty = yhi - hy;
     c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
+    // fma implementation is not faster, seems compiler can do the job
+    //c = fma(tx,ty,fma(tx,hy, fma(hx,ty,fma(hx,hy, - C)))) + fma(hi,ylo,lo * yhi);
+
     const double zhi = C + c;
     hx = C - zhi;
     const double zlo = c + hx;
@@ -47,6 +50,9 @@ inline double2 mulDouble(const double2 pFF1, const double pDouble) {
     hy = c - hy;
     ty = yhi - hy;
     c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
+    // fma implementation is not faster, seems compiler can do the job
+    //c = fma(lo, yhi, fma(tx, ty, fma(tx, hy, fma(hx, ty, fma(hx, hy, -C)))));
+
     const double zhi = C + c;
     hx = C - zhi;
     const double zlo = c + hx;
