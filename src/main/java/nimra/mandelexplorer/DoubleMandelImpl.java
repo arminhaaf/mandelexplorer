@@ -9,15 +9,15 @@ package nimra.mandelexplorer;
  */
 public class DoubleMandelImpl extends MandelKernel {
 
-    private int maxIterations = 100;
+    public int maxIterations = 100;
 
-    private double xStart;
-    private double yStart;
+    protected double xStart;
+    protected double yStart;
 
-    private double xInc;
-    private double yInc;
+    protected double xInc;
+    protected double yInc;
 
-    private double escapeSqr;
+    protected double escapeSqr;
 
 
     public DoubleMandelImpl(final int pWidth, final int pHeight) {
