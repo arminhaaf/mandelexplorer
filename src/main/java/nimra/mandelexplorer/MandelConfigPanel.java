@@ -67,6 +67,8 @@ public class MandelConfigPanel {
     private JTextArea paletteConfigTextArea;
     private JSlider zoomSpeedSlider;
     private JCheckBox calcDistanceCheckBox;
+    private JTextArea deviceInfoTextArea;
+    private JTextField currentDeviceTextField;
 
     private ChangeListener changeListener;
     private ChangeListener paletteChangeListener;
@@ -110,11 +112,12 @@ public class MandelConfigPanel {
             public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
                 String tLabel = "JCP";
                 if (value != null) {
-                    tLabel = ((Device) value).getShortDescription();
+                    tLabel = ((Device)value).getShortDescription();
                 }
                 return super.getListCellRendererComponent(list, tLabel, index, isSelected, cellHasFocus);
             }
         });
+        deviceComboBox.addActionListener(e -> deviceInfoTextArea.setText(getDevice().toString()));
         deviceComboBox.setSelectedIndex(0);
         deviceComboBox.addActionListener(tActionToChange);
 
@@ -122,7 +125,7 @@ public class MandelConfigPanel {
         ServiceLoader.load(PaletteMapper.class).forEach(this::addPalette);
 
         paletteComboBox.addActionListener(e -> {
-            paletteConfigTextArea.setText(((PaletteMapper) paletteComboBox.getSelectedItem()).toJson().toString(2));
+            paletteConfigTextArea.setText(((PaletteMapper)paletteComboBox.getSelectedItem()).toJson().toString(2));
             paletteChanged();
         });
 
@@ -158,14 +161,14 @@ public class MandelConfigPanel {
                 tMandelConfig.mandelParams.setScale(new BigDecimal(scaleInfoTextField.getText()));
                 tMandelConfig.mandelParams.setMaxIterations(getMaxIterations());
                 tMandelConfig.mandelParams.setEscapeRadius(getEscapeRadius());
-                tMandelConfig.palette = ((PaletteMapper) paletteComboBox.getSelectedItem()).getName();
+                tMandelConfig.palette = ((PaletteMapper)paletteComboBox.getSelectedItem()).getName();
                 tMandelConfig.paletteConfigJson = paletteConfigTextArea.getText();
             }
             saveConfigs(configFile);
         });
 
         removeSelectedConfig.addActionListener(e -> {
-            MandelConfig tMandelConfig = (MandelConfig) configsComboBox.getSelectedItem();
+            MandelConfig tMandelConfig = (MandelConfig)configsComboBox.getSelectedItem();
             if (tMandelConfig != null) {
                 configsComboBox.removeItemAt(configsComboBox.getSelectedIndex());
                 configs.remove(tMandelConfig.name);
@@ -209,7 +212,7 @@ public class MandelConfigPanel {
     }
 
     private void setSelectedConfig() {
-        MandelConfig tMandelConfig = (MandelConfig) configsComboBox.getSelectedItem();
+        MandelConfig tMandelConfig = (MandelConfig)configsComboBox.getSelectedItem();
 
         if (tMandelConfig == null) {
             return;
@@ -272,7 +275,7 @@ public class MandelConfigPanel {
     }
 
     public PaletteMapper getPaletteMapper() {
-        final PaletteMapper tPaletteMapper = (PaletteMapper) paletteComboBox.getSelectedItem();
+        final PaletteMapper tPaletteMapper = (PaletteMapper)paletteComboBox.getSelectedItem();
 
         final String tText = paletteConfigTextArea.getText();
         if (StringUtils.isNotEmpty(tText)) {
@@ -282,11 +285,11 @@ public class MandelConfigPanel {
     }
 
     public MandelAlgo getSelectedAlgorithm() {
-        return (MandelAlgo) algorithmComboBox.getSelectedItem();
+        return (MandelAlgo)algorithmComboBox.getSelectedItem();
     }
 
     public int getMaxIterations() {
-        String tMaxIterationsString = (String) maxIterationChooser.getSelectedItem();
+        String tMaxIterationsString = (String)maxIterationChooser.getSelectedItem();
 
         try {
             return Integer.parseInt(tMaxIterationsString);
@@ -361,67 +364,67 @@ public class MandelConfigPanel {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new FormLayout("fill:max(d;4px):noGrow,left:4dlu:noGrow,fill:d:grow,left:4dlu:noGrow", "center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:d:grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
+        mainPanel.setLayout(new FormLayout("fill:max(d;4px):noGrow,left:4dlu:noGrow,fill:d:grow,left:4dlu:noGrow", "center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:d:grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
         final JLabel label1 = new JLabel();
         label1.setText("max.Iterations");
         CellConstraints cc = new CellConstraints();
-        mainPanel.add(label1, cc.xy(1, 15));
+        mainPanel.add(label1, cc.xy(1, 19));
         maxIterationChooser = new JComboBox();
         maxIterationChooser.setEditable(true);
-        mainPanel.add(maxIterationChooser, cc.xy(3, 15));
+        mainPanel.add(maxIterationChooser, cc.xy(3, 19));
         final JLabel label2 = new JLabel();
         label2.setText("X");
-        mainPanel.add(label2, cc.xy(1, 21));
+        mainPanel.add(label2, cc.xy(1, 25));
         xTextField = new JTextField();
         xTextField.setColumns(14);
-        mainPanel.add(xTextField, cc.xy(3, 21, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(xTextField, cc.xy(3, 25, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label3 = new JLabel();
         label3.setText("Y");
-        mainPanel.add(label3, cc.xy(1, 25));
+        mainPanel.add(label3, cc.xy(1, 29));
         yTextField = new JTextField();
-        mainPanel.add(yTextField, cc.xy(3, 25, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(yTextField, cc.xy(3, 29, CellConstraints.FILL, CellConstraints.DEFAULT));
         scaleTextField = new JTextField();
-        mainPanel.add(scaleTextField, cc.xy(3, 29, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(scaleTextField, cc.xy(3, 33, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label4 = new JLabel();
         label4.setText("Scale");
-        mainPanel.add(label4, cc.xy(1, 29));
+        mainPanel.add(label4, cc.xy(1, 33));
         xInfoTextField = new JTextField();
         xInfoTextField.setEditable(false);
-        mainPanel.add(xInfoTextField, cc.xy(3, 23, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(xInfoTextField, cc.xy(3, 27, CellConstraints.FILL, CellConstraints.DEFAULT));
         yInfoTextField = new JTextField();
         yInfoTextField.setEditable(false);
-        mainPanel.add(yInfoTextField, cc.xy(3, 27, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(yInfoTextField, cc.xy(3, 31, CellConstraints.FILL, CellConstraints.DEFAULT));
         scaleInfoTextField = new JTextField();
         scaleInfoTextField.setEditable(false);
-        mainPanel.add(scaleInfoTextField, cc.xy(3, 31, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(scaleInfoTextField, cc.xy(3, 35, CellConstraints.FILL, CellConstraints.DEFAULT));
         maxIterInfoTextField = new JTextField();
         maxIterInfoTextField.setEditable(false);
-        mainPanel.add(maxIterInfoTextField, cc.xy(3, 17, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(maxIterInfoTextField, cc.xy(3, 21, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label5 = new JLabel();
         label5.setText("Algo");
-        mainPanel.add(label5, cc.xy(1, 5));
+        mainPanel.add(label5, cc.xy(1, 9));
         algorithmComboBox = new JComboBox();
         algorithmComboBox.setEditable(false);
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
         algorithmComboBox.setModel(defaultComboBoxModel1);
-        mainPanel.add(algorithmComboBox, cc.xy(3, 5));
+        mainPanel.add(algorithmComboBox, cc.xy(3, 9));
         final JLabel label6 = new JLabel();
         label6.setText("renderTime");
-        mainPanel.add(label6, cc.xy(1, 35));
+        mainPanel.add(label6, cc.xy(1, 39));
         renderMillisTextField = new JTextField();
         renderMillisTextField.setEditable(false);
-        mainPanel.add(renderMillisTextField, cc.xy(3, 35, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(renderMillisTextField, cc.xy(3, 39, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label7 = new JLabel();
         label7.setText("Palette");
-        mainPanel.add(label7, cc.xy(1, 11));
+        mainPanel.add(label7, cc.xy(1, 15));
         paletteComboBox = new JComboBox();
         paletteComboBox.setEditable(false);
         final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
         paletteComboBox.setModel(defaultComboBoxModel2);
-        mainPanel.add(paletteComboBox, cc.xy(3, 11));
+        mainPanel.add(paletteComboBox, cc.xy(3, 15));
         algoInfoTextField = new JTextField();
         algoInfoTextField.setEditable(false);
-        mainPanel.add(algoInfoTextField, cc.xy(3, 7, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(algoInfoTextField, cc.xy(3, 11, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label8 = new JLabel();
         label8.setText("Device");
         mainPanel.add(label8, cc.xy(1, 3));
@@ -443,31 +446,40 @@ public class MandelConfigPanel {
         panel1.add(removeSelectedConfig);
         final JLabel label9 = new JLabel();
         label9.setText("Escape Radius");
-        mainPanel.add(label9, cc.xy(1, 19));
+        mainPanel.add(label9, cc.xy(1, 23));
         escapeRadiusTextField = new JTextField();
         escapeRadiusTextField.setColumns(14);
-        mainPanel.add(escapeRadiusTextField, cc.xy(3, 19, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(escapeRadiusTextField, cc.xy(3, 23, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JScrollPane scrollPane1 = new JScrollPane();
-        mainPanel.add(scrollPane1, cc.xy(3, 13, CellConstraints.FILL, CellConstraints.FILL));
+        mainPanel.add(scrollPane1, cc.xy(3, 17, CellConstraints.FILL, CellConstraints.FILL));
         paletteConfigTextArea = new JTextArea();
         paletteConfigTextArea.setRows(3);
         paletteConfigTextArea.setText("");
         scrollPane1.setViewportView(paletteConfigTextArea);
         final JLabel label10 = new JLabel();
         label10.setText("Zoom-Speed");
-        mainPanel.add(label10, cc.xy(1, 33));
+        mainPanel.add(label10, cc.xy(1, 37));
         zoomSpeedSlider = new JSlider();
         zoomSpeedSlider.setMaximum(10);
         zoomSpeedSlider.setMinimum(1);
         zoomSpeedSlider.setValue(5);
-        mainPanel.add(zoomSpeedSlider, cc.xy(3, 33, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(zoomSpeedSlider, cc.xy(3, 37, CellConstraints.FILL, CellConstraints.DEFAULT));
         calcDistanceCheckBox = new JCheckBox();
         calcDistanceCheckBox.setText("");
-        mainPanel.add(calcDistanceCheckBox, cc.xy(3, 9));
+        mainPanel.add(calcDistanceCheckBox, cc.xy(3, 13));
         final JLabel label11 = new JLabel();
         label11.setText("Calc Distance");
         label11.setToolTipText("About 20% faster without -> no Distance palette mapping");
-        mainPanel.add(label11, cc.xy(1, 9));
+        mainPanel.add(label11, cc.xy(1, 13));
+        final JScrollPane scrollPane2 = new JScrollPane();
+        mainPanel.add(scrollPane2, cc.xy(3, 7, CellConstraints.FILL, CellConstraints.FILL));
+        deviceInfoTextArea = new JTextArea();
+        deviceInfoTextArea.setRows(3);
+        deviceInfoTextArea.setText("");
+        scrollPane2.setViewportView(deviceInfoTextArea);
+        currentDeviceTextField = new JTextField();
+        currentDeviceTextField.setEditable(false);
+        mainPanel.add(currentDeviceTextField, cc.xy(3, 5, CellConstraints.FILL, CellConstraints.DEFAULT));
     }
 
     /**
@@ -501,11 +513,11 @@ public class MandelConfigPanel {
     }
 
     public Device getDevice() {
-        Device tSelectedDevice = (Device) deviceComboBox.getSelectedItem();
+        Device tSelectedDevice = (Device)deviceComboBox.getSelectedItem();
         if (tSelectedDevice == null) {
             return JavaDevice.THREAD_POOL;
         }
-        return (Device) tSelectedDevice;
+        return (Device)tSelectedDevice;
     }
 
 
