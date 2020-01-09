@@ -91,7 +91,7 @@ mandel_avxd(unsigned int *iters,
             vCount.m = _mm256_cvtpd_epi32(mk);
 
             const int tIndex = x + y * width;
-            for ( int i=0; i<8 && x+i<width; i++ ) {
+            for ( int i=0; i<4 && x+i<width; i++ ) {
                 iters[tIndex+i] = vCount.i[i];
                 lastZrs[tIndex] = (double)vLastZr.f[i];
                 lastZis[tIndex] = (double)vLastZi.f[i];
