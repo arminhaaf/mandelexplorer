@@ -1,6 +1,8 @@
 # Mandelbrot Explorer
 
-A GPU accerelated Mandelbrot explorer implemented in Java 8 using aparapi (http://aparapi.com/)
+A GPU/AVX accelerated Mandelbrot explorer implemented in Java 9.
+
+GPU implementation using aparapi (http://aparapi.com/)
 
 Start nimra.mandelexplorer.MandelExplore from your IDE
 
