@@ -41,7 +41,7 @@ mandel_avxd(unsigned int *iters,
             __m256d mk = _mm256_set1_pd(k);
             __m256d mlastZr = _mm256_set1_pd(0);
             __m256d mlastZi = _mm256_set1_pd(0);
-            __m256d copyMask;
+            __m256d lastMask = _mm256_set1_pd(0);
 
             while (++k <= maxIterations) {
                 /* Compute z1 from z0 */
@@ -60,12 +60,12 @@ mandel_avxd(unsigned int *iters,
                 __m256d mask = _mm256_cmp_pd(mag2, threshold, _CMP_LT_OS);
                 mk = _mm256_add_pd(_mm256_and_pd(mask, one), mk);
 
-                // TODO tut nicht
                 // Werte merken, wenn threshhold erreicht ist
                 // es darf immer nur dann kopiert werden, wenn die Vector position von drinnen nach draussen wechselt, also xor vorher, nachher 1
-                copyMask = _mm256_xor_pd(mask, copyMask);
+                __m256d copyMask = _mm256_xor_pd(mask, lastMask);
                 mlastZr = _mm256_add_pd(_mm256_and_pd(copyMask, zr), mlastZr);
                 mlastZi = _mm256_add_pd(_mm256_and_pd(copyMask, zi), mlastZi);
+                lastMask = mask;
 
 
                 /* Early bailout? */
@@ -137,7 +137,7 @@ mandel_avxs(unsigned int *iters,
             __m256 mk = _mm256_set1_ps(k);
             __m256 mlastZr = _mm256_set1_ps(0);
             __m256 mlastZi = _mm256_set1_ps(0);
-            __m256 copyMask;
+            __m256 lastMask = _mm256_set1_ps(0);
             while (++k <= maxIterations) {
                 /* Compute z1 from z0 */
                 __m256 zr2 = _mm256_mul_ps(zr, zr);
@@ -155,13 +155,13 @@ mandel_avxs(unsigned int *iters,
                 __m256 mask = _mm256_cmp_ps(mag2, threshold, _CMP_LT_OS);
                 mk = _mm256_add_ps(_mm256_and_ps(mask, one), mk);
 
-                // TODO tut nicht
                 // Werte merken, wenn threshold erreicht ist
                 // es darf immer nur dann kopiert werden, wenn die Vector position von drinnen nach draussen wechselt, also xor vorher, nachher 1
+                __m256 copyMask = _mm256_xor_ps(mask, lastMask);
                 copyMask = _mm256_xor_ps(mask, copyMask);
                 mlastZr = _mm256_add_ps(_mm256_and_ps(copyMask, zr), mlastZr);
                 mlastZi = _mm256_add_ps(_mm256_and_ps(copyMask, zi), mlastZi);
-
+                lastMask = mask;                
 
                 /* Early bailout? */
                 if (_mm256_testz_ps(mask, _mm256_set1_ps(-1))) {
