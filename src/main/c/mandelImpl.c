@@ -7,12 +7,16 @@
 #include "mandel.h"
 
 // copied from https://github.com/skeeto/mandel-simd/blob/master/mandel_avx.c
+// changed a lot to make it easier readable and support distance and last z
 
 
 void
 mandel_avxd(unsigned int *iters,
             double *lastZrs,
             double *lastZis,
+            double *distancesR,
+            double *distancesI,
+            bool calcDistance,
             const int width,
             const int height,
             const double xStart,
@@ -28,54 +32,71 @@ mandel_avxd(unsigned int *iters,
     const __m256d yscale = _mm256_set1_pd(yInc);
     const __m256d threshold = _mm256_set1_pd(sqrEscapeRadius);
     const __m256d one = _mm256_set1_pd(1);
+    const __m256d zero = _mm256_set1_pd(0);
+    const __m256d oneminus = _mm256_set1_pd(-1);
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
+        const __m256d my = _mm256_set1_pd(y);
+        const __m256d ci = ymin + my * yscale;
         for (int x = 0; x < width; x += 4) {
             __m256d mx = _mm256_set_pd(x + 3, x + 2, x + 1, x + 0);
-            __m256d my = _mm256_set1_pd(y);
-            __m256d cr = _mm256_add_pd(_mm256_mul_pd(mx, xscale), xmin);
-            __m256d ci = _mm256_add_pd(_mm256_mul_pd(my, yscale), ymin);
-            __m256d zr = cr;
-            __m256d zi = ci;
+            __m256d cr = xmin + mx * xscale;
+            __m256d zr = zero;
+            __m256d zi = zero;
 
             int k = 0;
             // store the iterations
             __m256d mk = _mm256_set1_pd(k);
 
-            __m256d mlastZr = _mm256_set1_pd(0);
-            __m256d mlastZi = _mm256_set1_pd(0);
+            // last Zr/Zi values -> make them accessible as float vector
+            __m256d mlastZr = zero;
+            __m256d mlastZi = zero;
+
+            // distance
+            __m256d dr = one;
+            __m256d di = zero;
+
+            __m256d lastDr = dr;
+            __m256d lastDi = di;
 
             __m256d previousInsideMask = _mm256_set1_pd(0xFFFFFFFFFFFFFFFF);
 
             while (++k <= maxIterations) {
                 /* Compute z1 from z0 */
-                const __m256d zr2 = _mm256_mul_pd(zr, zr);
-                const __m256d zi2 = _mm256_mul_pd(zi, zi);
+                const __m256d zr2 = zr * zr;
+                const __m256d zi2 = zi * zi;
 
-                const __m256d mag2 = _mm256_add_pd(zr2, zi2);
-                const __m256d insideMask = _mm256_cmp_pd(mag2, threshold, _CMP_LT_OS);
-                /* Increment k for all vectors inside */
-                mk = _mm256_add_pd(_mm256_and_pd(insideMask, one), mk);
+                const __m256d insideMask = _mm256_cmp_pd(zr2+zi2, threshold, _CMP_LT_OS);
 
                 // store last inside values of z
                 // copy only if inside mask changes for the vector (xor previous and current
                 const __m256d noticeZMask = _mm256_xor_pd(insideMask, previousInsideMask);
-                mlastZr = _mm256_add_pd(_mm256_and_pd(noticeZMask, zr), mlastZr);
-                mlastZi = _mm256_add_pd(_mm256_and_pd(noticeZMask, zi), mlastZi);
+                mlastZr  = _mm256_and_pd(noticeZMask, zr) + mlastZr;
+                mlastZi  = _mm256_and_pd(noticeZMask, zi) + mlastZi;
+                if( calcDistance ) {
+                    lastDr  = _mm256_and_pd(noticeZMask, dr) + lastDr;
+                    lastDi  = _mm256_and_pd(noticeZMask, di) + lastDi;
+                }
                 previousInsideMask = insideMask;
 
                 /* Early bailout? */
-                if (_mm256_testz_pd(insideMask, _mm256_set1_pd(-1))) {
+                if (_mm256_testz_pd(insideMask, oneminus)) {
                     break;
                 }
 
-                __m256d zrzi = _mm256_mul_pd(zr, zi);
-                /* zr1 = zr0 * zr0 - zi0 * zi0 + cr */
-                /* zi1 = zr0 * zi0 + zr0 * zi0 + ci */
-                zr = _mm256_add_pd(_mm256_sub_pd(zr2, zi2), cr);
-                zi = _mm256_add_pd(_mm256_add_pd(zrzi, zrzi), ci);
+                /* Increment k for all vectors inside */
+                mk = _mm256_and_pd(insideMask, one) + mk;
+
+                if ( calcDistance) {
+                    const __m256d new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
+                    di = 2.0 * (zr * di + zi * dr);
+                    dr = new_dr;
+                }
+
+                zi = 2*zr*zi+ci;
+                zr = zr2 - zi2 + cr;
             }
 
             // convert counter to int and make it accessible via array index
@@ -98,6 +119,20 @@ mandel_avxd(unsigned int *iters,
                 lastZis[tIndex+i] = tLastZis[i];
             }
 
+            if ( calcDistance) {
+                double tLastDrs[4];
+                double tLastDis[4];
+
+                _mm256_storeu_pd(tLastDrs, lastDr);
+                _mm256_storeu_pd(tLastDis, lastDi);
+
+                for ( int i=0; i<4 && x+i<width; i++ ) {
+                    distancesR[tIndex+i] = tLastDrs[i];
+                    distancesI[tIndex+i] = tLastDis[i];
+                }
+            }
+
+
             //            const int *counts = (int *)&mCount;
             //            const double *lastZr = (double *)&mlastZr;
             //            const double *lastZi = (double *)&mlastZi;
@@ -118,6 +153,9 @@ void
 mandel_avxs(unsigned int *iters,
             double *lastZrs,
             double *lastZis,
+            double *distancesR,
+            double *distancesI,
+            bool calcDistance,
             const int width,
             const int height,
             const float xStart,
@@ -133,56 +171,71 @@ mandel_avxs(unsigned int *iters,
     const __m256 yscale = _mm256_set1_ps(yInc);
     const __m256 threshold = _mm256_set1_ps(sqrEscapeRadius);
     const __m256 one = _mm256_set1_ps(1);
+    const __m256 zero = _mm256_set1_ps(0);
+    const __m256 oneminus = _mm256_set1_ps(-1);
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
+        const __m256 my = _mm256_set1_ps(y);
+        const __m256 ci = ymin + my * yscale;
         for (int x = 0; x < width; x += 8) {
-            __m256 mx = _mm256_set_ps(x+7, x+6, x+5, x+4, x + 3, x + 2, x + 1, x + 0);
-            __m256 my = _mm256_set1_ps(y);
-            __m256 cr = _mm256_add_ps(_mm256_mul_ps(mx, xscale), xmin);
-            __m256 ci = _mm256_add_ps(_mm256_mul_ps(my, yscale), ymin);
-            __m256 zr = cr;
-            __m256 zi = ci;
+            __m256 mx = _mm256_set_ps(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x + 0);
+            __m256 cr = xmin + mx * xscale;
+            __m256 zr = zero;
+            __m256 zi = zero;
 
             int k = 0;
             // store the iterations
             __m256 mk = _mm256_set1_ps(k);
 
             // last Zr/Zi values -> make them accessible as float vector
-            __m256 mlastZr = _mm256_set1_ps(0);
-            __m256 mlastZi = _mm256_set1_ps(0);
+            __m256 mlastZr = zero;
+            __m256 mlastZi = zero;
 
-            __m256 previousInsideMask = _mm256_set1_ps(0xFFFFFFFF);
+            // distance
+            __m256 dr = one;
+            __m256 di = zero;
+
+            __m256 lastDr = dr;
+            __m256 lastDi = di;
+
+            __m256 previousInsideMask = _mm256_set1_ps(0xFFFFFFFFFFFFFFFF);
 
             while (++k <= maxIterations) {
                 /* Compute z1 from z0 */
-                const __m256 zr2 = _mm256_mul_ps(zr, zr);
-                const __m256 zi2 = _mm256_mul_ps(zi, zi);
+                const __m256 zr2 = zr * zr;
+                const __m256 zi2 = zi * zi;
 
-                const __m256 mag2 = _mm256_add_ps(zr2, zi2);
-                const __m256 insideMask = _mm256_cmp_ps(mag2, threshold, _CMP_LT_OS);
-                /* Increment k for all vectors inside */
-                mk = _mm256_add_ps(_mm256_and_ps(insideMask, one), mk);
+                const __m256 insideMask = _mm256_cmp_ps(zr2+zi2, threshold, _CMP_LT_OS);
 
                 // store last inside values of z
                 // copy only if inside mask changes for the vector (xor previous and current
                 const __m256 noticeZMask = _mm256_xor_ps(insideMask, previousInsideMask);
-                mlastZr  = _mm256_add_ps(_mm256_and_ps(noticeZMask, zr), mlastZr);
-                mlastZi  = _mm256_add_ps(_mm256_and_ps(noticeZMask, zi), mlastZi);
+                mlastZr  = _mm256_and_ps(noticeZMask, zr) + mlastZr;
+                mlastZi  = _mm256_and_ps(noticeZMask, zi) + mlastZi;
+                if( calcDistance ) {
+                    lastDr  = _mm256_and_ps(noticeZMask, dr) + lastDr;
+                    lastDi  = _mm256_and_ps(noticeZMask, di) + lastDi;
+                }
                 previousInsideMask = insideMask;
 
                 /* Early bailout? */
-                if (_mm256_testz_ps(insideMask, _mm256_set1_ps(-1))) {
+                if (_mm256_testz_ps(insideMask, oneminus)) {
                     break;
                 }
 
-                __m256 zrzi = _mm256_mul_ps(zr, zi);
-                /* zr1 = zr0 * zr0 - zi0 * zi0 + cr */
-                /* zi1 = zr0 * zi0 + zr0 * zi0 + ci */
-                zr = _mm256_add_ps(_mm256_sub_ps(zr2, zi2), cr);
-                zi = _mm256_add_ps(_mm256_add_ps(zrzi, zrzi), ci);
+                /* Increment k for all vectors inside */
+                mk = _mm256_and_ps(insideMask, one) + mk;
 
+                if ( calcDistance) {
+                    const __m256 new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
+                    di = 2.0 * (zr * di + zi * dr);
+                    dr = new_dr;
+                }
+
+                zi = 2*zr*zi+ci;
+                zr = zr2 - zi2 + cr;
             }
 
             // convert counter to int and make it accessible via array index
@@ -201,8 +254,21 @@ mandel_avxs(unsigned int *iters,
             const int tIndex = x + y * width;
             for ( int i=0; i<8 && x+i<width; i++ ) {
                 iters[tIndex+i] = vCount.i[i];
-                lastZrs[tIndex+i] = (double)tLastZrs[i];
-                lastZis[tIndex+i] = (double)tLastZis[i];
+                lastZrs[tIndex+i] = tLastZrs[i];
+                lastZis[tIndex+i] = tLastZis[i];
+            }
+
+            if ( calcDistance) {
+                float tLastDrs[8];
+                float tLastDis[8];
+
+                _mm256_storeu_ps(tLastDrs, lastDr);
+                _mm256_storeu_ps(tLastDis, lastDi);
+
+                for ( int i=0; i<8 && x+i<width; i++ ) {
+                    distancesR[tIndex+i] = tLastDrs[i];
+                    distancesI[tIndex+i] = tLastDis[i];
+                }
             }
 
 
@@ -239,9 +305,9 @@ mandel_double(unsigned int *iters,
 {
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
+        const double ci = yStart + y*yInc;
         for (int x = 0; x < width; x ++) {
             const double cr = xStart + x*xInc;
-            const double ci = yStart + y*yInc;
 
             const double escape = sqrEscapeRadius;
 
@@ -289,5 +355,4 @@ mandel_double(unsigned int *iters,
             }
         }
     }
-
 }

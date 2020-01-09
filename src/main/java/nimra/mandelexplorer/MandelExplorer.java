@@ -232,7 +232,8 @@ public class MandelExplorer {
                 new MandelAlgo("FP128CL", 1E-40, () -> new FP128CLMandelKernel(getImageWidth(), getImageHeight())),
                 new MandelAlgo("AVX256 Double", 1E-15, () -> new MandelNative(MandelNative.Algo.AVX2Double, getImageWidth(), getImageHeight())),
                 new MandelAlgo("Double Native", 1E-15, () -> new MandelNative(MandelNative.Algo.Double, getImageWidth(), getImageHeight())),
-                new MandelAlgo("AVX256 Single", 1E-15, () -> new MandelNative(MandelNative.Algo.AVX2Single, getImageWidth(), getImageHeight()))
+                new MandelAlgo("AVX256 Single", 1E-15, () -> new MandelNative(MandelNative.Algo.AVX2Single, getImageWidth(), getImageHeight())),
+                new MandelAlgo("Vectorclass Double", 1E-15, () -> new MandelNative(MandelNative.Algo.VectorD, getImageWidth(), getImageHeight()))
                 // bugggy
                 //new MandelAlgo("QFCL",1E-14, () -> new QFCLMandelKernel(getImageWidth(), getImageHeight()))
                 );

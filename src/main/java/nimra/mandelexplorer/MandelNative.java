@@ -35,7 +35,7 @@ public class MandelNative extends DoubleMandelImpl {
     }
 
     public enum Algo {
-        AVX2Double(1), AVX2Single(2), Double(3);
+        AVX2Double(1), AVX2Single(2), Double(3),VectorD(4);
 
         int code;
 

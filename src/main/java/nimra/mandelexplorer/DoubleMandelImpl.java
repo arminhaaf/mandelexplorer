@@ -75,9 +75,8 @@ public class DoubleMandelImpl extends MandelKernel {
                 dr = new_dr;
             }
 
-            new_zr = (zrsqr - zisqr) + x;
             zi = (2 * zr * zi) + y;
-            zr = new_zr;
+            zr = (zrsqr - zisqr) + x;
 
             //If in a periodic orbit, assume it is trapped
             if (zr == 0.0 && zi == 0.0) {

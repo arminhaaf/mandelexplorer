@@ -2,8 +2,9 @@
 #include	<stdlib.h>
 #include <stdbool.h>
 #include    "mandel.h"
-#ifndef	_Included_GetPid
-#define	_Included_GetPid
+#ifndef	_Included_MadelNative
+#define	_Included_MadelNative
+
 #ifdef	__cplusplus
 extern	"C"	{
 #endif
@@ -33,15 +34,19 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelNative_mandel
         double* tDistancesI = (*env)->GetDoubleArrayElements(env, distancesI, 0);
         switch ( algo ) {
             case 1:
-                mandel_avxd((unsigned int*)tIters, tLastZrs, tLastZis,
+                mandel_avxd((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
                 width, height, xStart, yStart, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
             case 2:
-                mandel_avxs((unsigned int*)tIters, tLastZrs, tLastZis,
+                mandel_avxs((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
                 width, height, xStart, yStart, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
             case 3:
                 mandel_double((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
+                width, height, xStart, yStart, xInc, yInc, maxIterations,sqrEscapeRadius);
+                break;
+            case 4:
+                mandel_vector((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
                 width, height, xStart, yStart, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
 
@@ -53,7 +58,6 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelNative_mandel
     (*env)->ReleaseDoubleArrayElements(env, lastZis, tLastZis, 0);
     (*env)->ReleaseDoubleArrayElements(env, distancesR, tDistancesR, 0);
     (*env)->ReleaseDoubleArrayElements(env, distancesI, tDistancesI, 0);
-
 
 }
 
