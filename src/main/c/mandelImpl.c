@@ -85,27 +85,27 @@ mandel_avxd(unsigned int *iters,
 
             // convert counter to int and make it accessible via array index
             union {
-                    int i[4];
-                    __m128i m;
+                int i[4];
+                __m128i m;
             } vCount;
             vCount.m = _mm256_cvtpd_epi32(mk);
 
             const int tIndex = x + y * width;
             for ( int i=0; i<8 && x+i<width; i++ ) {
-                 iters[tIndex+i] = vCount.i[i];
-                 lastZrs[tIndex] = (double)vLastZr.f[i];
-                 lastZis[tIndex] = (double)vLastZi.f[i];
+                iters[tIndex+i] = vCount.i[i];
+                lastZrs[tIndex] = (double)vLastZr.f[i];
+                lastZis[tIndex] = (double)vLastZi.f[i];
             }
 
-//            const int *counts = (int *)&mCount;
-//            const double *lastZr = (double *)&mlastZr;
-//            const double *lastZi = (double *)&mlastZi;
-// unclear why this did not work with loop
-//            for ( int i=0; i<4 && x+i<width; i++ ) {
-//                iters[tIndex + i]  = counts[i];
-//                lastZrs[tIndex+i] = (double)lastZr[i];
-//                lastZis[tIndex+i] = (double)lastZi[i];
-//            }
+            //            const int *counts = (int *)&mCount;
+            //            const double *lastZr = (double *)&mlastZr;
+            //            const double *lastZi = (double *)&mlastZi;
+            // unclear why this did not work with loop
+            //            for ( int i=0; i<4 && x+i<width; i++ ) {
+            //                iters[tIndex + i]  = counts[i];
+            //                lastZrs[tIndex+i] = (double)lastZr[i];
+            //                lastZis[tIndex+i] = (double)lastZi[i];
+            //            }
         }
     }
 
@@ -189,28 +189,28 @@ mandel_avxs(unsigned int *iters,
 
             // convert counter to int and make it accessible via array index
             union {
-                    int i[8];
-                    __m256i m;
+                int i[8];
+                __m256i m;
             } vCount;
             vCount.m = _mm256_cvtps_epi32(mk);
 
             const int tIndex = x + y * width;
             for ( int i=0; i<8 && x+i<width; i++ ) {
-                 iters[tIndex+i] = vCount.i[i];
-                 lastZrs[tIndex] = (double)vLastZr.f[i];
-                 lastZis[tIndex] = (double)vLastZi.f[i];
+                iters[tIndex+i] = vCount.i[i];
+                lastZrs[tIndex] = (double)vLastZr.f[i];
+                lastZis[tIndex] = (double)vLastZi.f[i];
             }
 
 
-// totally unclear why the loop did not work
-//                        int *counts = (int *)&mCount;
-//                        float *lastZr = (float *)&mlastZr;
-//                        float *lastZi = (float *)&mlastZi;
-//             for ( int i=0; i<8 && x+i<width; i++ ) {
-//                 iters[tIndex+i] = counts[i];
-//                lastZrs[tIndex+i] = (double)lastZr[i];
-//                lastZis[tIndex+i] = (double)lastZi[i];
-//             }
+            // totally unclear why the loop did not work
+            //                        int *counts = (int *)&mCount;
+            //                        float *lastZr = (float *)&mlastZr;
+            //                        float *lastZi = (float *)&mlastZi;
+            //             for ( int i=0; i<8 && x+i<width; i++ ) {
+            //                 iters[tIndex+i] = counts[i];
+            //                lastZrs[tIndex+i] = (double)lastZr[i];
+            //                lastZis[tIndex+i] = (double)lastZi[i];
+            //             }
         }
     }
 }
