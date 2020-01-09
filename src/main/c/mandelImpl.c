@@ -21,12 +21,12 @@ mandel_avxd(unsigned int *iters,
             const int maxIterations,
             const double sqrEscapeRadius)
 {
-    __m256d xmin = _mm256_set1_pd(xStart);
-    __m256d ymin = _mm256_set1_pd(yStart);
-    __m256d xscale = _mm256_set1_pd(xInc);
-    __m256d yscale = _mm256_set1_pd(yInc);
-    __m256d threshold = _mm256_set1_pd(sqrEscapeRadius);
-    __m256d one = _mm256_set1_pd(1);
+    const __m256d xmin = _mm256_set1_pd(xStart);
+    const __m256d ymin = _mm256_set1_pd(yStart);
+    const __m256d xscale = _mm256_set1_pd(xInc);
+    const __m256d yscale = _mm256_set1_pd(yInc);
+    const __m256d threshold = _mm256_set1_pd(sqrEscapeRadius);
+    const __m256d one = _mm256_set1_pd(1);
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
@@ -37,40 +37,42 @@ mandel_avxd(unsigned int *iters,
             __m256d ci = _mm256_add_pd(_mm256_mul_pd(my, yscale), ymin);
             __m256d zr = cr;
             __m256d zi = ci;
-            int k = 1;
+
+            int k = 0;
+            // store the iterations
             __m256d mk = _mm256_set1_pd(k);
+
             __m256d mlastZr = _mm256_set1_pd(0);
             __m256d mlastZi = _mm256_set1_pd(0);
-            __m256d lastMask = _mm256_set1_pd(0);
+            __m256d previousInsideMask = _mm256_set1_pd(0);
 
             while (++k <= maxIterations) {
                 /* Compute z1 from z0 */
-                __m256d zr2 = _mm256_mul_pd(zr, zr);
-                __m256d zi2 = _mm256_mul_pd(zi, zi);
+                const __m256d zr2 = _mm256_mul_pd(zr, zr);
+                const __m256d zi2 = _mm256_mul_pd(zi, zi);
+
+                const __m256d mag2 = _mm256_add_pd(zr2, zi2);
+                const __m256d insideMask = _mm256_cmp_pd(mag2, threshold, _CMP_LT_OS);
+                /* Increment k for all vectors inside */
+                mk = _mm256_add_pd(_mm256_and_pd(insideMask, one), mk);
+
+                // store last inside values of z
+                // copy only if inside mask changes for the vector (xor previous and current
+                const __m256d noticeZMask = _mm256_xor_pd(insideMask, previousInsideMask);
+                mlastZr = _mm256_add_pd(_mm256_and_pd(noticeZMask, zr), mlastZr);
+                mlastZi = _mm256_add_pd(_mm256_and_pd(noticeZMask, zi), mlastZi);
+                previousInsideMask = insideMask;
+
+                /* Early bailout? */
+                if (_mm256_testz_pd(insideMask, _mm256_set1_pd(-1))) {
+                    break;
+                }
+
                 __m256d zrzi = _mm256_mul_pd(zr, zi);
                 /* zr1 = zr0 * zr0 - zi0 * zi0 + cr */
                 /* zi1 = zr0 * zi0 + zr0 * zi0 + ci */
                 zr = _mm256_add_pd(_mm256_sub_pd(zr2, zi2), cr);
                 zi = _mm256_add_pd(_mm256_add_pd(zrzi, zrzi), ci);
-
-                /* Increment k */
-                zr2 = _mm256_mul_pd(zr, zr);
-                zi2 = _mm256_mul_pd(zi, zi);
-                __m256d mag2 = _mm256_add_pd(zr2, zi2);
-                __m256d mask = _mm256_cmp_pd(mag2, threshold, _CMP_LT_OS);
-                mk = _mm256_add_pd(_mm256_and_pd(mask, one), mk);
-
-                // Werte merken, wenn threshhold erreicht ist
-                // es darf immer nur dann kopiert werden, wenn die Vector position von drinnen nach draussen wechselt, also xor vorher, nachher 1
-                __m256d copyMask = _mm256_xor_pd(mask, lastMask);
-                mlastZr = _mm256_add_pd(_mm256_and_pd(copyMask, zr), mlastZr);
-                mlastZi = _mm256_add_pd(_mm256_and_pd(copyMask, zi), mlastZi);
-                lastMask = mask;
-
-
-                /* Early bailout? */
-                if (_mm256_testz_pd(mask, _mm256_set1_pd(-1)))
-                    break;
             }
 
             __m128i mCount = _mm256_cvtpd_epi32(mk);
@@ -117,12 +119,12 @@ mandel_avxs(unsigned int *iters,
             const int maxIterations,
             const float sqrEscapeRadius)
 {
-    __m256 xmin = _mm256_set1_ps(xStart);
-    __m256 ymin = _mm256_set1_ps(yStart);
-    __m256 xscale = _mm256_set1_ps(xInc);
-    __m256 yscale = _mm256_set1_ps(yInc);
-    __m256 threshold = _mm256_set1_ps(sqrEscapeRadius);
-    __m256 one = _mm256_set1_ps(1);
+    const __m256 xmin = _mm256_set1_ps(xStart);
+    const __m256 ymin = _mm256_set1_ps(yStart);
+    const __m256 xscale = _mm256_set1_ps(xInc);
+    const __m256 yscale = _mm256_set1_ps(yInc);
+    const __m256 threshold = _mm256_set1_ps(sqrEscapeRadius);
+    const __m256 one = _mm256_set1_ps(1);
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
@@ -133,40 +135,42 @@ mandel_avxs(unsigned int *iters,
             __m256 ci = _mm256_add_ps(_mm256_mul_ps(my, yscale), ymin);
             __m256 zr = cr;
             __m256 zi = ci;
-            int k = 1;
+
+            int k = 0;
+            // store the iterations
             __m256 mk = _mm256_set1_ps(k);
+
             __m256 mlastZr = _mm256_set1_ps(0);
             __m256 mlastZi = _mm256_set1_ps(0);
-            __m256 lastMask = _mm256_set1_ps(0);
+            __m256 previousInsideMask = _mm256_set1_ps(0);
+
             while (++k <= maxIterations) {
                 /* Compute z1 from z0 */
-                __m256 zr2 = _mm256_mul_ps(zr, zr);
-                __m256 zi2 = _mm256_mul_ps(zi, zi);
+                const __m256 zr2 = _mm256_mul_ps(zr, zr);
+                const __m256 zi2 = _mm256_mul_ps(zi, zi);
+
+                const __m256 mag2 = _mm256_add_ps(zr2, zi2);
+                const __m256 insideMask = _mm256_cmp_ps(mag2, threshold, _CMP_LT_OS);
+                /* Increment k for all vectors inside */
+                mk = _mm256_add_ps(_mm256_and_ps(insideMask, one), mk);
+
+                // store last inside values of z
+                // copy only if inside mask changes for the vector (xor previous and current
+                const __m256 noticeZMask = _mm256_xor_ps(insideMask, previousInsideMask);
+                mlastZr = _mm256_add_ps(_mm256_and_ps(noticeZMask, zr), mlastZr);
+                mlastZi = _mm256_add_ps(_mm256_and_ps(noticeZMask, zi), mlastZi);
+                previousInsideMask = insideMask;
+
+                /* Early bailout? */
+                if (_mm256_testz_ps(insideMask, _mm256_set1_ps(-1))) {
+                    break;
+                }
+
                 __m256 zrzi = _mm256_mul_ps(zr, zi);
                 /* zr1 = zr0 * zr0 - zi0 * zi0 + cr */
                 /* zi1 = zr0 * zi0 + zr0 * zi0 + ci */
                 zr = _mm256_add_ps(_mm256_sub_ps(zr2, zi2), cr);
                 zi = _mm256_add_ps(_mm256_add_ps(zrzi, zrzi), ci);
-
-                /* Increment k */
-                zr2 = _mm256_mul_ps(zr, zr);
-                zi2 = _mm256_mul_ps(zi, zi);
-                __m256 mag2 = _mm256_add_ps(zr2, zi2);
-                __m256 mask = _mm256_cmp_ps(mag2, threshold, _CMP_LT_OS);
-                mk = _mm256_add_ps(_mm256_and_ps(mask, one), mk);
-
-                // Werte merken, wenn threshold erreicht ist
-                // es darf immer nur dann kopiert werden, wenn die Vector position von drinnen nach draussen wechselt, also xor vorher, nachher 1
-                __m256 copyMask = _mm256_xor_ps(mask, lastMask);
-                copyMask = _mm256_xor_ps(mask, copyMask);
-                mlastZr = _mm256_add_ps(_mm256_and_ps(copyMask, zr), mlastZr);
-                mlastZi = _mm256_add_ps(_mm256_and_ps(copyMask, zi), mlastZi);
-                lastMask = mask;                
-
-                /* Early bailout? */
-                if (_mm256_testz_ps(mask, _mm256_set1_ps(-1))) {
-                    break;
-                }
             }
 
             __m256i mCount = _mm256_cvtps_epi32(mk);
