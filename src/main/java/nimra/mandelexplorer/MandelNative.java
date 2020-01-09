@@ -21,10 +21,11 @@ public class MandelNative extends DoubleMandelImpl {
         algo = pAlgo;
     }
 
-    public static native void mandel(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, int pWidth, int pHeight, double pXStart, double pYStart, double pXInc, double pYInc, int pMaxIter, double pEscSqr);
+    public static native void mandel(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, boolean pCalcDist,
+            int pWidth, int pHeight, double pXStart, double pYStart, double pXInc, double pYInc, int pMaxIter, double pEscSqr);
 
     @Override public synchronized Kernel execute(Range pRange) {
-        mandel(algo.code, iters, lastValuesR, lastValuesI, width, height, xStart, yStart, xInc, yInc, maxIterations, escapeSqr);
+        mandel(algo.code, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0], width, height, xStart, yStart, xInc, yInc, maxIterations, escapeSqr);
         return this;
     }
 

@@ -1,6 +1,7 @@
 #include <immintrin.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 
 #include "mandel.h"
@@ -221,6 +222,9 @@ void
 mandel_double(unsigned int *iters,
               double *lastZrs,
               double *lastZis,
+              double *distancesR,
+              double *distancesI,
+              bool calcDistance,
               const int width,
               const int height,
               const double xStart,
@@ -242,6 +246,11 @@ mandel_double(unsigned int *iters,
             double zi = ci;
             double new_zr = 0.0;
 
+            // distance
+            double dr = 1;
+            double di = 0;
+            double new_dr;
+
             int count = 0;
             for (; count<maxIterations; count++){
                 const double zrsqr = zr * zr;
@@ -249,6 +258,12 @@ mandel_double(unsigned int *iters,
 
                 if ( (zrsqr + zisqr) >= escape ) {
                     break;
+                }
+
+                if ( calcDistance ) {
+                    new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
+                    di = 2.0 * (zr * di + zi * dr);
+                    dr = new_dr;
                 }
 
                 new_zr = (zrsqr - zisqr) + cr;
@@ -265,6 +280,10 @@ mandel_double(unsigned int *iters,
             iters[tIndex] = count;
             lastZrs[tIndex] = zr;
             lastZis[tIndex] = zi;
+            if ( calcDistance ) {
+                distancesR[tIndex] = dr;
+                distancesI[tIndex] = di;
+            }
         }
     }
 
