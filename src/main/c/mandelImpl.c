@@ -32,7 +32,7 @@ mandel_avxd(unsigned int *iters,
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
-        for (int x = 0; x < width-4; x += 4) {
+        for (int x = 0; x < width; x += 4) {
             __m256d mx = _mm256_set_pd(x + 3, x + 2, x + 1, x + 0);
             __m256d my = _mm256_set1_pd(y);
             __m256d cr = _mm256_add_pd(_mm256_mul_pd(mx, xscale), xmin);
@@ -44,8 +44,14 @@ mandel_avxd(unsigned int *iters,
             // store the iterations
             __m256d mk = _mm256_set1_pd(k);
 
-            __m256d mlastZr = _mm256_set1_pd(0);
-            __m256d mlastZi = _mm256_set1_pd(0);
+            // last Zr/Zi values -> make them accessible as float vector
+            union {
+                double f[4];
+                __m256d m;
+            } vLastZr, vLastZi;
+            vLastZr.m = _mm256_set1_pd(0);
+            vLastZi.m = _mm256_set1_pd(0);
+
             __m256d previousInsideMask = _mm256_set1_pd(0);
 
             while (++k <= maxIterations) {
@@ -61,8 +67,8 @@ mandel_avxd(unsigned int *iters,
                 // store last inside values of z
                 // copy only if inside mask changes for the vector (xor previous and current
                 const __m256d noticeZMask = _mm256_xor_pd(insideMask, previousInsideMask);
-                mlastZr = _mm256_add_pd(_mm256_and_pd(noticeZMask, zr), mlastZr);
-                mlastZi = _mm256_add_pd(_mm256_and_pd(noticeZMask, zi), mlastZi);
+                vLastZr.m = _mm256_add_pd(_mm256_and_pd(noticeZMask, zr), vLastZr.m);
+                vLastZi.m = _mm256_add_pd(_mm256_and_pd(noticeZMask, zi), vLastZi.m);
                 previousInsideMask = insideMask;
 
                 /* Early bailout? */
@@ -77,30 +83,29 @@ mandel_avxd(unsigned int *iters,
                 zi = _mm256_add_pd(_mm256_add_pd(zrzi, zrzi), ci);
             }
 
-            __m128i mCount = _mm256_cvtpd_epi32(mk);
-            int *counts = (int *)&mCount;
-            double *lastZr = (double *)&mlastZr;
-            double *lastZi = (double *)&mlastZi;
+            // convert counter to int and make it accessible via array index
+            union {
+                    int i[4];
+                    __m128i m;
+            } vCount;
+            vCount.m = _mm256_cvtpd_epi32(mk);
 
             const int tIndex = x + y * width;
-            // unclear why this did not work with loop
-            //            for ( int i=0; i<4 && x+i<width; i++ ) {
-            //                iters[tIndex + i]  = counts[i];
-            //                lastZrs[tIndex+i] = (double)lastZr[i];
-            //                lastZis[tIndex+i] = (double)lastZi[i];
-            //            }
-            iters[tIndex]  = counts[0];
-            iters[tIndex+1]  = counts[1];
-            iters[tIndex+2]  = counts[2];
-            iters[tIndex+3]  = counts[3];
-            lastZrs[tIndex] = lastZr[0];
-            lastZrs[tIndex+1] = lastZr[1];
-            lastZrs[tIndex+2] = lastZr[2];
-            lastZrs[tIndex+3] = lastZr[3];
-            lastZis[tIndex] = lastZi[0];
-            lastZis[tIndex+1] = lastZi[1];
-            lastZis[tIndex+2] = lastZi[2];
-            lastZis[tIndex+3] = lastZi[3];
+            for ( int i=0; i<8 && x+i<width; i++ ) {
+                 iters[tIndex+i] = vCount.i[i];
+                 lastZrs[tIndex] = (double)vLastZr.f[i];
+                 lastZis[tIndex] = (double)vLastZi.f[i];
+            }
+
+//            const int *counts = (int *)&mCount;
+//            const double *lastZr = (double *)&mlastZr;
+//            const double *lastZi = (double *)&mlastZi;
+// unclear why this did not work with loop
+//            for ( int i=0; i<4 && x+i<width; i++ ) {
+//                iters[tIndex + i]  = counts[i];
+//                lastZrs[tIndex+i] = (double)lastZr[i];
+//                lastZis[tIndex+i] = (double)lastZi[i];
+//            }
         }
     }
 
@@ -131,7 +136,7 @@ mandel_avxs(unsigned int *iters,
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
-        for (int x = 0; x < width-8; x += 8) {
+        for (int x = 0; x < width; x += 8) {
             __m256 mx = _mm256_set_ps(x+7, x+6, x+5, x+4, x + 3, x + 2, x + 1, x + 0);
             __m256 my = _mm256_set1_ps(y);
             __m256 cr = _mm256_add_ps(_mm256_mul_ps(mx, xscale), xmin);
@@ -143,8 +148,14 @@ mandel_avxs(unsigned int *iters,
             // store the iterations
             __m256 mk = _mm256_set1_ps(k);
 
-            __m256 mlastZr = _mm256_set1_ps(0);
-            __m256 mlastZi = _mm256_set1_ps(0);
+            // last Zr/Zi values -> make them accessible as float vector
+            union {
+                float f[8];
+                __m256 m;
+            } vLastZr, vLastZi;
+            vLastZr.m = _mm256_set1_ps(0);
+            vLastZi.m = _mm256_set1_ps(0);
+
             __m256 previousInsideMask = _mm256_set1_ps(0);
 
             while (++k <= maxIterations) {
@@ -160,8 +171,8 @@ mandel_avxs(unsigned int *iters,
                 // store last inside values of z
                 // copy only if inside mask changes for the vector (xor previous and current
                 const __m256 noticeZMask = _mm256_xor_ps(insideMask, previousInsideMask);
-                mlastZr = _mm256_add_ps(_mm256_and_ps(noticeZMask, zr), mlastZr);
-                mlastZi = _mm256_add_ps(_mm256_and_ps(noticeZMask, zi), mlastZi);
+                vLastZr.m  = _mm256_add_ps(_mm256_and_ps(noticeZMask, zr), vLastZr.m);
+                vLastZi.m  = _mm256_add_ps(_mm256_and_ps(noticeZMask, zi), vLastZi.m);
                 previousInsideMask = insideMask;
 
                 /* Early bailout? */
@@ -176,46 +187,32 @@ mandel_avxs(unsigned int *iters,
                 zi = _mm256_add_ps(_mm256_add_ps(zrzi, zrzi), ci);
             }
 
-            __m256i mCount = _mm256_cvtps_epi32(mk);
-            int *counts = (int *)&mCount;
-            float *lastZr = (float *)&mlastZr;
-            float *lastZi = (float *)&mlastZi;
+            // convert counter to int and make it accessible via array index
+            union {
+                    int i[8];
+                    __m256i m;
+            } vCount;
+            vCount.m = _mm256_cvtps_epi32(mk);
 
             const int tIndex = x + y * width;
-            // totally unclear why the loop did not work
-            //             for ( int i=0; i<8 && x+i<width; i++ ) {
-            //                 iters[tIndex+i] = counts[i];
-            //                lastZrs[tIndex+i] = (double)lastZr[i];
-            //                lastZis[tIndex+i] = (double)lastZi[i];
-            //             }
-            iters[tIndex]  = counts[0];
-            iters[tIndex+1]  = counts[1];
-            iters[tIndex+2]  = counts[2];
-            iters[tIndex+3]  = counts[3];
-            iters[tIndex+4]  = counts[4];
-            iters[tIndex+5]  = counts[5];
-            iters[tIndex+6]  = counts[6];
-            iters[tIndex+7]  = counts[7];
-            lastZrs[tIndex] = (double)lastZr[0];
-            lastZrs[tIndex+1] = (double)lastZr[1];
-            lastZrs[tIndex+2] = (double)lastZr[2];
-            lastZrs[tIndex+3] = (double)lastZr[3];
-            lastZrs[tIndex+4] = (double)lastZr[4];
-            lastZrs[tIndex+5] = (double)lastZr[5];
-            lastZrs[tIndex+6] = (double)lastZr[6];
-            lastZrs[tIndex+7] = (double)lastZr[7];
-            lastZis[tIndex] = (double)lastZi[0];
-            lastZis[tIndex+1] = (double)lastZi[1];
-            lastZis[tIndex+2] = (double)lastZi[2];
-            lastZis[tIndex+3] = (double)lastZi[3];
-            lastZis[tIndex+4] = (double)lastZi[4];
-            lastZis[tIndex+5] = (double)lastZi[5];
-            lastZis[tIndex+6] = (double)lastZi[6];
-            lastZis[tIndex+7] = (double)lastZi[7];
+            for ( int i=0; i<8 && x+i<width; i++ ) {
+                 iters[tIndex+i] = vCount.i[i];
+                 lastZrs[tIndex] = (double)vLastZr.f[i];
+                 lastZis[tIndex] = (double)vLastZi.f[i];
+            }
 
+
+// totally unclear why the loop did not work
+//                        int *counts = (int *)&mCount;
+//                        float *lastZr = (float *)&mlastZr;
+//                        float *lastZi = (float *)&mlastZi;
+//             for ( int i=0; i<8 && x+i<width; i++ ) {
+//                 iters[tIndex+i] = counts[i];
+//                lastZrs[tIndex+i] = (double)lastZr[i];
+//                lastZis[tIndex+i] = (double)lastZi[i];
+//             }
         }
     }
-
 }
 
 
