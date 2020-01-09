@@ -44,15 +44,10 @@ mandel_avxd(unsigned int *iters,
             // store the iterations
             __m256d mk = _mm256_set1_pd(k);
 
-            // last Zr/Zi values -> make them accessible as float vector
-            union {
-                double f[4];
-                __m256d m;
-            } vLastZr, vLastZi;
-            vLastZr.m = _mm256_set1_pd(0);
-            vLastZi.m = _mm256_set1_pd(0);
+            __m256d mlastZr = _mm256_set1_pd(0);
+            __m256d mlastZi = _mm256_set1_pd(0);
 
-            __m256d previousInsideMask = _mm256_set1_pd(0);
+            __m256d previousInsideMask = _mm256_set1_pd(0xFFFFFFFFFFFFFFFF);
 
             while (++k <= maxIterations) {
                 /* Compute z1 from z0 */
@@ -67,8 +62,8 @@ mandel_avxd(unsigned int *iters,
                 // store last inside values of z
                 // copy only if inside mask changes for the vector (xor previous and current
                 const __m256d noticeZMask = _mm256_xor_pd(insideMask, previousInsideMask);
-                vLastZr.m = _mm256_add_pd(_mm256_and_pd(noticeZMask, zr), vLastZr.m);
-                vLastZi.m = _mm256_add_pd(_mm256_and_pd(noticeZMask, zi), vLastZi.m);
+                mlastZr = _mm256_add_pd(_mm256_and_pd(noticeZMask, zr), mlastZr);
+                mlastZi = _mm256_add_pd(_mm256_and_pd(noticeZMask, zi), mlastZi);
                 previousInsideMask = insideMask;
 
                 /* Early bailout? */
@@ -90,11 +85,17 @@ mandel_avxd(unsigned int *iters,
             } vCount;
             vCount.m = _mm256_cvtpd_epi32(mk);
 
+            double tLastZrs[4];
+            double tLastZis[4];
+
+            _mm256_storeu_pd(tLastZrs, mlastZr);
+            _mm256_storeu_pd(tLastZis, mlastZi);
+
             const int tIndex = x + y * width;
             for ( int i=0; i<4 && x+i<width; i++ ) {
                 iters[tIndex+i] = vCount.i[i];
-                lastZrs[tIndex] = (double)vLastZr.f[i];
-                lastZis[tIndex] = (double)vLastZi.f[i];
+                lastZrs[tIndex+i] = tLastZrs[i];
+                lastZis[tIndex+i] = tLastZis[i];
             }
 
             //            const int *counts = (int *)&mCount;
@@ -149,14 +150,10 @@ mandel_avxs(unsigned int *iters,
             __m256 mk = _mm256_set1_ps(k);
 
             // last Zr/Zi values -> make them accessible as float vector
-            union {
-                float f[8];
-                __m256 m;
-            } vLastZr, vLastZi;
-            vLastZr.m = _mm256_set1_ps(0);
-            vLastZi.m = _mm256_set1_ps(0);
+            __m256 mlastZr = _mm256_set1_ps(0);
+            __m256 mlastZi = _mm256_set1_ps(0);
 
-            __m256 previousInsideMask = _mm256_set1_ps(0);
+            __m256 previousInsideMask = _mm256_set1_ps(0xFFFFFFFF);
 
             while (++k <= maxIterations) {
                 /* Compute z1 from z0 */
@@ -171,8 +168,8 @@ mandel_avxs(unsigned int *iters,
                 // store last inside values of z
                 // copy only if inside mask changes for the vector (xor previous and current
                 const __m256 noticeZMask = _mm256_xor_ps(insideMask, previousInsideMask);
-                vLastZr.m  = _mm256_add_ps(_mm256_and_ps(noticeZMask, zr), vLastZr.m);
-                vLastZi.m  = _mm256_add_ps(_mm256_and_ps(noticeZMask, zi), vLastZi.m);
+                mlastZr  = _mm256_add_ps(_mm256_and_ps(noticeZMask, zr), mlastZr);
+                mlastZi  = _mm256_add_ps(_mm256_and_ps(noticeZMask, zi), mlastZi);
                 previousInsideMask = insideMask;
 
                 /* Early bailout? */
@@ -185,6 +182,7 @@ mandel_avxs(unsigned int *iters,
                 /* zi1 = zr0 * zi0 + zr0 * zi0 + ci */
                 zr = _mm256_add_ps(_mm256_sub_ps(zr2, zi2), cr);
                 zi = _mm256_add_ps(_mm256_add_ps(zrzi, zrzi), ci);
+
             }
 
             // convert counter to int and make it accessible via array index
@@ -194,11 +192,17 @@ mandel_avxs(unsigned int *iters,
             } vCount;
             vCount.m = _mm256_cvtps_epi32(mk);
 
+            float tLastZrs[8];
+            float tLastZis[8];
+
+            _mm256_storeu_ps(tLastZrs, mlastZr);
+            _mm256_storeu_ps(tLastZis, mlastZi);
+
             const int tIndex = x + y * width;
             for ( int i=0; i<8 && x+i<width; i++ ) {
                 iters[tIndex+i] = vCount.i[i];
-                lastZrs[tIndex] = (double)vLastZr.f[i];
-                lastZis[tIndex] = (double)vLastZi.f[i];
+                lastZrs[tIndex+i] = (double)tLastZrs[i];
+                lastZis[tIndex+i] = (double)tLastZis[i];
             }
 
 
