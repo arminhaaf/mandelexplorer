@@ -31,7 +31,8 @@ mandel_avxd(unsigned int *iters,
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x += 4) {
+        // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
+        for (int x = 0; x < width-4; x += 4) {
             __m256d mx = _mm256_set_pd(x + 3, x + 2, x + 1, x + 0);
             __m256d my = _mm256_set1_pd(y);
             __m256d cr = _mm256_add_pd(_mm256_mul_pd(mx, xscale), xmin);
@@ -129,7 +130,8 @@ mandel_avxs(unsigned int *iters,
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x += 8) {
+        // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
+        for (int x = 0; x < width-8; x += 8) {
             __m256 mx = _mm256_set_ps(x+7, x+6, x+5, x+4, x + 3, x + 2, x + 1, x + 0);
             __m256 my = _mm256_set1_ps(y);
             __m256 cr = _mm256_add_ps(_mm256_mul_ps(mx, xscale), xmin);
