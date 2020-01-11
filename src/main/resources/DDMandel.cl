@@ -5,59 +5,33 @@
 #define X get_global_id(0)
 #define Y get_global_id(1)
 
-#define SPLIT  134217729.0 // 2^27+1, for IEEE double
-
 inline double2 mul(const double2 pFF1, const double2 pFF2) {
-    const double hi = pFF1.x;
-    const double lo = pFF1.y;
+    double hi = pFF1.x;
+    double lo = pFF1.y;
     const double yhi = pFF2.x;
     const double ylo = pFF2.y;
 
-    double hx, tx, hy, ty, C, c;
-    C = SPLIT * hi;
-    hx = C - hi;
-    c = SPLIT * yhi;
-    hx = C - hx;
-    tx = hi - hx;
-    hy = c - yhi;
-    C = hi * yhi;
-    hy = c - hy;
-    ty = yhi - hy;
-    c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
-    // fma implementation is not faster, seems compiler can do the job
-    //c = fma(tx,ty,fma(tx,hy, fma(hx,ty,fma(hx,hy, - C)))) + fma(hi,ylo,lo * yhi);
+    const double H = hi * yhi;
+    double L = hi * yhi - H;  //  FMA
+    L = lo * yhi + L;  //  FMA
+    lo = hi * ylo + L;  //  FMA
+    hi = H;
 
-    const double zhi = C + c;
-    hx = C - zhi;
-    const double zlo = c + hx;
-
-    return (double2)(zhi,zlo);
+    return (double2)(hi,lo);
 }
 
 inline double2 mulDouble(const double2 pFF1, const double pDouble) {
-    const double hi = pFF1.x;
-    const double lo = pFF1.y;
+    double hi = pFF1.x;
+    double lo = pFF1.y;
     const double yhi = pDouble;
 
-    double hx, tx, hy, ty, C, c;
-    C = SPLIT * hi;
-    hx = C - hi;
-    c = SPLIT * yhi;
-    hx = C - hx;
-    tx = hi - hx;
-    hy = c - yhi;
-    C = hi * yhi;
-    hy = c - hy;
-    ty = yhi - hy;
-    c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
-    // fma implementation is not faster, seems compiler can do the job
-    //c = fma(lo, yhi, fma(tx, ty, fma(tx, hy, fma(hx, ty, fma(hx, hy, -C)))));
+    const double H = hi * yhi;
+    double L = hi * yhi - H;  //  FMA
+    L = lo * yhi + L;  //  FMA
+    lo = L;  //  FMA
+    hi = H;
 
-    const double zhi = C + c;
-    hx = C - zhi;
-    const double zlo = c + hx;
-
-    return (double2)(zhi,zlo);
+    return (double2)(hi,lo);
 }
 
 
@@ -67,42 +41,27 @@ inline double2 add(const double2 pFF1,  const double2 pFF2) {
     const double yhi = pFF2.x;
     const double ylo = pFF2.y;
 
-    double H, h, T, t, S, s, e, f;
-    S = hi + yhi;
-    T = lo + ylo;
-    e = S - hi;
-    f = T - lo;
-    s = S - e;
-    t = T - f;
-    s = (yhi - e) + (hi - s);
-    t = (ylo - f) + (lo - t);
-    e = s + T;
-    H = S + e;
-    h = e + (S - H);
-    e = t + h;
+    double IH = fabs(fmax(hi, yhi));   //  AVX512-DQ "vrangepd"
+    double IL = fabs(fmin(hi, yhi));   //  AVX512-DQ "vrangepd"
+    double H = hi + yhi;
+    double L = H - IH;
+    L = IL - L;
+    L = L + lo;
 
-    const double zhi = H + e;
-    const double zlo = e + (H - zhi);
-
-    return (double2)(zhi,zlo);
+     return (double2)(H, L+ylo);
 }
 
-inline double2 addDouble(const double2 pFF1,const  double y) {
+inline double2 addDouble(const double2 pFF1,const  double pHi) {
     double hi = pFF1.x;
     double lo = pFF1.y;
 
-    double H, h, S, s, e, f;
-    S = hi + y;
-    e = S - hi;
-    s = S - e;
-    s = (y - e) + (hi - s);
-    f = s + lo;
-    H = S + f;
-    h = f + (S - H);
-    hi = H + h;
-    lo = h + (H - hi);
-
-    return (double2)(hi,lo);
+    double IH = fabs(fmax(hi, pHi));   //  AVX512-DQ "vrangepd"
+    double IL = fabs(fmin(hi, pHi));   //  AVX512-DQ "vrangepd"
+    double H = hi + pHi;
+    double L = H - IH;
+    L = IL - L;
+    L = L + lo;
+    return (double2)(H,L);
 }
 
 inline double2 sub(const double2 pFF1,const  double2 pFF2) {
