@@ -1,58 +1,15 @@
 #pragma once
 
+#include <stdbool.h>
+
+typedef struct {
+    double hi;
+    double lo;
+} DD;
+
 
 void
 mandel_avxd(unsigned int *iters,
-            double *lastZrs,
-            double *lastZis,
-            double *distancesR,
-            double *distancesI,
-            bool calcDistance,
-            const int width,
-                                const int height,
-                                const double xStart,
-                                const double yStart,
-                                const double xInc,
-                                const double yInc,
-                                const int maxIterations,
-                                const double sqrEscapeRadius);
-
-void
-mandel_avxs(unsigned int *iters,
-            double *lastZrs,
-            double *lastZis,
-            double *distancesR,
-            double *distancesI,
-            bool calcDistance,
-            const int width,
-                                const int height,
-                                const float xStart,
-                                const float yStart,
-                                const float xInc,
-                                const float yInc,
-                                const int maxIterations,
-                                const float sqrEscapeRadius);
-
-
-void
-mandel_double(unsigned int *iters,
-            double *lastZrs,
-            double *lastZis,
-              double *distancesR,
-              double *distancesI,
-              bool calcDistance,
-            const int width,
-                                const int height,
-                                const double xStart,
-                                const double yStart,
-                                const double xInc,
-                                const double yInc,
-                                const int maxIterations,
-                                const double sqrEscapeRadius);
-
-
-void
-mandel_vector(unsigned int *iters,
             double *lastZrs,
             double *lastZis,
             double *distancesR,
@@ -66,4 +23,57 @@ mandel_vector(unsigned int *iters,
             const double yInc,
             const int maxIterations,
             const double sqrEscapeRadius);
+
+void
+mandel_avxs(unsigned int *iters,
+            double *lastZrs,
+            double *lastZis,
+            double *distancesR,
+            double *distancesI,
+            bool calcDistance,
+            const int width,
+            const int height,
+            const float xStart,
+            const float yStart,
+            const float xInc,
+            const float yInc,
+            const int maxIterations,
+            const float sqrEscapeRadius);
+
+
+void
+mandel_double(unsigned int *iters,
+              double *lastZrs,
+              double *lastZis,
+              double *distancesR,
+              double *distancesI,
+              bool calcDistance,
+              const int width,
+              const int height,
+              const double xStart,
+              const double yStart,
+              const double xInc,
+              const double yInc,
+              const int maxIterations,
+              const double sqrEscapeRadius);
+
+void mandel_dd(
+        unsigned int *iters,
+        double *lastZrs,
+        double *lastZis,
+        double *distancesR,
+        double *distancesI,
+        bool calcDistance,
+        const int width,
+        const int height,
+        const double xStartHi,
+        const double xStartLo,
+        const double yStartHi,
+        const double yStartLo,
+        const double xIncHi,
+        const double xIncLo,
+        const double yIncHi,
+        const double yIncLo,
+        const unsigned int maxIterations,
+        const double sqrEscapeRadius);
 

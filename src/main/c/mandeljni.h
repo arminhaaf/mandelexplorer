@@ -7,6 +7,24 @@
 extern	"C"	{
 #endif
 
+JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelDDNative_mandelDD
+		(JNIEnv	*env,	jobject obj,
+		const jint algo,
+		jintArray iters,
+		jdoubleArray lastZrs,
+   		jdoubleArray lastZis,
+		jdoubleArray distancesR,
+		jdoubleArray distancesI,
+		const bool calcDistance,
+		const jint width,
+        const jint height,
+        const jdoubleArray xStart,
+        const jdoubleArray yStart,
+        const jdoubleArray xInc,
+        const jdoubleArray yInc,
+        const jint maxIterations,
+        const jdouble sqrEscapeRadius);
+
 
 JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelNative_mandel
 		(JNIEnv	*,	jobject,
