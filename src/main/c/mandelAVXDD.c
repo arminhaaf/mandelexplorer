@@ -127,6 +127,7 @@ void checkCompilerOptimizationDD4() {
 
    if ( erg.lo[0]!=4.2085453253312943e-17) {
         printf("compiler break DD Logik -> please do not use -ffast-math or -funsafe-math-optimizations\n");
+        fflush(stdout);
     }
 }
 
@@ -152,8 +153,6 @@ void mandel_avxdd(
             const double sqrEscapeRadius)
 {
     checkCompilerOptimizationDD4();
-    printf("avx doubledouble");
-    fflush(stdout);
 
     const __m256d mZero = _mm256_set1_pd(0);
     const __m256d mOne = _mm256_set1_pd(1);
