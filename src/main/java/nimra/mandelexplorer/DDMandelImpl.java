@@ -28,10 +28,10 @@ public class DDMandelImpl extends MandelKernel {
     public void init(final MandelParams pMandelParams) {
         maxIterations = pMandelParams.getMaxIterations();
 
-        final DD tScaleX = new DD(pMandelParams.getScale_double()).multiply(width).divide(height);
-        final DD tScaleY = new DD(pMandelParams.getScale_double());
-        xStart = new DD(pMandelParams.getX_Double()).subtract(tScaleX.divide(2.0));
-        yStart = new DD(pMandelParams.getY_Double()).subtract(tScaleY.divide(2.0));
+        final DD tScaleX = new DD(pMandelParams.getScale()).multiply(width).divide(height);
+        final DD tScaleY = new DD(pMandelParams.getScale());
+        xStart = new DD(pMandelParams.getX()).subtract(tScaleX.divide(2.0));
+        yStart = new DD(pMandelParams.getY()).subtract(tScaleY.divide(2.0));
         xInc = new DD(tScaleX).divide(width);
         yInc = new DD(tScaleY).divide(height);
 
