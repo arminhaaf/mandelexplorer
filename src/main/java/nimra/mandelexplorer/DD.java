@@ -14,6 +14,7 @@ package nimra.mandelexplorer;
 
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Implements extended-precision floating-point numbers
@@ -185,6 +186,11 @@ public final class DD
      */
     public DD(double x) {
         init(x);
+    }
+
+    public DD(BigDecimal x) {
+        hi = x.doubleValue();
+        lo = x.subtract(new BigDecimal(hi)).doubleValue();
     }
 
     public void setHi(double hi) {
