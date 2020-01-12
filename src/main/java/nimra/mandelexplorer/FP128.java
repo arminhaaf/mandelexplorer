@@ -44,10 +44,10 @@ public class FP128 {
         for (int i = 0; i < vec.length; i++) {
             vec[i] ^= 0xFFFFFFFF;
         }
-        inc();
+        bitInc();
     }
 
-    public void inc() {
+    public void bitInc() {
         int[] h = new int[4];
         for (int i = 0; i < vec.length; i++) {
             h[i] = vec[i] == 0xFFFFFFFF ? 1 : 0;
