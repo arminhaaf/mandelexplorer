@@ -229,12 +229,12 @@ public class MandelExplorer {
                 new MandelAlgo("FFCL", 100 , () -> new FFCLMandelKernel(getImageWidth(), getImageHeight())),
                 new MandelAlgo("DoubleDouble", 1E-28, () -> new DDMandelImpl(getImageWidth(), getImageHeight())),
                 new MandelAlgo("DoubleDoubleCL",1E-24, () -> new DDCLMandelKernel(getImageWidth(), getImageHeight())),
-                new MandelAlgo("FP128CL", 1E-40, () -> new FP128CLMandelKernel(getImageWidth(), getImageHeight())),
-                new MandelAlgo("AVX256 Double", 1E-15, () -> new MandelNative(MandelNative.Algo.AVX2Double, getImageWidth(), getImageHeight())),
-                new MandelAlgo("Double Native", 1E-15, () -> new MandelNative(MandelNative.Algo.Double, getImageWidth(), getImageHeight())),
-                new MandelAlgo("AVX256 Single", 1E-15, () -> new MandelNative(MandelNative.Algo.AVX2Single, getImageWidth(), getImageHeight())),
-                new MandelAlgo("AVX DoubleDouble", 1E-15, () -> new MandelDDNative(MandelDDNative.Algo.AVXDoubleDouble, getImageWidth(), getImageHeight())),
-                new MandelAlgo("DoubleDouble Native", 1E-15, () -> new MandelDDNative(MandelDDNative.Algo.DoubleDouble, getImageWidth(), getImageHeight()))
+                new MandelAlgo("FP128CL", 1E-40, () -> new FP128CLMandelKernel(getImageWidth(), getImageHeight()))
+//                new MandelAlgo("AVX256 Double", 1E-15, () -> new MandelNative(MandelNative.Algo.AVX2Double, getImageWidth(), getImageHeight())),
+//                new MandelAlgo("Double Native", 1E-15, () -> new MandelNative(MandelNative.Algo.Double, getImageWidth(), getImageHeight())),
+//                new MandelAlgo("AVX256 Single", 1E-15, () -> new MandelNative(MandelNative.Algo.AVX2Single, getImageWidth(), getImageHeight())),
+//                new MandelAlgo("AVX DoubleDouble", 1E-15, () -> new MandelDDNative(MandelDDNative.Algo.AVXDoubleDouble, getImageWidth(), getImageHeight())),
+//                new MandelAlgo("DoubleDouble Native", 1E-15, () -> new MandelDDNative(MandelDDNative.Algo.DoubleDouble, getImageWidth(), getImageHeight()))
                 // bugggy
                 //new MandelAlgo("QFCL",1E-14, () -> new QFCLMandelKernel(getImageWidth(), getImageHeight()))
                 );

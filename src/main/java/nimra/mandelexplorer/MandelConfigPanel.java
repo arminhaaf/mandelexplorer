@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.stream.IntStream;
 
 /**
  * Created: 27.12.19   by: Armin Haaf
@@ -69,6 +70,7 @@ public class MandelConfigPanel {
     private JCheckBox calcDistanceCheckBox;
     private JTextArea deviceInfoTextArea;
     private JTextField currentDeviceTextField;
+    private JComboBox tileComboBox;
 
     private ChangeListener changeListener;
     private ChangeListener paletteChangeListener;
@@ -105,6 +107,15 @@ public class MandelConfigPanel {
             }
             changed();
         });
+
+        tileComboBox.setModel(new DefaultComboBoxModel(IntStream.range(0, 21).boxed().toArray(Integer[]::new)));
+        tileComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
+                return super.getListCellRendererComponent(list, value != Integer.valueOf(0) ? value : "Auto", index, isSelected, cellHasFocus);
+            }
+        });
+        tileComboBox.setSelectedItem(0);
 
         deviceComboBox.setModel(new DefaultComboBoxModel<>(getAvailableDevices().toArray(new Device[0])));
         deviceComboBox.setRenderer(new DefaultListCellRenderer() {
@@ -184,6 +195,10 @@ public class MandelConfigPanel {
 
         configsComboBox.addActionListener(e -> setSelectedConfig());
 
+    }
+
+    public int getTiles() {
+        return (int)tileComboBox.getSelectedItem();
     }
 
     private List<Device> getAvailableDevices() {
@@ -364,42 +379,42 @@ public class MandelConfigPanel {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new FormLayout("fill:max(d;4px):noGrow,left:4dlu:noGrow,fill:d:grow,left:4dlu:noGrow", "center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:d:grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
+        mainPanel.setLayout(new FormLayout("fill:max(d;4px):noGrow,left:4dlu:noGrow,fill:d:grow,left:4dlu:noGrow", "center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:d:grow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
         final JLabel label1 = new JLabel();
         label1.setText("max.Iterations");
         CellConstraints cc = new CellConstraints();
-        mainPanel.add(label1, cc.xy(1, 19));
+        mainPanel.add(label1, cc.xy(1, 21));
         maxIterationChooser = new JComboBox();
         maxIterationChooser.setEditable(true);
-        mainPanel.add(maxIterationChooser, cc.xy(3, 19));
+        mainPanel.add(maxIterationChooser, cc.xy(3, 21));
         final JLabel label2 = new JLabel();
         label2.setText("X");
-        mainPanel.add(label2, cc.xy(1, 25));
+        mainPanel.add(label2, cc.xy(1, 27));
         xTextField = new JTextField();
         xTextField.setColumns(14);
-        mainPanel.add(xTextField, cc.xy(3, 25, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(xTextField, cc.xy(3, 27, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label3 = new JLabel();
         label3.setText("Y");
-        mainPanel.add(label3, cc.xy(1, 29));
+        mainPanel.add(label3, cc.xy(1, 31));
         yTextField = new JTextField();
-        mainPanel.add(yTextField, cc.xy(3, 29, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(yTextField, cc.xy(3, 31, CellConstraints.FILL, CellConstraints.DEFAULT));
         scaleTextField = new JTextField();
-        mainPanel.add(scaleTextField, cc.xy(3, 33, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(scaleTextField, cc.xy(3, 35, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label4 = new JLabel();
         label4.setText("Scale");
-        mainPanel.add(label4, cc.xy(1, 33));
+        mainPanel.add(label4, cc.xy(1, 35));
         xInfoTextField = new JTextField();
         xInfoTextField.setEditable(false);
-        mainPanel.add(xInfoTextField, cc.xy(3, 27, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(xInfoTextField, cc.xy(3, 29, CellConstraints.FILL, CellConstraints.DEFAULT));
         yInfoTextField = new JTextField();
         yInfoTextField.setEditable(false);
-        mainPanel.add(yInfoTextField, cc.xy(3, 31, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(yInfoTextField, cc.xy(3, 33, CellConstraints.FILL, CellConstraints.DEFAULT));
         scaleInfoTextField = new JTextField();
         scaleInfoTextField.setEditable(false);
-        mainPanel.add(scaleInfoTextField, cc.xy(3, 35, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(scaleInfoTextField, cc.xy(3, 37, CellConstraints.FILL, CellConstraints.DEFAULT));
         maxIterInfoTextField = new JTextField();
         maxIterInfoTextField.setEditable(false);
-        mainPanel.add(maxIterInfoTextField, cc.xy(3, 21, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(maxIterInfoTextField, cc.xy(3, 23, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label5 = new JLabel();
         label5.setText("Algo");
         mainPanel.add(label5, cc.xy(1, 9));
@@ -410,18 +425,18 @@ public class MandelConfigPanel {
         mainPanel.add(algorithmComboBox, cc.xy(3, 9));
         final JLabel label6 = new JLabel();
         label6.setText("renderTime");
-        mainPanel.add(label6, cc.xy(1, 39));
+        mainPanel.add(label6, cc.xy(1, 41));
         renderMillisTextField = new JTextField();
         renderMillisTextField.setEditable(false);
-        mainPanel.add(renderMillisTextField, cc.xy(3, 39, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(renderMillisTextField, cc.xy(3, 41, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JLabel label7 = new JLabel();
         label7.setText("Palette");
-        mainPanel.add(label7, cc.xy(1, 15));
+        mainPanel.add(label7, cc.xy(1, 17));
         paletteComboBox = new JComboBox();
         paletteComboBox.setEditable(false);
         final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
         paletteComboBox.setModel(defaultComboBoxModel2);
-        mainPanel.add(paletteComboBox, cc.xy(3, 15));
+        mainPanel.add(paletteComboBox, cc.xy(3, 17));
         algoInfoTextField = new JTextField();
         algoInfoTextField.setEditable(false);
         mainPanel.add(algoInfoTextField, cc.xy(3, 11, CellConstraints.FILL, CellConstraints.DEFAULT));
@@ -446,24 +461,24 @@ public class MandelConfigPanel {
         panel1.add(removeSelectedConfig);
         final JLabel label9 = new JLabel();
         label9.setText("Escape Radius");
-        mainPanel.add(label9, cc.xy(1, 23));
+        mainPanel.add(label9, cc.xy(1, 25));
         escapeRadiusTextField = new JTextField();
         escapeRadiusTextField.setColumns(14);
-        mainPanel.add(escapeRadiusTextField, cc.xy(3, 23, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(escapeRadiusTextField, cc.xy(3, 25, CellConstraints.FILL, CellConstraints.DEFAULT));
         final JScrollPane scrollPane1 = new JScrollPane();
-        mainPanel.add(scrollPane1, cc.xy(3, 17, CellConstraints.FILL, CellConstraints.FILL));
+        mainPanel.add(scrollPane1, cc.xy(3, 19, CellConstraints.FILL, CellConstraints.FILL));
         paletteConfigTextArea = new JTextArea();
         paletteConfigTextArea.setRows(3);
         paletteConfigTextArea.setText("");
         scrollPane1.setViewportView(paletteConfigTextArea);
         final JLabel label10 = new JLabel();
         label10.setText("Zoom-Speed");
-        mainPanel.add(label10, cc.xy(1, 37));
+        mainPanel.add(label10, cc.xy(1, 39));
         zoomSpeedSlider = new JSlider();
         zoomSpeedSlider.setMaximum(10);
         zoomSpeedSlider.setMinimum(1);
         zoomSpeedSlider.setValue(5);
-        mainPanel.add(zoomSpeedSlider, cc.xy(3, 37, CellConstraints.FILL, CellConstraints.DEFAULT));
+        mainPanel.add(zoomSpeedSlider, cc.xy(3, 39, CellConstraints.FILL, CellConstraints.DEFAULT));
         calcDistanceCheckBox = new JCheckBox();
         calcDistanceCheckBox.setText("");
         mainPanel.add(calcDistanceCheckBox, cc.xy(3, 13));
@@ -480,6 +495,12 @@ public class MandelConfigPanel {
         currentDeviceTextField = new JTextField();
         currentDeviceTextField.setEditable(false);
         mainPanel.add(currentDeviceTextField, cc.xy(3, 5, CellConstraints.FILL, CellConstraints.DEFAULT));
+        final JLabel label12 = new JLabel();
+        label12.setText("Tiles");
+        label12.setToolTipText("About 20% faster without -> no Distance palette mapping");
+        mainPanel.add(label12, cc.xy(1, 15));
+        tileComboBox = new JComboBox();
+        mainPanel.add(tileComboBox, cc.xy(3, 15));
     }
 
     /**

@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 import static java.math.MathContext.DECIMAL128;
 
@@ -74,6 +75,28 @@ public class MandelParams {
 
     public void setEscapeRadius(final double pEscapeRadius) {
         escapeRadius = pEscapeRadius;
+    }
+
+    protected final BigDecimal BD_0_5 = new BigDecimal("0.5");
+
+    public BigDecimal getXInc(int pWidth, int pHeight) {
+        final BigDecimal tScaleX = getScale().multiply(new BigDecimal(pWidth)).divide(new BigDecimal(pHeight), MathContext.DECIMAL128);
+        return tScaleX.divide(new BigDecimal(pWidth), MathContext.DECIMAL128);
+    }
+
+    public BigDecimal getYInc(int pWidth, int pHeight) {
+        return getScale().divide(new BigDecimal(pHeight), MathContext.DECIMAL128);
+    }
+
+    public BigDecimal getXMin(int pWidth, int pHeight) {
+        final BigDecimal tScaleX = getScale().multiply(new BigDecimal(pWidth)).divide(new BigDecimal(pHeight), MathContext.DECIMAL128);
+        //xStart =  mandelParams.getX_Double() - tScaleX / 2.0;
+        return getX().subtract(tScaleX.multiply(BD_0_5));
+    }
+
+    public BigDecimal getYMin(int pWidth, int pHeight) {
+        //yStart =  mandelParams.getY_Double() - tScaleY / 2.0;
+        return getY().subtract(getScale().multiply(BD_0_5));
     }
 
     @Override
