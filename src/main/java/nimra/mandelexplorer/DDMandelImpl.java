@@ -17,7 +17,7 @@ public class DDMandelImpl extends MandelKernel {
     protected DD xInc;
     protected DD yInc;
 
-    protected DD escapeSqr;
+    protected double escapeSqr;
 
     public DDMandelImpl(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
@@ -35,20 +35,20 @@ public class DDMandelImpl extends MandelKernel {
         xInc = new DD(tScaleX).divide(width);
         yInc = new DD(tScaleY).divide(height);
 
-        escapeSqr = new DD(pMandelParams.getEscapeRadius() * pMandelParams.getEscapeRadius());
+        escapeSqr = pMandelParams.getEscapeRadius()*pMandelParams.getEscapeRadius();
     }
 
     public void run() {
-        final int tX = getGlobalId(0);
-        final int tY = getGlobalId(1);
+        final int x = getGlobalId(0);
+        final int y = getGlobalId(1);
 
-        final DD x = xInc.multiply(tX).selfAdd(xStart);
-        final DD y = yInc.multiply(tY).selfAdd(yStart);
+        final DD cr = xInc.multiply(x).selfAdd(xStart);
+        final DD ci = yInc.multiply(y).selfAdd(yStart);
 
         int count = 0;
 
-        final DD zr = new DD(x);
-        final DD zi = new DD(y);
+        final DD zr = new DD(cr);
+        final DD zi = new DD(ci);
 
 //        // Iterate until the algorithm converges or until maxIterations are reached.
 //        while ((count < maxIterations) && (((zx * zx) + (zy * zy)) < 8)) {
@@ -69,7 +69,7 @@ public class DDMandelImpl extends MandelKernel {
 
         final DD tmpDD = new DD();
 
-        while ((count < maxIterations) && ((zrsqr.add(zisqr)).lt(escapeSqr))) {
+        while ((count < maxIterations) && ((zrsqr.add(zisqr)).getHi()<escapeSqr)) {
 
             if (calcDistance[0]) {
                 tmpDD.setValue(zr).selfMultiply(dr).selfSubtract(zi.multiply(di)).selfMultiply(2.0).selfAdd(1.0);
@@ -77,8 +77,8 @@ public class DDMandelImpl extends MandelKernel {
                 dr.setValue(tmpDD);
             }
 
-            tmpDD.setValue(zrsqr).selfSubtract(zisqr).selfAdd(x);
-            zi.selfMultiply(zr).selfMultiply(2.0).selfAdd(y);
+            tmpDD.setValue(zrsqr).selfSubtract(zisqr).selfAdd(cr);
+            zi.selfMultiply(zr).selfMultiply(2.0).selfAdd(ci);
             zr.setValue(tmpDD);
 
             //If in a periodic orbit, assume it is trapped
@@ -91,7 +91,7 @@ public class DDMandelImpl extends MandelKernel {
             }
         }
 
-        final int tIndex = tY * getGlobalSize(0) + tX;
+        final int tIndex = y * getGlobalSize(0) + x;
         iters[tIndex] = count;
         lastValuesR[tIndex] = zr.doubleValue();
         lastValuesI[tIndex] = zi.doubleValue();

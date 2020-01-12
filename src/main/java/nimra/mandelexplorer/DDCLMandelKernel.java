@@ -38,7 +38,7 @@ public class DDCLMandelKernel extends DDMandelImpl {
 
         DDCLMandel tImpl = CLImplCache.getImpl(this, DDCLMandel.class);
         tImpl.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
-                convertToDD(xStart), convertToDD(yStart), convertToDD(xInc), convertToDD(yInc), maxIterations, escapeSqr.getHi());
+                convertToDD(xStart), convertToDD(yStart), convertToDD(xInc), convertToDD(yInc), maxIterations, escapeSqr);
 
         return this;
     }
