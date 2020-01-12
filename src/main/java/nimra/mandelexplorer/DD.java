@@ -507,8 +507,8 @@ public final class DD
         C = hi * yhi;
         hy = c - hy;
         ty = yhi - hy;
-        //c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
-        c = Math.fma(lo, yhi, Math.fma(tx, ty, Math.fma(tx, hy, Math.fma(hx, ty, Math.fma(hx, hy, -C)))));
+        // CAVEAT fma breaks DD code !
+        c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
         final double zhi = C + c;
         hx = C - zhi;
         final double zlo = c + hx;
@@ -528,8 +528,8 @@ public final class DD
         C = hi * yhi;
         hy = c - hy;
         ty = yhi - hy;
-        //c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
-        c = Math.fma(tx,ty,Math.fma(tx,hy, Math.fma(hx,ty,Math.fma(hx,hy, - C)))) + Math.fma(hi,ylo,lo * yhi);
+        // CAVEAT fma breaks DD code !
+        c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
         double zhi = C + c;
         hx = C - zhi;
         double zlo = c + hx;
