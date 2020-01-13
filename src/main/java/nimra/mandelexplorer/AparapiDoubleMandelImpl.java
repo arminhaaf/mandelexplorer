@@ -32,20 +32,20 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
     /**
      * buffer used to store the iterations (width * height).
      */
-    protected int iters[];
+    protected int[] iters;
 
     /**
      * buffer used to store the last calculated real value of a point -> used for some palette calculations
      */
-    protected double lastValuesR[];
+    protected double[] lastValuesR;
 
     /**
      * buffer used to store the last calculated imaginary value of a point -> used for some palette calculations
      */
-    protected double lastValuesI[];
+    protected double[] lastValuesI;
 
-    protected double distancesR[];
-    protected double distancesI[];
+    protected double[] distancesR;
+    protected double[] distancesI;
 
     // boolean is not available !?
     protected final boolean[] calcDistance = new boolean[1];
