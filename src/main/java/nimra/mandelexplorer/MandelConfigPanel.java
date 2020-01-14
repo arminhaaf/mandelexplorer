@@ -194,6 +194,8 @@ public class MandelConfigPanel {
                 tMandelConfig.mandelParams.setScale(new BigDecimal(scaleInfoTextField.getText()));
                 tMandelConfig.mandelParams.setMaxIterations(getMaxIterations());
                 tMandelConfig.mandelParams.setEscapeRadius(getEscapeRadius());
+                tMandelConfig.mandelParams.setJuliaCr(getJuliaCr());
+                tMandelConfig.mandelParams.setJuliaCi(getJuliaCi());
                 tMandelConfig.palette = ((PaletteMapper)paletteComboBox.getSelectedItem()).getName();
                 tMandelConfig.paletteConfigJson = paletteConfigTextArea.getText();
             }
