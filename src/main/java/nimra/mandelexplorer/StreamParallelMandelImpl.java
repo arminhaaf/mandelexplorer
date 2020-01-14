@@ -24,17 +24,21 @@ public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
         final double ymin = getYmin(pParams, width, height);
         final double xinc = getXinc(pParams, width, height);
         final double yinc = getYinc(pParams, width, height);
+        final double juliaCr = pParams.getJuliaCr().doubleValue();
+        final double juliaCi = pParams.getJuliaCi().doubleValue();
         final double escapeSqr = getEscapeSqr(pParams);
 
         IntStream.range(startY, endY).parallel().forEach(y -> {
-            final double ci = ymin + y * yinc;
+            final double tY = ymin + y * yinc;;
+            final double tCi = pMode == Mode.JULIA ? juliaCi : tY;
             for (int x = startX; x < endX; x++) {
-                final double cr = xmin + x * xinc;
+                final double tX = xmin + x * xinc;
+                final double tCr = pMode == Mode.JULIA ? juliaCr : tX;
 
                 int count = 0;
 
-                double zr = cr;
-                double zi = ci;
+                double zr = tX;
+                double zi = tY;
 
                 // cache the squares -> 10% faster
                 double zrsqr = zr * zr;
@@ -52,8 +56,14 @@ public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
                         dr = new_dr;
                     }
 
-                    zi = (2 * zr * zi) + ci;
-                    zr = (zrsqr - zisqr) + cr;
+                    // z^3 + c
+//                    double tmp = zrsqr * zr - 3 * zisqr * zr + tCr;
+//                    zi = 3 * zrsqr * zi - zisqr * zi + tCi;
+//                    zr = tmp;
+
+
+                    zi = (2 * zr * zi) + tCi;
+                    zr = (zrsqr - zisqr) + tCr;
 
                     //If in a periodic orbit, assume it is trapped
                     if (zr == 0.0 && zi == 0.0) {
