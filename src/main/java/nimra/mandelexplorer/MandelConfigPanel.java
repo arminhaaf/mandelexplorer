@@ -24,6 +24,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -259,10 +260,12 @@ public class MandelConfigPanel {
         changeEnabled = false;
 
         try {
-            xTextField.setText(Double.toString(tMandelConfig.mandelParams.getX_Double()));
-            yTextField.setText(Double.toString(tMandelConfig.mandelParams.getY_Double()));
-            scaleTextField.setText(Double.toString(tMandelConfig.mandelParams.getScale_double()));
+            xTextField.setText(tMandelConfig.mandelParams.getX().toString());
+            yTextField.setText(tMandelConfig.mandelParams.getY().toString());
+            scaleTextField.setText(tMandelConfig.mandelParams.getScale().toString());
             escapeRadiusTextField.setText(Double.toString(tMandelConfig.mandelParams.getEscapeRadius()));
+            crTextField.setText(tMandelConfig.mandelParams.getJuliaCr().toString());
+            ciTextField.setText(tMandelConfig.mandelParams.getJuliaCi().toString());
             if (tMandelConfig.mandelParams.getMaxIterations() < 0) {
                 maxIterationChooser.setSelectedIndex(0);
             } else {
@@ -350,10 +353,14 @@ public class MandelConfigPanel {
     }
 
     private BigDecimal getBDOrNull(String pText) {
+        return getBD(pText, null);
+    }
+
+    private BigDecimal getBD(String pText, BigDecimal pDefault) {
         try {
             return new BigDecimal(pText);
         } catch (Exception ex) {
-            return null;
+            return pDefault;
         }
     }
 
@@ -635,11 +642,11 @@ public class MandelConfigPanel {
     }
 
     public BigDecimal getJuliaCr() {
-        return juliaChooser.getCr();
+        return getBD(crTextField.getText(), BigDecimal.ZERO);
     }
 
     public BigDecimal getJuliaCi() {
-        return juliaChooser.getCi();
+        return getBD(ciTextField.getText(), BigDecimal.ZERO);
     }
 
     static class MandelConfig {
