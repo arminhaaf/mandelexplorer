@@ -8,3 +8,4 @@ nimra.mandelexplorer.palette.SmoothGradientPaletteMapper
 nimra.mandelexplorer.palette.BWPaletteMapper
 nimra.mandelexplorer.palette.BrightnessPaletteMapper
 nimra.mandelexplorer.palette.BuggedHistoPaletteMapper
+nimra.mandelexplorer.palette.InsideOutsidePaletteMapper
