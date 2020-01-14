@@ -130,6 +130,8 @@ public class MandelParams {
         tJSONObject.put("scale", scale.toString());
         tJSONObject.put("maxIterations", maxIterations);
         tJSONObject.put("escapeRadius", escapeRadius);
+        tJSONObject.put("juliaCr", juliaCr);
+        tJSONObject.put("juliaCi", juliaCi);
         return tJSONObject;
     }
 
