@@ -5,6 +5,7 @@ import nimra.mandelexplorer.palette.DefaultPaletteMapper;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.event.ChangeListener;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -47,6 +48,24 @@ public class JuliaChooser {
         public void paintComponent(Graphics g) {
             if (image != null) {
                 g.drawImage(image, 0, 0, getImageWidth(), getImageHeight(), this);
+
+                // paint simple crosshair
+                int tCrossHairSize = 20;
+
+                final BigDecimal tScaleX = mandelParams.getScale().multiply(new BigDecimal(getImageWidth())).divide(new BigDecimal(getImageHeight()), MathContext.DECIMAL128);
+                final BigDecimal tScaleY = mandelParams.getScale();
+
+                //final double xStart =  mandelParams.getX_Double() - tScaleX / 2.0;
+                final BigDecimal xStart = mandelParams.getX().subtract(tScaleX.multiply(BD_0_5));
+                //final double yStart =  mandelParams.getY_Double() - tScaleY / 2.0;
+                final BigDecimal yStart = mandelParams.getY().subtract(tScaleY.multiply(BD_0_5));
+
+                int tCenterX = cr.subtract(xStart).multiply(new BigDecimal(getImageWidth())).divide(tScaleX, MathContext.DECIMAL128).intValue();
+                int tCenterY = ci.subtract(yStart).multiply(new BigDecimal(getImageHeight())).divide(tScaleY, MathContext.DECIMAL128).intValue();
+
+                g.setColor(Color.WHITE);
+                g.drawLine(tCenterX, tCenterY - tCrossHairSize / 2, tCenterX, tCenterY + tCrossHairSize / 2);
+                g.drawLine(tCenterX - tCrossHairSize / 2, tCenterY, tCenterX + tCrossHairSize / 2, tCenterY);
             }
         }
     };
@@ -127,6 +146,7 @@ public class JuliaChooser {
             cr = xStart.add(tScaleX.multiply(new BigDecimal(e.getX())).divide(new BigDecimal(getImageWidth()), MathContext.DECIMAL128));
             ci = yStart.add(tScaleY.multiply(new BigDecimal(e.getY())).divide(new BigDecimal(getImageHeight()), MathContext.DECIMAL128));
             changeListener.stateChanged(null);
+            viewer.repaint();
         }
     }
 
