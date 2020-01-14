@@ -77,11 +77,13 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelNative_mandel
    		jdoubleArray lastZis,
 		jdoubleArray distancesR,
 		jdoubleArray distancesI,
-		const bool calcDistance,
+		const int mode,
 		const jint width,
         const jint height,
         const jdouble xStart,
         const jdouble yStart,
+        const jdouble juliaCr,
+        const jdouble juliaCi,
         const jdouble xInc,
         const jdouble yInc,
         const jint maxIterations,
@@ -94,16 +96,16 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelNative_mandel
         double* tDistancesI = (*env)->GetDoubleArrayElements(env, distancesI, 0);
         switch ( algo ) {
             case 1:
-                mandel_avxd((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
-                    width, height, xStart, yStart, xInc, yInc, maxIterations,sqrEscapeRadius);
+                mandel_avxd((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                    width, height, xStart, yStart, juliaCr,juliaCi, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
             case 2:
-                mandel_avxs((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
-                    width, height, xStart, yStart, xInc, yInc, maxIterations,sqrEscapeRadius);
+                mandel_avxs((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                    width, height, xStart, yStart, juliaCr, juliaCi, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
             case 3:
-                mandel_double((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
-                    width, height, xStart, yStart, xInc, yInc, maxIterations,sqrEscapeRadius);
+                mandel_double((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                    width, height, xStart, yStart, juliaCr, juliaCi, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
         }
 

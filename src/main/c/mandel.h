@@ -2,6 +2,10 @@
 
 #include <stdbool.h>
 
+#define MODE_MANDEL 1
+#define MODE_MANDEL_DISTANCE 2
+#define MODE_JULIA 3
+
 typedef struct {
     double hi;
     double lo;
@@ -14,11 +18,13 @@ mandel_avxd(unsigned int *iters,
             double *lastZis,
             double *distancesR,
             double *distancesI,
-            bool calcDistance,
+            int mode,
             const int width,
             const int height,
             const double xStart,
             const double yStart,
+            const double juliaCr,
+            const double juliaCi,
             const double xInc,
             const double yInc,
             const int maxIterations,
@@ -30,11 +36,13 @@ mandel_avxs(unsigned int *iters,
             double *lastZis,
             double *distancesR,
             double *distancesI,
-            bool calcDistance,
+            int mode,
             const int width,
             const int height,
             const float xStart,
             const float yStart,
+            const float juliaCr,
+            const float juliaCi,
             const float xInc,
             const float yInc,
             const int maxIterations,
@@ -47,11 +55,13 @@ mandel_double(unsigned int *iters,
               double *lastZis,
               double *distancesR,
               double *distancesI,
-              bool calcDistance,
+              int mode,
               const int width,
               const int height,
               const double xStart,
               const double yStart,
+              const double juliaCr,
+              const double juliaCi,
               const double xInc,
               const double yInc,
               const int maxIterations,

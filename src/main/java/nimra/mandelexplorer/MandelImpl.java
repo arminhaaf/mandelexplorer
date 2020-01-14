@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public interface MandelImpl {
     void mandel(MandelParams pParams, int width, int height,
             int startX, int endX, int startY, int endY,
-            boolean pCalcDistance,
+            Mode pMode,
             MandelResult pMandelResult);
 
     default boolean isCompatible(Device pDevice) {
@@ -21,5 +21,20 @@ public interface MandelImpl {
 
     default boolean isPreciseFor(BigDecimal pPixelSize) {
         return true;
+    }
+
+    enum Mode {
+        MANDELBROT(1), MANDELBROT_DISTANCE(2), JULIA(3);
+
+        private int modeNumber;
+
+        private Mode(final int pModeNumber) {
+            modeNumber = pModeNumber;
+        }
+
+        public int getModeNumber() {
+            return modeNumber;
+        }
+
     }
 }

@@ -10,6 +10,9 @@ import com.aparapi.Range;
  */
 public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
 
+    private static int MODE_JULIA = Mode.JULIA.getModeNumber();
+    private static int MODE_DISTANCE = Mode.MANDELBROT_DISTANCE.getModeNumber();
+
     public int maxIterations = 100;
 
     protected double xStart;
@@ -47,22 +50,28 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
     protected double[] distancesR;
     protected double[] distancesI;
 
+    protected double juliaCr;
+    protected double juliaCi;
+
     // boolean is not available !?
-    protected final boolean[] calcDistance = new boolean[1];
+    protected int mode;
 
-
-    public void mandel(final MandelParams pParams, final int pWidth, final int pHeight, final int pStartX, final int pEndX, final int pStartY, final int pEndY, final boolean pCalcDistance, final MandelResult pMandelResult) {
+    public void mandel(final MandelParams pParams, final int pWidth, final int pHeight, final int pStartX, final int pEndX, final int pStartY, final int pEndY, final Mode pMode, final MandelResult pMandelResult) {
         xInc = pParams.getXInc(pWidth, pHeight).doubleValue();
         yInc = pParams.getYInc(pWidth, pHeight).doubleValue();
         xStart = pParams.getXMin(pWidth, pHeight).doubleValue() + pStartX * xInc;
         yStart = pParams.getYMin(pWidth, pHeight).doubleValue() + pStartY * yInc;
         escapeSqr = pParams.getEscapeRadius() * pParams.getEscapeRadius();
 
+        juliaCr = pParams.getJuliaCr().doubleValue();
+        juliaCi = pParams.getJuliaCi().doubleValue();
+
         maxIterations = pParams.getMaxIterations();
 
         width = pWidth;
         height = pHeight;
 
+        mode = pMode.getModeNumber();
 
         tileWidth = pEndX - pStartX;
         tileHeight = pEndY - pStartY;
@@ -78,7 +87,7 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
             iters = new int[tileWidth * tileHeight];
             lastValuesR = new double[tileWidth * tileHeight];
             lastValuesI = new double[tileWidth * tileHeight];
-            if (pCalcDistance) {
+            if (pMode==Mode.MANDELBROT_DISTANCE) {
                 distancesR = new double[tileWidth * tileHeight];
                 distancesI = new double[tileWidth * tileHeight];
             } else {
@@ -109,7 +118,7 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
                 System.arraycopy(iters, tSrcPos, pMandelResult.iters, tDestPos, tileWidth);
                 System.arraycopy(lastValuesR, tSrcPos, pMandelResult.lastValuesR, tDestPos, tileWidth);
                 System.arraycopy(lastValuesI, tSrcPos, pMandelResult.lastValuesI, tDestPos, tileWidth);
-                if (pCalcDistance) {
+                if (pMode == Mode.MANDELBROT_DISTANCE) {
                     System.arraycopy(distancesR, tSrcPos, pMandelResult.distancesR, tDestPos, tileWidth);
                     System.arraycopy(distancesI, tSrcPos, pMandelResult.distancesI, tDestPos, tileWidth);
                 }
@@ -124,6 +133,9 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
 
         final double x = xStart + tX * xInc;
         final double y = yStart + tY * yInc;
+
+        final double tCr = mode==MODE_JULIA ? juliaCr : x;
+        final double tCi = mode == MODE_JULIA ? juliaCi : y;
 
         int count = 0;
 
@@ -140,14 +152,14 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
         double new_dr;
 
         while ((count < maxIterations) && ((zrsqr + zisqr) < escapeSqr)) {
-            if (calcDistance[0]) {
+            if (mode == MODE_DISTANCE) {
                 new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
                 di = 2.0 * (zr * di + zi * dr);
                 dr = new_dr;
             }
 
-            zi = (2 * zr * zi) + y;
-            zr = (zrsqr - zisqr) + x;
+            zi = (2 * zr * zi) + tCi;
+            zr = (zrsqr - zisqr) + tCr;
 
             //If in a periodic orbit, assume it is trapped
             if (zr == 0.0 && zi == 0.0) {
@@ -163,7 +175,7 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
         iters[tIndex] = count;
         lastValuesR[tIndex] = zr;
         lastValuesI[tIndex] = zi;
-        if (calcDistance[0]) {
+        if (mode == MODE_DISTANCE) {
             distancesR[tIndex] = dr;
             distancesI[tIndex] = di;
         }

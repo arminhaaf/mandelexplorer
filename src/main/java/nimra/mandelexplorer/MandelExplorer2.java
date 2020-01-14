@@ -34,7 +34,7 @@ public class MandelExplorer2 {
 
     private MandelResult currentMandelResult;
 
-    private MandelImpl currentMandelImpl = new MandelDDNative(MandelDDNative.Algo.AVXDoubleDouble);
+    private MandelImpl currentMandelImpl = new AparapiDoubleMandelImpl() ;
 
     private final CalcStatistics calcStatistics = new CalcStatistics();
 
@@ -221,7 +221,7 @@ public class MandelExplorer2 {
 
         currentMandelImpl.mandel(mandelParams,
                                  tCoarseWidth, tCoarseHeight, 0, tCoarseWidth, 0, tCoarseHeight,
-                                 false, tCoarseResult);
+                                 explorerConfigPanel.getMode(), tCoarseResult);
 
         // daten kopieren
         for (int y = 0; y < getImageHeight(); y++) {
@@ -267,7 +267,8 @@ public class MandelExplorer2 {
 
                 long tStartMillis = System.currentTimeMillis();
                 currentMandelImpl.mandel(mandelParams, getImageWidth(), getImageHeight(),
-                                         tStartX, tEndX, tStartY, tEndY, explorerConfigPanel.calcDistance(), currentMandelResult);
+                                         tStartX, tEndX, tStartY, tEndY, explorerConfigPanel.getMode(),
+                                         currentMandelResult);
                 calcStatistics.addCalc(tStartMillis);
                 if (doorBell.get()) {
                     // a new calculation requested
@@ -344,6 +345,8 @@ public class MandelExplorer2 {
             }
             mandelParams.setMaxIterations(tMaxIterations);
             mandelParams.setEscapeRadius(explorerConfigPanel.getEscapeRadius());
+            mandelParams.setJuliaCr(explorerConfigPanel.getJuliaCr());
+            mandelParams.setJuliaCi(explorerConfigPanel.getJuliaCi());
 
             explorerConfigPanel.setData(mandelParams);
 

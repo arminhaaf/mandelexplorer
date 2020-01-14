@@ -18,7 +18,7 @@ public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
     @Override
     public void mandel(final MandelParams pParams,
             final int width, final int height, final int startX, final int endX, final int startY, final int endY,
-            final boolean pCalcDistance,
+            final Mode pMode,
             final MandelResult pMandelResult) {
         final double xmin = getXmin(pParams, width, height);
         final double ymin = getYmin(pParams, width, height);
@@ -46,7 +46,7 @@ public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
                 double new_dr;
 
                 while ((count < pParams.getMaxIterations()) && ((zrsqr + zisqr) < escapeSqr)) {
-                    if (pCalcDistance) {
+                    if (pMode==Mode.MANDELBROT_DISTANCE) {
                         new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
                         di = 2.0 * (zr * di + zi * dr);
                         dr = new_dr;
@@ -69,7 +69,7 @@ public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
                 pMandelResult.iters[tIndex] = count;
                 pMandelResult.lastValuesR[tIndex] = zr;
                 pMandelResult.lastValuesI[tIndex] = zi;
-                if (pCalcDistance) {
+                if (pMode == Mode.MANDELBROT_DISTANCE) {
                     pMandelResult.distancesR[tIndex] = dr;
                     pMandelResult.distancesI[tIndex] = di;
                 }

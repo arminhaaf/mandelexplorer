@@ -18,9 +18,12 @@ import static java.math.MathContext.DECIMAL128;
  * @author Armin Haaf
  */
 public class MandelParams {
-    private BigDecimal x = new BigDecimal(-1);
+    private BigDecimal x = new BigDecimal(-0.7);
     private BigDecimal y = new BigDecimal(0);
-    private BigDecimal scale = new BigDecimal(3);
+    private BigDecimal scale = new BigDecimal(2.3);
+
+    private BigDecimal juliaCr = new BigDecimal(-1);
+    private BigDecimal juliaCi = new BigDecimal(0);
 
     private int maxIterations = 100;
     private double escapeRadius = 2;
@@ -51,6 +54,22 @@ public class MandelParams {
 
     public void setY(BigDecimal y) {
         this.y = y;
+    }
+
+    public BigDecimal getJuliaCr() {
+        return juliaCr;
+    }
+
+    public void setJuliaCr(final BigDecimal pJuliaCr) {
+        juliaCr = pJuliaCr;
+    }
+
+    public BigDecimal getJuliaCi() {
+        return juliaCi;
+    }
+
+    public void setJuliaCi(final BigDecimal pJuliaCi) {
+        juliaCi = pJuliaCi;
     }
 
     public BigDecimal getScale() {

@@ -16,11 +16,13 @@ mandel_avxd(unsigned int *iters,
             double *lastZis,
             double *distancesR,
             double *distancesI,
-            bool calcDistance,
+            int mode,
             const int width,
             const int height,
             const double xStart,
             const double yStart,
+            const double juliaCr,
+            const double juliaCi,
             const double xInc,
             const double yInc,
             const int maxIterations,
@@ -75,7 +77,7 @@ mandel_avxd(unsigned int *iters,
                 const __m256d noticeZMask = _mm256_xor_pd(insideMask, previousInsideMask);
                 mlastZr  = _mm256_and_pd(noticeZMask, zr) + mlastZr;
                 mlastZi  = _mm256_and_pd(noticeZMask, zi) + mlastZi;
-                if( calcDistance ) {
+                if( mode==MODE_MANDEL_DISTANCE ) {
                     lastDr  = _mm256_and_pd(noticeZMask, dr) + lastDr;
                     lastDi  = _mm256_and_pd(noticeZMask, di) + lastDi;
                 }
@@ -89,7 +91,7 @@ mandel_avxd(unsigned int *iters,
                 /* Increment k for all vectors inside */
                 mk = _mm256_and_pd(insideMask, one) + mk;
 
-                if ( calcDistance) {
+                if( mode==MODE_MANDEL_DISTANCE ) {
                     const __m256d new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
                     di = 2.0 * (zr * di + zi * dr);
                     dr = new_dr;
@@ -119,7 +121,7 @@ mandel_avxd(unsigned int *iters,
                 lastZis[tIndex+i] = tLastZis[i];
             }
 
-            if ( calcDistance) {
+            if( mode==MODE_MANDEL_DISTANCE ) {
                 double tLastDrs[4];
                 double tLastDis[4];
 
@@ -155,11 +157,13 @@ mandel_avxs(unsigned int *iters,
             double *lastZis,
             double *distancesR,
             double *distancesI,
-            bool calcDistance,
+            int mode,
             const int width,
             const int height,
             const float xStart,
             const float yStart,
+            const float juliaCr,
+            const float juliaCi,
             const float xInc,
             const float yInc,
             const int maxIterations,
@@ -214,7 +218,7 @@ mandel_avxs(unsigned int *iters,
                 const __m256 noticeZMask = _mm256_xor_ps(insideMask, previousInsideMask);
                 mlastZr  = _mm256_and_ps(noticeZMask, zr) + mlastZr;
                 mlastZi  = _mm256_and_ps(noticeZMask, zi) + mlastZi;
-                if( calcDistance ) {
+                if( mode==MODE_MANDEL_DISTANCE ) {
                     lastDr  = _mm256_and_ps(noticeZMask, dr) + lastDr;
                     lastDi  = _mm256_and_ps(noticeZMask, di) + lastDi;
                 }
@@ -228,7 +232,7 @@ mandel_avxs(unsigned int *iters,
                 /* Increment k for all vectors inside */
                 mk = _mm256_and_ps(insideMask, one) + mk;
 
-                if ( calcDistance) {
+                if( mode==MODE_MANDEL_DISTANCE ) {
                     const __m256 new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
                     di = 2.0 * (zr * di + zi * dr);
                     dr = new_dr;
@@ -258,7 +262,7 @@ mandel_avxs(unsigned int *iters,
                 lastZis[tIndex+i] = tLastZis[i];
             }
 
-            if ( calcDistance) {
+            if( mode==MODE_MANDEL_DISTANCE ) {
                 float tLastDrs[8];
                 float tLastDis[8];
 
@@ -293,11 +297,13 @@ mandel_double(unsigned int *iters,
               double *lastZis,
               double *distancesR,
               double *distancesI,
-              bool calcDistance,
+              int mode,
               const int width,
               const int height,
               const double xStart,
               const double yStart,
+              const double juliaCr,
+              const double juliaCi,
               const double xInc,
               const double yInc,
               const int maxIterations,
@@ -329,7 +335,7 @@ mandel_double(unsigned int *iters,
                     break;
                 }
 
-                if ( calcDistance ) {
+                if ( mode==MODE_MANDEL_DISTANCE ) {
                     new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
                     di = 2.0 * (zr * di + zi * dr);
                     dr = new_dr;
@@ -349,7 +355,7 @@ mandel_double(unsigned int *iters,
             iters[tIndex] = count;
             lastZrs[tIndex] = zr;
             lastZis[tIndex] = zi;
-            if ( calcDistance ) {
+            if ( mode==MODE_MANDEL_DISTANCE ) {
                 distancesR[tIndex] = dr;
                 distancesI[tIndex] = di;
             }

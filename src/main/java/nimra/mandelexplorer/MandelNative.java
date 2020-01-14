@@ -16,12 +16,14 @@ public class MandelNative extends AbstractDoubleMandelImpl {
         algo = pAlgo;
     }
 
-    public static native void mandel(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, boolean pCalcDist,
-            int pWidth, int pHeight, double pXStart, double pYStart, double pXInc, double pYInc, int pMaxIter, double pEscSqr);
+    public static native void mandel(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, int pMode,
+            int pWidth, int pHeight, double pXStart, double pYStart, double juliaCr, double juliaCi, double pXInc, double pYInc, int pMaxIter, double pEscSqr);
 
 
     @Override
-    public void mandel(final MandelParams pParams, final int width, final int height, final int startX, final int endX, final int startY, final int endY, final boolean pCalcDistance, final MandelResult pMandelResult) {
+    public void mandel(final MandelParams pParams, final int width, final int height, final int startX, final int endX, final int startY, final int endY, final Mode pMode, final MandelResult pMandelResult) {
+        // depends on the tile size of copy is needed
+
         // create tile arrays and copy them back
         final int tTileWidth = endX - startX;
         final int tTileHeight = endY - startY;
@@ -34,9 +36,10 @@ public class MandelNative extends AbstractDoubleMandelImpl {
         final double tXinc = getXinc(pParams, width, height);
         final double tYinc = getYinc(pParams, width, height);
         mandel(algo.code, tItersTile, tLastZrTile, tLastZiTile, tDistanceRTile, tDistanceITile,
-               pCalcDistance, tTileWidth, tTileHeight,
+               pMode.getModeNumber(), tTileWidth, tTileHeight,
                getXmin(pParams, width, height) + startX * tXinc,
                getYmin(pParams, width, height) + startY * tYinc,
+               0.0,0.0,
                tXinc, tYinc, pParams.getMaxIterations(), getEscapeSqr(pParams));
 
         for (int y = 0; y < tTileHeight; y++) {

@@ -16,13 +16,14 @@ public class MandelDDNative extends AbstractDDMandelImpl {
         algo = pAlgo;
     }
 
-    public static native void mandelDD(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, boolean pCalcDist,
+    public static native void mandelDD(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, int pMode,
             int pWidth, int pHeight,
             double pXStartHi, double pXStartLo, double pYStartHi, double pYStartLo,
+            double pJuliaCrHi, double pJuliaCrLo,double pJuliaCiHi, double pJuliaCiLo,
             double pXIncHi, double pXIncLo, double pYIncHi, double pYIncLo, int pMaxIter, double pEscSqr);
 
     @Override
-    public void mandel(final MandelParams pParams, final int width, final int height, final int startX, final int endX, final int startY, final int endY, final boolean pCalcDistance, final MandelResult pMandelResult) {
+    public void mandel(final MandelParams pParams, final int width, final int height, final int startX, final int endX, final int startY, final int endY, final Mode pMode, final MandelResult pMandelResult) {
         // create tile arrays and copy them back
         final int tTileWidth = endX - startX;
         final int tTileHeight = endY - startY;
@@ -37,9 +38,10 @@ public class MandelDDNative extends AbstractDDMandelImpl {
         final DD tXmin = getXmin(pParams, width, height).add(tXinc.multiply(startX));
         final DD tYmin = getYmin(pParams, width, height).add(tYinc.multiply(startY));
         mandelDD(algo.code, tItersTile, tLastZrTile, tLastZiTile, tDistanceRTile, tDistanceITile,
-                 pCalcDistance, tTileWidth, tTileHeight,
+                 pMode.getModeNumber(), tTileWidth, tTileHeight,
                  tXmin.getHi(), tXmin.getLo(),
                  tYmin.getHi(), tYmin.getLo(),
+                 0.0,0.0,0.0,0.0,
                  tXinc.getHi(), tXinc.getLo(),
                  tYinc.getHi(), tYinc.getLo(),
                  pParams.getMaxIterations(), getEscapeSqr(pParams));
@@ -60,9 +62,9 @@ public class MandelDDNative extends AbstractDDMandelImpl {
     public enum Algo {
         AVXDoubleDouble(1), DoubleDouble(2);
 
-        int code;
+        private int code;
 
-        Algo(final int pCode) {
+        private Algo(final int pCode) {
             code = pCode;
         }
     }
