@@ -1,5 +1,6 @@
 package nimra.mandelexplorer.palette;
 
+import nimra.mandelexplorer.ComplexD;
 import nimra.mandelexplorer.PaletteMapper;
 import org.json.JSONObject;
 
@@ -17,7 +18,7 @@ public class DistanceLightPaletteMapper extends PaletteMapper {
     double height = 1.5; // height factor of the incoming light
     double angle = 45.0; // incoming direction of light in turns
     boolean inverse = false;
-    Complex v;
+    ComplexD v;
 
 
     public DistanceLightPaletteMapper() {
@@ -27,7 +28,7 @@ public class DistanceLightPaletteMapper extends PaletteMapper {
     @Override
     public void startMap() {
         super.startMap();
-        v = new Complex(0, 2.0 * angle / 360.0 * Math.PI).exp(); // = exp(1j*angle*2*pi/360)  // unit 2D vector in this direction
+        v = new ComplexD(0, 2.0 * angle / 360.0 * Math.PI).exp(); // = exp(1j*angle*2*pi/360)  // unit 2D vector in this direction
     }
 
     @Override
@@ -35,10 +36,10 @@ public class DistanceLightPaletteMapper extends PaletteMapper {
 
 
         if (pIter != getMaxIterations()) {
-            final Complex z = new Complex(pLastR, pLastI);
-            final Complex der = new Complex(pDistanceR, pDistanceI);
+            final ComplexD z = new ComplexD(pLastR, pLastI);
+            final ComplexD der = new ComplexD(pDistanceR, pDistanceI);
 
-            Complex u = z.divides(der);
+            ComplexD u = z.div(der);
             u = u.scale(1 / u.abs());
 
             double tReflection = u.re() * v.re() + u.im() * v.im() + height;
