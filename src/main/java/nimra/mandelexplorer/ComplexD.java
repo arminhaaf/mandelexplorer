@@ -57,7 +57,7 @@ public class ComplexD {
         return Math.hypot(re, im);
     }
 
-    public double dist() {
+    public double magn() {
         return re * re + im * im;
     }
 
@@ -104,7 +104,7 @@ public class ComplexD {
     }
 
     // return a new object whose value is (this * alpha)
-    public ComplexD scale(double alpha) {
+    public ComplexD mul(double alpha) {
         re *= alpha;
         im *= alpha;
         return this;
@@ -164,6 +164,36 @@ public class ComplexD {
         return sin().div(cos());
     }
 
+    public ComplexD pow(double pDouble) {
+        return log().mul(pDouble).exp();
+    }
+
+    public ComplexD pow(ComplexD b) {
+        return log().mul(b).exp();
+    }
+
+    public ComplexD log() {
+        re = Math.log(abs());
+        im = Math.atan2(im, re);
+        return this;
+    }
+
+
+    public ComplexD sqrt() {
+        if (re == 0.0 && im == 0.0) {
+            return this;
+        }
+
+        double t = Math.sqrt((Math.abs(re) + abs()) / 2.0);
+        if (re >= 0.0) {
+            re = t;
+            im = im/(2.0*t);
+        } else {
+            re = Math.abs(im) / (2.0*t);
+            im = Math.copySign(1.0d, im) * t;
+        }
+        return this;
+    }
     public static ComplexD add(ComplexD a, ComplexD b) {
         return new ComplexD(a).add(b);
     }
