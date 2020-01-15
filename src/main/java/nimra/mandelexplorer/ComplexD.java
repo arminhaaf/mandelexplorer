@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Created: 29.12.19   by: Armin Haaf
- *
+ * <p>
  * adapted from https://introcs.cs.princeton.edu/java/32class/Complex.java
  *
  * @author Armin Haaf
@@ -12,6 +12,9 @@ import java.util.Objects;
 public class ComplexD {
     public double re;   // the real part
     public double im;   // the imaginary part
+
+    public ComplexD() {
+    }
 
     public ComplexD(double real, double imag) {
         re = real;
@@ -21,6 +24,12 @@ public class ComplexD {
     public ComplexD(final ComplexD other) {
         this.re = other.re;
         this.im = other.im;
+    }
+
+    public ComplexD set(final ComplexD other) {
+        this.re = other.re;
+        this.im = other.im;
+        return this;
     }
 
     // return a string representation of the invoking Complex object
@@ -42,6 +51,10 @@ public class ComplexD {
         return Math.hypot(re, im);
     }
 
+    public double dist() {
+        return re * re + im * im;
+    }
+
     // return angle/phase/argument, normalized to be between -pi and pi
     public double phase() {
         return Math.atan2(im, re);
@@ -60,12 +73,28 @@ public class ComplexD {
         return this;
     }
 
+    // return a new Complex object whose value is (this + b)
+    public ComplexD sub(double b) {
+        re -= b;
+        return this;
+    }
+
+    // return a new Complex object whose value is (this + b)
+    public ComplexD add(double b) {
+        re += b;
+        return this;
+    }
+
     // return a new Complex object whose value is (this * b)
     public ComplexD mul(ComplexD b) {
         final double tmp = re * b.re - im * b.im;
         im = re * b.im + im * b.re;
         re = tmp;
         return this;
+    }
+
+    public ComplexD sqr() {
+        return mul(this);
     }
 
     // return a new object whose value is (this * alpha)
@@ -103,7 +132,7 @@ public class ComplexD {
         return mul(new ComplexD(b).reciprocal());
     }
 
-//    // return a new Complex object whose value is the complex exponential of this
+    //    // return a new Complex object whose value is the complex exponential of this
     public ComplexD exp() {
         double tmp = Math.exp(re) * Math.cos(im);
         im = Math.exp(re) * Math.sin(im);
@@ -111,22 +140,23 @@ public class ComplexD {
         return this;
     }
 
-//
-//    // return a new Complex object whose value is the complex sine of this
-//    public ComplexD sin() {
-//        return new ComplexD(Math.sin(re) * Math.cosh(im), Math.cos(re) * Math.sinh(im));
-//    }
-//
-//    // return a new Complex object whose value is the complex cosine of this
-//    public ComplexD cos() {
-//        return new ComplexD(Math.cos(re) * Math.cosh(im), -Math.sin(re) * Math.sinh(im));
-//    }
-//
-//    // return a new Complex object whose value is the complex tangent of this
-//    public ComplexD tan() {
-//        return sin().div(cos());
-//    }
+    public ComplexD sin() {
+        double tmp = Math.sin(re) * Math.cosh(im);
+        im = Math.cos(re) * Math.sinh(im);
+        re = tmp;
+        return this;
+    }
 
+    public ComplexD cos() {
+        double tmp = Math.cos(re) * Math.cosh(im);
+        im = -Math.sin(re) * Math.sinh(im);
+        re = tmp;
+        return this;
+    }
+
+    public ComplexD tan() {
+        return sin().div(cos());
+    }
 
     public static ComplexD add(ComplexD a, ComplexD b) {
         return new ComplexD(a).add(b);
