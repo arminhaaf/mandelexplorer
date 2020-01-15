@@ -32,6 +32,12 @@ public class ComplexD {
         return this;
     }
 
+    public ComplexD set(final double pRe, final double pIm) {
+        this.re = pRe;
+        this.im = pIm;
+        return this;
+    }
+
     // return a string representation of the invoking Complex object
     public String toString() {
         if (im == 0) {
