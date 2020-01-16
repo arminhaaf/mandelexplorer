@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
  *
  * @author Armin Haaf
  */
-public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
+public class StreamParallelDoubleMandelImpl extends AbstractDoubleMandelImpl implements MandelImpl {
 
     @Override
     public boolean isPreciseFor(final BigDecimal pPixelSize) {
@@ -16,24 +16,22 @@ public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
     }
 
     @Override
-    public void mandel(final MandelParams pParams,
-            final int width, final int height, final int startX, final int endX, final int startY, final int endY,
-            final Mode pMode,
-            final MandelResult pMandelResult) {
-        final double xmin = getXmin(pParams, width, height);
-        final double ymin = getYmin(pParams, width, height);
-        final double xinc = getXinc(pParams, width, height);
-        final double yinc = getYinc(pParams, width, height);
+    public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
+        final double xmin = getXmin(pParams, pMandelResult.width, pMandelResult.height);
+        final double ymin = getYmin(pParams, pMandelResult.width, pMandelResult.height);
+        final double xinc = getXinc(pParams, pMandelResult.width, pMandelResult.height);
+        final double yinc = getYinc(pParams, pMandelResult.width, pMandelResult.height);
         final double juliaCr = pParams.getJuliaCr().doubleValue();
         final double juliaCi = pParams.getJuliaCi().doubleValue();
         final double escapeSqr = getEscapeSqr(pParams);
 
-        IntStream.range(startY, endY).parallel().forEach(y -> {
-            final double tY = ymin + y * yinc;;
-            final double tCi = pMode == Mode.JULIA ? juliaCi : tY;
-            for (int x = startX; x < endX; x++) {
+        IntStream.range(pTile.startY, pTile.endY).parallel().forEach(y -> {
+            final double tY = ymin + y * yinc;
+            
+            final double tCi = pParams.getCalcMode() == CalcMode.JULIA ? juliaCi : tY;
+            for (int x = pTile.startX; x < pTile.endX; x++) {
                 final double tX = xmin + x * xinc;
-                final double tCr = pMode == Mode.JULIA ? juliaCr : tX;
+                final double tCr = pParams.getCalcMode() == CalcMode.JULIA ? juliaCr : tX;
 
                 int count = 0;
 
@@ -50,17 +48,11 @@ public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
                 double new_dr;
 
                 while ((count < pParams.getMaxIterations()) && ((zrsqr + zisqr) < escapeSqr)) {
-                    if (pMode==Mode.MANDELBROT_DISTANCE) {
+                    if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
                         new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
                         di = 2.0 * (zr * di + zi * dr);
                         dr = new_dr;
                     }
-
-                    // z^3 + c
-//                    double tmp = zrsqr * zr - 3 * zisqr * zr + tCr;
-//                    zi = 3 * zrsqr * zi - zisqr * zi + tCi;
-//                    zr = tmp;
-
 
                     zi = (2 * zr * zi) + tCi;
                     zr = (zrsqr - zisqr) + tCr;
@@ -75,16 +67,21 @@ public class StreamParallelMandelImpl extends AbstractDoubleMandelImpl {
                     }
                 }
 
-                final int tIndex = y * width + x;
+                final int tIndex = y * pMandelResult.width + x;
                 pMandelResult.iters[tIndex] = count;
                 pMandelResult.lastValuesR[tIndex] = zr;
                 pMandelResult.lastValuesI[tIndex] = zi;
-                if (pMode == Mode.MANDELBROT_DISTANCE) {
+                if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
                     pMandelResult.distancesR[tIndex] = dr;
                     pMandelResult.distancesI[tIndex] = di;
                 }
             }
         });
+    }
+
+    @Override
+    public boolean setComputeDevice(final ComputeDevice pDevice) {
+        return pDevice == ComputeDevice.CPU;
     }
 
     @Override

@@ -7,11 +7,11 @@ import java.util.stream.IntStream;
  *
  * @author Armin Haaf
  */
-public class FraktalDMandelImpl implements MandelImpl {
+public class FractalDMandelImpl implements MandelImpl {
 
     private final FractalDFunction fractalDFunction;
 
-    public FraktalDMandelImpl(final FractalDFunction pFractalDFunction) {
+    public FractalDMandelImpl(final FractalDFunction pFractalDFunction) {
         fractalDFunction = pFractalDFunction;
     }
 
@@ -36,7 +36,7 @@ public class FraktalDMandelImpl implements MandelImpl {
     }
 
     @Override
-    public boolean supportsMode(final Mode pMode) {
+    public boolean supportsMode(final CalcMode pMode) {
         switch (pMode) {
             case MANDELBROT:
             case JULIA:
@@ -49,30 +49,30 @@ public class FraktalDMandelImpl implements MandelImpl {
 
     @Override
     public void mandel(final MandelParams pParams,
-            final int width, final int height, final int startX, final int endX, final int startY, final int endY,
-            final Mode pMode,
-            final MandelResult pMandelResult) {
-        final double xmin = getXmin(pParams, width, height);
-        final double ymin = getYmin(pParams, width, height);
-        final double xinc = getXinc(pParams, width, height);
-        final double yinc = getYinc(pParams, width, height);
+            final MandelResult pMandelResult, final Tile pTile) {
+        final int tWidth = pMandelResult.width;
+        final int tHeight = pMandelResult.height;
+        final double xmin = getXmin(pParams, tWidth, tHeight);
+        final double ymin = getYmin(pParams, tWidth, tHeight);
+        final double xinc = getXinc(pParams, tWidth, tHeight);
+        final double yinc = getYinc(pParams, tWidth, tHeight);
         final double juliaCr = pParams.getJuliaCr().doubleValue();
         final double juliaCi = pParams.getJuliaCi().doubleValue();
         final double escapeSqr = getEscapeSqr(pParams);
 
-        IntStream.range(startY, endY).parallel().forEach(y -> {
+        IntStream.range(pTile.startY, pTile.endY).parallel().forEach(y -> {
             final double tY = ymin + y * yinc;
 
-            final ComplexD c = new ComplexD(0, pMode == Mode.JULIA ? juliaCi : tY);
-            for (int x = startX; x < endX; x++) {
+            final ComplexD c = new ComplexD(0, pParams.getCalcMode() == CalcMode.JULIA ? juliaCi : tY);
+            for (int x = pTile.startX; x < pTile.endX; x++) {
                 final double tX = xmin + x * xinc;
-                c.re = pMode == Mode.JULIA ? juliaCr : tX;
+                c.re = pParams.getCalcMode() == CalcMode.JULIA ? juliaCr : tX;
 
                 int count = 0;
 
                 final ComplexD z = new ComplexD(tX, tY);
 
-                while ((count < pParams.getMaxIterations()) && (z.dist() < escapeSqr)) {
+                while ((count < pParams.getMaxIterations()) && (z.magn() < escapeSqr)) {
 
 
                     // z^3 + c
@@ -84,7 +84,7 @@ public class FraktalDMandelImpl implements MandelImpl {
                     count++;
                 }
 
-                final int tIndex = y * width + x;
+                final int tIndex = y * tWidth + x;
                 pMandelResult.iters[tIndex] = count;
                 pMandelResult.lastValuesR[tIndex] = z.re;
                 pMandelResult.lastValuesI[tIndex] = z.im;

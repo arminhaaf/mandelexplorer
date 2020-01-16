@@ -2,6 +2,11 @@ package nimra.mandelexplorer;
 
 import com.aparapi.Kernel;
 import com.aparapi.Range;
+import com.aparapi.device.Device;
+import com.aparapi.device.OpenCLDevice;
+import com.aparapi.internal.kernel.KernelManager;
+
+import java.util.LinkedHashSet;
 
 /**
  * Created: 13.01.20   by: Armin Haaf
@@ -10,8 +15,8 @@ import com.aparapi.Range;
  */
 public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
 
-    private static int MODE_JULIA = Mode.JULIA.getModeNumber();
-    private static int MODE_DISTANCE = Mode.MANDELBROT_DISTANCE.getModeNumber();
+    private static int MODE_JULIA = CalcMode.JULIA.getModeNumber();
+    private static int MODE_DISTANCE = CalcMode.MANDELBROT_DISTANCE.getModeNumber();
 
     public int maxIterations = 100;
 
@@ -56,11 +61,13 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
     // boolean is not available !?
     protected int mode;
 
-    public void mandel(final MandelParams pParams, final int pWidth, final int pHeight, final int pStartX, final int pEndX, final int pStartY, final int pEndY, final Mode pMode, final MandelResult pMandelResult) {
-        xInc = pParams.getXInc(pWidth, pHeight).doubleValue();
-        yInc = pParams.getYInc(pWidth, pHeight).doubleValue();
-        xStart = pParams.getXMin(pWidth, pHeight).doubleValue() + pStartX * xInc;
-        yStart = pParams.getYMin(pWidth, pHeight).doubleValue() + pStartY * yInc;
+    public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
+        final int tWidth = pMandelResult.width;
+        final int tHeight = pMandelResult.height;
+        xInc = pParams.getXInc(tWidth, tHeight).doubleValue();
+        yInc = pParams.getYInc(tWidth, tHeight).doubleValue();
+        xStart = pParams.getXMin(tWidth, tHeight).doubleValue() + pTile.startX * xInc;
+        yStart = pParams.getYMin(tWidth, tHeight).doubleValue() + pTile.startY * yInc;
         escapeSqr = pParams.getEscapeRadius() * pParams.getEscapeRadius();
 
         juliaCr = pParams.getJuliaCr().doubleValue();
@@ -68,17 +75,17 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
 
         maxIterations = pParams.getMaxIterations();
 
-        width = pWidth;
-        height = pHeight;
+        width = tWidth;
+        height = tHeight;
 
-        mode = pMode.getModeNumber();
+        mode = pParams.getCalcMode().getModeNumber();
 
-        tileWidth = pEndX - pStartX;
-        tileHeight = pEndY - pStartY;
+        tileWidth = pTile.getWidth();
+        tileHeight = pTile.getHeight();
 
         // when to use smaller arrays to copy
         // system copies arrays to GPU and back, so it is better to copy smaller arrays ;-) However we must copy the smaller arrays to the image...
-        final boolean tUseTileArrays = tileWidth * 2 < width;
+        final boolean tUseTileArrays = true;
         if (tUseTileArrays) {
             // create tile arrays and copy them back
             tileStartX = 0;
@@ -87,7 +94,7 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
             iters = new int[tileWidth * tileHeight];
             lastValuesR = new double[tileWidth * tileHeight];
             lastValuesI = new double[tileWidth * tileHeight];
-            if (pMode==Mode.MANDELBROT_DISTANCE) {
+            if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
                 distancesR = new double[tileWidth * tileHeight];
                 distancesI = new double[tileWidth * tileHeight];
             } else {
@@ -96,8 +103,8 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
             }
         } else {
             // work on the image buffer (copy large amount of memory to the GPU)
-            tileStartX = pStartX;
-            tileStartY = pStartY;
+            tileStartX = pTile.startX;
+            tileStartY = pTile.startY;
             tileWidth = width;
             tileHeight = height;
 
@@ -108,17 +115,17 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
             distancesI = pMandelResult.distancesI;
         }
 
-        final Range range = Range.create2D(pEndX - pStartX, pEndY - pStartY);
+        final Range range = Range.create2D(tileWidth, tileHeight);
         execute(range);
 
         if (tUseTileArrays) {
             for (int y = 0; y < tileHeight; y++) {
-                final int tDestPos = width * (pStartY + y) + pStartX;
+                final int tDestPos = width * (pTile.startY + y) + pTile.startX;
                 final int tSrcPos = y * tileWidth;
                 System.arraycopy(iters, tSrcPos, pMandelResult.iters, tDestPos, tileWidth);
                 System.arraycopy(lastValuesR, tSrcPos, pMandelResult.lastValuesR, tDestPos, tileWidth);
                 System.arraycopy(lastValuesI, tSrcPos, pMandelResult.lastValuesI, tDestPos, tileWidth);
-                if (pMode == Mode.MANDELBROT_DISTANCE) {
+                if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
                     System.arraycopy(distancesR, tSrcPos, pMandelResult.distancesR, tDestPos, tileWidth);
                     System.arraycopy(distancesI, tSrcPos, pMandelResult.distancesI, tDestPos, tileWidth);
                 }
@@ -134,7 +141,7 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
         final double x = xStart + tX * xInc;
         final double y = yStart + tY * yInc;
 
-        final double tCr = mode==MODE_JULIA ? juliaCr : x;
+        final double tCr = mode == MODE_JULIA ? juliaCr : x;
         final double tCi = mode == MODE_JULIA ? juliaCi : y;
 
         int count = 0;
@@ -182,4 +189,42 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
 
     }
 
+    @Override
+    public boolean isThreadSafe() {
+        return false;
+    }
+
+    @Override
+    public MandelImpl copy() {
+        return new AparapiDoubleMandelImpl();
+    }
+
+    @Override
+    public boolean setComputeDevice(final ComputeDevice pDevice) {
+        if (pDevice == ComputeDevice.CPU) {
+            setExecutionMode(EXECUTION_MODE.JTP);
+            return true;
+        }
+
+        // TODO check against Jocl device
+        if ( pDevice.getDeviceDescriptor() instanceof OpenCLDevice ) {
+            final LinkedHashSet<Device> tPreferredDevices = new LinkedHashSet<>();
+            tPreferredDevices.add((Device)pDevice.getDeviceDescriptor());
+            KernelManager.instance().setPreferredDevices(this, tPreferredDevices);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void done() {
+        dispose();
+    }
+
+    @Override
+    public String toString() {
+        return "Aparapi Double";
+    }
 }

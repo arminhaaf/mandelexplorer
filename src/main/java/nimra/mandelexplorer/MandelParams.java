@@ -28,6 +28,8 @@ public class MandelParams {
     private int maxIterations = 100;
     private double escapeRadius = 2;
 
+    private CalcMode calcMode = CalcMode.MANDELBROT;
+
     public double getX_Double() {
         return x.doubleValue();
     }
@@ -116,6 +118,14 @@ public class MandelParams {
     public BigDecimal getYMin(int pWidth, int pHeight) {
         //yStart =  mandelParams.getY_Double() - tScaleY / 2.0;
         return getY().subtract(getScale().multiply(BD_0_5));
+    }
+
+    public CalcMode getCalcMode() {
+        return calcMode;
+    }
+
+    public void setCalcMode(final CalcMode pCalcMode) {
+        calcMode = pCalcMode;
     }
 
     @Override

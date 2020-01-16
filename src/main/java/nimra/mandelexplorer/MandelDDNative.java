@@ -23,22 +23,22 @@ public class MandelDDNative extends AbstractDDMandelImpl {
             double pXIncHi, double pXIncLo, double pYIncHi, double pYIncLo, int pMaxIter, double pEscSqr);
 
     @Override
-    public void mandel(final MandelParams pParams, final int width, final int height, final int startX, final int endX, final int startY, final int endY, final Mode pMode, final MandelResult pMandelResult) {
+    public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         // create tile arrays and copy them back
-        final int tTileWidth = endX - startX;
-        final int tTileHeight = endY - startY;
+        final int tTileWidth = pTile.endX - pTile.startX;
+        final int tTileHeight = pTile.endY - pTile.startY;
         int[] tItersTile = new int[tTileWidth * tTileHeight];
         double[] tLastZrTile = new double[tTileWidth * tTileHeight];
         double[] tLastZiTile = new double[tTileWidth * tTileHeight];
         double[] tDistanceRTile = new double[tTileWidth * tTileHeight];
         double[] tDistanceITile = new double[tTileWidth * tTileHeight];
 
-        final DD tXinc = getXinc(pParams, width, height);
-        final DD tYinc = getYinc(pParams, width, height);
-        final DD tXmin = getXmin(pParams, width, height).add(tXinc.multiply(startX));
-        final DD tYmin = getYmin(pParams, width, height).add(tYinc.multiply(startY));
+        final DD tXinc = getXinc(pParams, pMandelResult.width, pMandelResult.height);
+        final DD tYinc = getYinc(pParams, pMandelResult.width, pMandelResult.height);
+        final DD tXmin = getXmin(pParams, pMandelResult.width, pMandelResult.height).add(tXinc.multiply(pTile.startX));
+        final DD tYmin = getYmin(pParams, pMandelResult.width, pMandelResult.height).add(tYinc.multiply(pTile.startY));
         mandelDD(algo.code, tItersTile, tLastZrTile, tLastZiTile, tDistanceRTile, tDistanceITile,
-                 pMode.getModeNumber(), tTileWidth, tTileHeight,
+                 pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
                  tXmin.getHi(), tXmin.getLo(),
                  tYmin.getHi(), tYmin.getLo(),
                  0.0,0.0,0.0,0.0,
@@ -47,7 +47,7 @@ public class MandelDDNative extends AbstractDDMandelImpl {
                  pParams.getMaxIterations(), getEscapeSqr(pParams));
 
         for (int y = 0; y < tTileHeight; y++) {
-            final int tDestPos = width * (startY + y) + startX;
+            final int tDestPos = pMandelResult.width * (pTile.startY + y) + pTile.startX;
             final int tSrcPos = y * tTileWidth;
             System.arraycopy(tItersTile, tSrcPos, pMandelResult.iters, tDestPos, tTileWidth);
             System.arraycopy(tLastZrTile, tSrcPos, pMandelResult.lastValuesR, tDestPos, tTileWidth);

@@ -35,10 +35,11 @@ public class JuliaChooser {
 
     private final AtomicBoolean doorBell = new AtomicBoolean(true);
 
-    private final MandelImpl mandelImpl = new StreamParallelMandelImpl();
-    private final PaletteMapper paletteMapper = new DefaultPaletteMapper();
+    private MandelImpl mandelImpl = new StreamParallelDoubleMandelImpl();
 
-    private final MandelParams mandelParams = new MandelParams();
+    private PaletteMapper paletteMapper = new DefaultPaletteMapper();
+
+    private MandelParams mandelParams = new MandelParams();
 
     private boolean enabled = false;
 
@@ -69,6 +70,15 @@ public class JuliaChooser {
             }
         }
     };
+
+    public void setMandelImpl(MandelImpl pMandelImpl) {
+        if (pMandelImpl != mandelImpl) {
+            mandelImpl = pMandelImpl;
+            mandelParams = mandelImpl.getHomeParams();
+            paletteMapper = mandelImpl.getDefaultPaletteMapper();
+            render();
+        }
+    }
 
     protected int getImageHeight() {
         return image.getHeight();
@@ -199,22 +209,26 @@ public class JuliaChooser {
     private void calc() {
         final MandelResult tResult = new MandelResult(getImageWidth(), getImageHeight());
 
-        mandelImpl.mandel(mandelParams,
-                          getImageWidth(), getImageHeight(), 0, getImageWidth(), 0, getImageHeight(),
-                          MandelImpl.Mode.MANDELBROT, tResult);
+        MandelImpl tAlgo = mandelImpl.isThreadSafe() ? mandelImpl : mandelImpl.copy();
+
+        tAlgo.mandel(mandelParams,
+                     tResult, new Tile(0, 0, getImageWidth(), getImageHeight())
+        );
 
         final int[] imageRgb = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
-        paletteMapper.init(mandelParams);
+        final PaletteMapper tPaletteMapper = paletteMapper.clone();
+
+        tPaletteMapper.init(mandelParams);
 
         // parallelize this -> some palettemappers needs a lot power -> DistanceLight
         final IntStream tPrepareStream = IntStream.range(0, imageRgb.length);
-        tPrepareStream.parallel().forEach(i -> paletteMapper.prepare(tResult.iters[i], tResult.lastValuesR[i], tResult.lastValuesI[i],
-                                                                     tResult.distancesR[i], tResult.distancesI[i]));
-        paletteMapper.startMap();
+        tPrepareStream.parallel().forEach(i -> tPaletteMapper.prepare(tResult.iters[i], tResult.lastValuesR[i], tResult.lastValuesI[i],
+                                                                      tResult.distancesR[i], tResult.distancesI[i]));
+        tPaletteMapper.startMap();
         final IntStream tMapStream = IntStream.range(0, imageRgb.length);
-        tMapStream.parallel().forEach(i -> imageRgb[i] = paletteMapper.map(tResult.iters[i], tResult.lastValuesR[i], tResult.lastValuesI[i],
-                                                                           tResult.distancesR[i], tResult.distancesI[i]));
+        tMapStream.parallel().forEach(i -> imageRgb[i] = tPaletteMapper.map(tResult.iters[i], tResult.lastValuesR[i], tResult.lastValuesI[i],
+                                                                            tResult.distancesR[i], tResult.distancesI[i]));
         viewer.repaint();
     }
 

@@ -1,6 +1,6 @@
 package nimra.mandelexplorer;
 
-import com.aparapi.device.Device;
+import nimra.mandelexplorer.palette.DefaultPaletteMapper;
 
 import java.math.BigDecimal;
 
@@ -10,31 +10,55 @@ import java.math.BigDecimal;
  * @author Armin Haaf
  */
 public interface MandelImpl {
-    void mandel(MandelParams pParams, int width, int height,
-            int startX, int endX, int startY, int endY,
-            Mode pMode,
-            MandelResult pMandelResult);
+    void mandel(MandelParams pParams, MandelResult pMandelResult, Tile pTile);
 
-    default boolean isCompatible(Device pDevice) {
-        return true;
+    /**
+     * the device to calc
+     *
+     * @return true, if calc device is supported
+     */
+    default boolean setComputeDevice(ComputeDevice pDevice) {
+        return pDevice == ComputeDevice.CPU;
     }
 
     default boolean isPreciseFor(BigDecimal pPixelSize) {
         return true;
     }
 
-    enum Mode {
-        MANDELBROT(1), MANDELBROT_DISTANCE(2), JULIA(3);
-
-        private int modeNumber;
-
-        private Mode(final int pModeNumber) {
-            modeNumber = pModeNumber;
-        }
-
-        public int getModeNumber() {
-            return modeNumber;
-        }
-
+    default boolean supportsMode(CalcMode pMode) {
+        return true;
     }
+
+    default MandelParams getHomeParams() {
+        return new MandelParams();
+    }
+
+    default PaletteMapper getDefaultPaletteMapper() {
+        return new DefaultPaletteMapper();
+    }
+
+    /**
+     * For multi device computation. If not threadsafe the impl is copied for every tile.
+     *
+     * @return
+     */
+    default boolean isThreadSafe() {
+        return true;
+    }
+
+    /**
+     * should be overriden for not thread sage implementations
+     *
+     * @return
+     */
+    default MandelImpl copy() {
+        return this;
+    }
+
+    /**
+     * called after calculation
+     */
+    default void done() {
+    }
+
 }

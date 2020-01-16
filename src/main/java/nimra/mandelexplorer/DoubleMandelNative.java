@@ -1,18 +1,25 @@
 package nimra.mandelexplorer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created: 08.01.20   by: Armin Haaf
  *
  * @author Armin Haaf
  */
-public class MandelNative extends AbstractDoubleMandelImpl {
+public class DoubleMandelNative extends AbstractDoubleMandelImpl implements MandelImplFactory {
     static {
         System.loadLibrary("mandel_jni");
     }
 
     private final Algo algo;
 
-    public MandelNative(Algo pAlgo) {
+    public DoubleMandelNative() {
+        this(Algo.Double);
+    }
+
+    public DoubleMandelNative(Algo pAlgo) {
         algo = pAlgo;
     }
 
@@ -21,29 +28,29 @@ public class MandelNative extends AbstractDoubleMandelImpl {
 
 
     @Override
-    public void mandel(final MandelParams pParams, final int width, final int height, final int startX, final int endX, final int startY, final int endY, final Mode pMode, final MandelResult pMandelResult) {
+    public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         // depends on the tile size of copy is needed
 
         // create tile arrays and copy them back
-        final int tTileWidth = endX - startX;
-        final int tTileHeight = endY - startY;
+        final int tTileWidth = pTile.getWidth();
+        final int tTileHeight = pTile.getHeight();
         int[] tItersTile = new int[tTileWidth * tTileHeight];
         double[] tLastZrTile = new double[tTileWidth * tTileHeight];
         double[] tLastZiTile = new double[tTileWidth * tTileHeight];
         double[] tDistanceRTile = new double[tTileWidth * tTileHeight];
         double[] tDistanceITile = new double[tTileWidth * tTileHeight];
 
-        final double tXinc = getXinc(pParams, width, height);
-        final double tYinc = getYinc(pParams, width, height);
+        final double tXinc = getXinc(pParams, pMandelResult.width, pMandelResult.height);
+        final double tYinc = getYinc(pParams, pMandelResult.width, pMandelResult.height);
         mandel(algo.code, tItersTile, tLastZrTile, tLastZiTile, tDistanceRTile, tDistanceITile,
-               pMode.getModeNumber(), tTileWidth, tTileHeight,
-               getXmin(pParams, width, height) + startX * tXinc,
-               getYmin(pParams, width, height) + startY * tYinc,
-               0.0,0.0,
+               pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
+               getXmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startX * tXinc,
+               getYmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startY * tYinc,
+               0.0, 0.0,
                tXinc, tYinc, pParams.getMaxIterations(), getEscapeSqr(pParams));
 
         for (int y = 0; y < tTileHeight; y++) {
-            final int tDestPos = width * (startY + y) + startX;
+            final int tDestPos = pMandelResult.width * (pTile.startY + y) + pTile.startX;
             final int tSrcPos = y * tTileWidth;
             System.arraycopy(tItersTile, tSrcPos, pMandelResult.iters, tDestPos, tTileWidth);
             System.arraycopy(tLastZrTile, tSrcPos, pMandelResult.lastValuesR, tDestPos, tTileWidth);
@@ -54,14 +61,35 @@ public class MandelNative extends AbstractDoubleMandelImpl {
 
     }
 
+    @Override
+    public List<MandelImpl> getMandelImpls() {
+        final List<MandelImpl> tMandelImpls = new ArrayList<>();
+        for (Algo tAlgo : Algo.values()) {
+            tMandelImpls.add(new DoubleMandelNative(tAlgo));
+        }
+        return tMandelImpls;
+    }
+
+    @Override
+    public String toString() {
+        return "Native " + algo.name;
+    }
+
+    @Override
+    public boolean setComputeDevice(final ComputeDevice pDevice) {
+        return pDevice == ComputeDevice.CPU;
+    }
 
     public enum Algo {
-        AVX2Double(1), AVX2Single(2), Double(3), VectorD(4);
+        AVX2Double(1, "AVX2 Double"), AVX2Single(2, "AVX2 Single"), Double(3, "Double");
 
         int code;
 
-        Algo(final int pCode) {
+        String name;
+
+        Algo(final int pCode, final String pName) {
             code = pCode;
+            name = pName;
         }
     }
 }

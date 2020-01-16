@@ -26,17 +26,15 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 /**
  *
  */
-public class MandelExplorer {
+public class MandelExplorerOld {
 
     private final MandelParams mandelParams = new MandelParams();
 
@@ -69,7 +67,7 @@ public class MandelExplorer {
 
     private final JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false, explorerConfigPanel.getComponent(), viewer);
 
-    public MandelExplorer() {
+    public MandelExplorerOld() {
         setSize(1024, 1024);
 
         panel.setOneTouchExpandable(true);
@@ -155,7 +153,6 @@ public class MandelExplorer {
             currentMandelKernelAlgo = getMandelAlgo();
 
             final MandelKernel tMandelKernel = currentMandelKernelAlgo.getMandelKernel();
-            tMandelKernel.setCalcDistance(explorerConfigPanel.calcDistance());
 
             final LinkedHashSet<Device> tPreferredDevices = new LinkedHashSet<>();
             tPreferredDevices.add(explorerConfigPanel.getDevice());
@@ -366,7 +363,7 @@ public class MandelExplorer {
 
         final JFrame frame = new JFrame("Mandel-Explorer");
 
-        final MandelExplorer tMandelExplorer = new MandelExplorer();
+        final MandelExplorerOld tMandelExplorer = new MandelExplorerOld();
 
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

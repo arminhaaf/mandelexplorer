@@ -1,5 +1,7 @@
 package nimra.mandelexplorer;
 
+import org.json.JSONObject;
+
 /**
  * Created: 12.01.20   by: Armin Haaf
  *
@@ -9,9 +11,11 @@ public class JavaFractalDFunction implements FractalDFunction {
 
     private static final JavaCodeManager CODE_MANAGER = new JavaCodeManager();
 
-    private final String script;
+    private String script;
 
-    private final String name;
+    private String name;
+
+    private String description;
 
     private final FractalDFunction fractalDFunction;
 
@@ -29,6 +33,22 @@ public class JavaFractalDFunction implements FractalDFunction {
         fractalDFunction = tImpl;
     }
 
+    public String getScript() {
+        return script;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String pDescription) {
+        description = pDescription;
+    }
+
     private FractalDFunction compile() {
         return null;
     }
@@ -39,8 +59,9 @@ public class JavaFractalDFunction implements FractalDFunction {
     }
 
     public String getSource() {
-        return "public class " + name + " implements nimra.mandelexplorer.FractalDFunction {" +
-               "    public void calc(final nimra.mandelexplorer.ComplexD tResult, final nimra.mandelexplorer.ComplexD z, final nimra.mandelexplorer.ComplexD c) {\n" +
+        return "import nimra.mandelexplorer.ComplexD;\n" +
+               "public class " + name + " implements nimra.mandelexplorer.FractalDFunction {" +
+               "    public void calc(final ComplexD tResult, final ComplexD z, final ComplexD c) {\n" +
                script +
                "    }\n" +
                "    public String toString() {\n" +
@@ -48,4 +69,20 @@ public class JavaFractalDFunction implements FractalDFunction {
                "    }" +
                "}\n";
     }
+
+    public JSONObject toJson() {
+        final JSONObject tJSONObject = new JSONObject();
+        tJSONObject.put("name", name);
+        tJSONObject.put("description", description);
+        tJSONObject.put("script", script);
+        return tJSONObject;
+    }
+
+    public JavaFractalDFunction fromJson(JSONObject pJSONObject) {
+        name = pJSONObject.getString("name");
+        description = pJSONObject.optString("description", null);
+        script = pJSONObject.getString("script");
+        return this;
+    }
+
 }

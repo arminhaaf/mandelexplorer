@@ -1,5 +1,8 @@
 package nimra.mandelexplorer;
 
+import com.aparapi.device.Device;
+import com.aparapi.device.OpenCLDevice;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -20,6 +23,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
@@ -28,13 +33,13 @@ import java.util.stream.IntStream;
  *
  * @author Armin Haaf
  */
-public class MandelExplorer2 {
+public class FractalExplorer {
 
     private final MandelParams mandelParams = new MandelParams();
 
     private MandelResult currentMandelResult;
 
-    private MandelImpl currentMandelImpl = new AparapiDoubleMandelImpl() ;
+    //private MandelImpl currentMandelImpl = new FractalDMandelImpl(new JavaFractalDFunction("tResult.set(z).sqr().mul(z).add(c);", "ZHoch3"));
 
     private final CalcStatistics calcStatistics = new CalcStatistics();
 
@@ -54,6 +59,8 @@ public class MandelExplorer2 {
 
     private int coarseFactor = 10;
 
+    private List<ComputeDevice> enabledDevices = new ArrayList<>();
+
 
     // Draw  image
     private final JComponent viewer = new JComponent() {
@@ -65,7 +72,7 @@ public class MandelExplorer2 {
 
     private final JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false, explorerConfigPanel.getComponent(), viewer);
 
-    public MandelExplorer2() {
+    public FractalExplorer() {
         setSize(1024, 1024);
 
         panel.setOneTouchExpandable(true);
@@ -89,6 +96,16 @@ public class MandelExplorer2 {
         viewer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 
         initPaintThread();
+
+        initComputeDevices();
+    }
+
+    private void initComputeDevices() {
+        enabledDevices.add(ComputeDevice.CPU);
+        for (OpenCLDevice tOpenCLGPU : OpenCLDevice.listDevices(Device.TYPE.GPU)) {
+            enabledDevices.add(new ComputeDevice("OpenCL " + tOpenCLGPU.getName(), tOpenCLGPU));
+            return;
+        }
     }
 
     protected void initPaintThread() {
@@ -97,7 +114,11 @@ public class MandelExplorer2 {
 
                 paintDoorBell.set(false);
 
-                doPaint();
+                try {
+                    doPaint();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
 
                 // Wait for the user to click somewhere
                 synchronized (paintDoorBell) {
@@ -194,7 +215,7 @@ public class MandelExplorer2 {
     }
 
     private void setSize(int pWidth, int pHeight) {
-        image = new BufferedImage(pWidth, pHeight, BufferedImage.TYPE_INT_RGB);
+        image = new BufferedImage(Math.max(1, pWidth), Math.max(1, pHeight), BufferedImage.TYPE_INT_RGB);
         // Set the size of JComponent which displays Mandelbrot image
         viewer.setPreferredSize(new Dimension(getImageWidth(), getImageHeight()));
 
@@ -213,17 +234,22 @@ public class MandelExplorer2 {
         return panel;
     }
 
-    public void calcCoarse() {
+    public void calcCoarse(MandelImpl pMandelImpl) {
         long tStart = System.currentTimeMillis();
         final int tCoarseWidth = getImageWidth() / coarseFactor;
         final int tCoarseHeight = getImageHeight() / coarseFactor;
+
+        if (tCoarseHeight <= 0 || tCoarseWidth <= 0) {
+            return;
+        }
+
         final MandelResult tCoarseResult = new MandelResult(tCoarseWidth, tCoarseHeight);
 
-        currentMandelImpl.mandel(mandelParams,
-                                 tCoarseWidth, tCoarseHeight, 0, tCoarseWidth, 0, tCoarseHeight,
-                                 explorerConfigPanel.getMode(), tCoarseResult);
+        mandelParams.setCalcMode(explorerConfigPanel.getMode());
 
-        // daten kopieren
+        computation.compute(doorBell, pMandelImpl, enabledDevices, mandelParams, tCoarseResult, 1);
+
+        // daten kopieren                                                                ^
         for (int y = 0; y < getImageHeight(); y++) {
             for (int x = 0; x < getImageWidth(); x++) {
                 int i = x + y * getImageWidth();
@@ -238,7 +264,9 @@ public class MandelExplorer2 {
         calcStatistics.addCalcCoarse(tStart);
     }
 
-    public void calcTiles() {
+    final MultiDeviceComputation computation = new MultiDeviceComputation(pTile -> paint());
+
+    public void calcTiles(MandelImpl pMandelImpl) {
         // Tiles for width
         int tTileCount = explorerConfigPanel.getTiles();
 
@@ -247,40 +275,13 @@ public class MandelExplorer2 {
             tTileCount = 10;
         }
 
-
-        final int tMinTileWidth = getImageWidth() / tTileCount;
-
-        final int tMinTileHeight = getImageHeight() / tTileCount;
-
-        int tTileHeightIncrease = getImageHeight() % tTileCount;
-
-        int tEndY = 0;
-        for (int y = 0; y < tTileCount; y++) {
-            int tStartY = tEndY;
-            tEndY = tStartY + tMinTileHeight + (tTileHeightIncrease-- > 0 ? 1 : 0);
-
-            int tEndX = 0;
-            int tTileWidthIncrease = getImageWidth() % tTileCount;
-            for (int x = 0; x < tTileCount; x++) {
-                int tStartX = tEndX;
-                tEndX = tStartX + tMinTileWidth + (tTileWidthIncrease-- > 0 ? 1 : 0);
-
-                long tStartMillis = System.currentTimeMillis();
-                currentMandelImpl.mandel(mandelParams, getImageWidth(), getImageHeight(),
-                                         tStartX, tEndX, tStartY, tEndY, explorerConfigPanel.getMode(),
-                                         currentMandelResult);
-                calcStatistics.addCalc(tStartMillis);
-                if (doorBell.get()) {
-                    // a new calculation requested
-                    return;
-                }
-                paint();
-            }
-        }
+        long tStartMillis = System.currentTimeMillis();
+        computation.compute(doorBell, pMandelImpl, enabledDevices, mandelParams, currentMandelResult, tTileCount);
+        calcStatistics.addCalc(tStartMillis);
     }
 
     private final AtomicBoolean paintDoorBell = new AtomicBoolean(false);
-    
+
     private void paint() {
         synchronized (paintDoorBell) {
             paintDoorBell.set(true);
@@ -294,7 +295,7 @@ public class MandelExplorer2 {
 
         final int[] imageRgb = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
-        final PaletteMapper tPaletteMapper = explorerConfigPanel.getPaletteMapper();
+        final PaletteMapper tPaletteMapper = explorerConfigPanel.getPaletteMapper().clone();
         final MandelResult tCurrentMandelResult = currentMandelResult;
         final int[] tIters = tCurrentMandelResult.iters;
         final double[] tLastR = tCurrentMandelResult.lastValuesR;
@@ -347,6 +348,7 @@ public class MandelExplorer2 {
             mandelParams.setEscapeRadius(explorerConfigPanel.getEscapeRadius());
             mandelParams.setJuliaCr(explorerConfigPanel.getJuliaCr());
             mandelParams.setJuliaCi(explorerConfigPanel.getJuliaCi());
+            mandelParams.setCalcMode(explorerConfigPanel.getMode());
 
             explorerConfigPanel.setData(mandelParams);
 
@@ -355,13 +357,14 @@ public class MandelExplorer2 {
                 setSize(viewer.getSize().width, viewer.getSize().height);
             }
 
+            final MandelImpl tMandelImpl = explorerConfigPanel.getMandelImpl();
 
-            calcCoarse();
+            calcCoarse(tMandelImpl);
             paint();
 
             try {
                 viewer.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                calcTiles();
+                calcTiles(tMandelImpl);
                 explorerConfigPanel.setRenderMillis(calcStatistics.calcMillis, calcStatistics.paintMillis);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -388,17 +391,17 @@ public class MandelExplorer2 {
     public static void main(String[] args) {
         final JFrame frame = new JFrame("Mandel-Explorer");
 
-        final MandelExplorer2 tMandelExplorer = new MandelExplorer2();
+        final FractalExplorer tFractalExplorer = new FractalExplorer();
 
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.add(tMandelExplorer.getComponent(), BorderLayout.CENTER);
+        frame.add(tFractalExplorer.getComponent(), BorderLayout.CENTER);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
         try {
-            tMandelExplorer.start();
+            tFractalExplorer.start();
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, ex.getMessage());
@@ -435,4 +438,6 @@ public class MandelExplorer2 {
             repaintMillis += System.currentTimeMillis() - pStartMillis;
         }
     }
+
+
 }

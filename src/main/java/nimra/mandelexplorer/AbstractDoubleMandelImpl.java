@@ -1,12 +1,11 @@
 package nimra.mandelexplorer;
 
 /**
- * Created: 12.01.20   by: Armin Haaf
+ * Created: 15.01.20   by: Armin Haaf
  *
  * @author Armin Haaf
  */
 public abstract class AbstractDoubleMandelImpl implements MandelImpl {
-
     protected double getEscapeSqr(final MandelParams pParams) {
         return pParams.getEscapeRadius() * pParams.getEscapeRadius();
     }
@@ -26,9 +25,4 @@ public abstract class AbstractDoubleMandelImpl implements MandelImpl {
     protected double getXmin(final MandelParams pParams, final int pWidth, final int pHeight) {
         return pParams.getXMin(pWidth, pHeight).doubleValue();
     }
-
-
-
-
-
 }
