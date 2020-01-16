@@ -1,6 +1,7 @@
 package nimra.mandelexplorer.palette;
 
 import nimra.mandelexplorer.PaletteMapper;
+import nimra.mandelexplorer.util.ColorUtils;
 import org.beryx.awt.color.ColorFactory;
 import org.json.JSONObject;
 
@@ -39,8 +40,8 @@ public class InsideOutsidePaletteMapper extends PaletteMapper {
     @Override
     protected void toJson(final JSONObject pJSONObject) {
         super.toJson(pJSONObject);
-        pJSONObject.put("insideColor", toColorString(insideColor));
-        pJSONObject.put("outsideColor", toColorString(outsideColor));
+        pJSONObject.put("insideColor", ColorUtils.toColorString(insideColor));
+        pJSONObject.put("outsideColor", ColorUtils.toColorString(outsideColor));
     }
 
     @Override

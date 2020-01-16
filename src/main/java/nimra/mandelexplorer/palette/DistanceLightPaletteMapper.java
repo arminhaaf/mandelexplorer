@@ -1,5 +1,6 @@
 package nimra.mandelexplorer.palette;
 
+import nimra.mandelexplorer.CalcMode;
 import nimra.mandelexplorer.ComplexD;
 import nimra.mandelexplorer.PaletteMapper;
 import org.json.JSONObject;
@@ -26,6 +27,11 @@ public class DistanceLightPaletteMapper extends PaletteMapper {
     }
 
     @Override
+    public boolean supportsMode(final CalcMode pMode) {
+        return pMode == CalcMode.MANDELBROT_DISTANCE;
+    }
+
+    @Override
     public void startMap() {
         super.startMap();
         v = new ComplexD(0, 2.0 * angle / 360.0 * Math.PI).exp(); // = exp(1j*angle*2*pi/360)  // unit 2D vector in this direction
@@ -40,7 +46,7 @@ public class DistanceLightPaletteMapper extends PaletteMapper {
             final ComplexD der = new ComplexD(pDistanceR, pDistanceI);
 
             ComplexD u = z.div(der);
-            u = u.scale(1 / u.abs());
+            u = u.mul(1 / u.abs());
 
             double tReflection = u.re() * v.re() + u.im() * v.im() + height;
             tReflection = tReflection / (1 + height);

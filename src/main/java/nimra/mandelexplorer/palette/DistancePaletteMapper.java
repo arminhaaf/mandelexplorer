@@ -1,5 +1,6 @@
 package nimra.mandelexplorer.palette;
 
+import nimra.mandelexplorer.CalcMode;
 import nimra.mandelexplorer.MandelParams;
 import org.json.JSONObject;
 
@@ -40,6 +41,11 @@ public class DistancePaletteMapper extends GradientPaletteMapper {
     }
 
     @Override
+    public boolean supportsMode(final CalcMode pMode) {
+        return pMode == CalcMode.MANDELBROT_DISTANCE;
+    }
+
+    @Override
     public void init(final MandelParams pMandelParams) {
         super.init(pMandelParams);
         maxDistance = 0;
@@ -57,7 +63,6 @@ public class DistancePaletteMapper extends GradientPaletteMapper {
     public int map(final int pIter, final double pLastR, final double pLastI, final double pDistanceR, final double pDistanceI) {
         if (pIter != getMaxIterations()) {
             final double tDistance = calcDistance(pLastR, pLastI, pDistanceR, pDistanceI);
-            ;
             if (!Double.isFinite(tDistance)) {
                 return insideColor.getRGB();
             }

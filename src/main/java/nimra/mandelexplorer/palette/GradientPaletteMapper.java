@@ -1,6 +1,7 @@
 package nimra.mandelexplorer.palette;
 
 import nimra.mandelexplorer.PaletteMapper;
+import nimra.mandelexplorer.util.ColorUtils;
 import org.beryx.awt.color.ColorFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -78,7 +79,7 @@ public abstract class GradientPaletteMapper extends PaletteMapper {
     }
 
 
-    class Gradient {
+    static class Gradient {
 
         Color fromColor;
         Color toColor;
@@ -112,8 +113,8 @@ public abstract class GradientPaletteMapper extends PaletteMapper {
 
         public JSONObject toJson() {
             final JSONObject tJSONObject = new JSONObject();
-            tJSONObject.put("fromColor", toColorString(fromColor));
-            tJSONObject.put("toColor", toColorString(toColor));
+            tJSONObject.put("fromColor", ColorUtils.toColorString(fromColor));
+            tJSONObject.put("toColor", ColorUtils.toColorString(toColor));
             if (slicePercent > 0) {
                 tJSONObject.put("slicePercent", slicePercent);
             }
