@@ -1,8 +1,5 @@
 package nimra.mandelexplorer;
 
-import com.aparapi.device.Device;
-import com.aparapi.device.OpenCLDevice;
-
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -23,8 +20,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
@@ -58,9 +53,6 @@ public class FractalExplorer {
     private BufferedImage image;
 
     private int coarseFactor = 10;
-
-    private List<ComputeDevice> enabledDevices = new ArrayList<>();
-
 
     // Draw  image
     private final JComponent viewer = new JComponent() {
@@ -96,16 +88,6 @@ public class FractalExplorer {
         viewer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 
         initPaintThread();
-
-        initComputeDevices();
-    }
-
-    private void initComputeDevices() {
-        enabledDevices.add(ComputeDevice.CPU);
-        for (OpenCLDevice tOpenCLGPU : OpenCLDevice.listDevices(Device.TYPE.GPU)) {
-            enabledDevices.add(new ComputeDevice("OpenCL " + tOpenCLGPU.getName(), tOpenCLGPU));
-            return;
-        }
     }
 
     protected void initPaintThread() {
@@ -247,7 +229,7 @@ public class FractalExplorer {
 
         mandelParams.setCalcMode(explorerConfigPanel.getMode());
 
-        computation.compute(doorBell, pMandelImpl, enabledDevices, mandelParams, tCoarseResult, 1);
+        computation.compute(doorBell, pMandelImpl, mandelParams, tCoarseResult, 1);
 
         // daten kopieren                                                                ^
         for (int y = 0; y < getImageHeight(); y++) {
@@ -264,7 +246,7 @@ public class FractalExplorer {
         calcStatistics.addCalcCoarse(tStart);
     }
 
-    final MultiDeviceComputation computation = new MultiDeviceComputation(pTile -> paint());
+    final Computation computation = new MultiDeviceComputation(pTile -> paint());
 
     public void calcTiles(MandelImpl pMandelImpl) {
         // Tiles for width
@@ -276,7 +258,7 @@ public class FractalExplorer {
         }
 
         long tStartMillis = System.currentTimeMillis();
-        computation.compute(doorBell, pMandelImpl, enabledDevices, mandelParams, currentMandelResult, tTileCount);
+        computation.compute(doorBell, pMandelImpl, mandelParams, currentMandelResult, tTileCount);
         calcStatistics.addCalc(tStartMillis);
     }
 
@@ -386,7 +368,6 @@ public class FractalExplorer {
 
         }
     }
-
 
     public static void main(String[] args) {
         final JFrame frame = new JFrame("Mandel-Explorer");

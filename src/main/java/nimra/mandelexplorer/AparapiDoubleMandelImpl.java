@@ -3,7 +3,6 @@ package nimra.mandelexplorer;
 import com.aparapi.Kernel;
 import com.aparapi.Range;
 import com.aparapi.device.Device;
-import com.aparapi.device.OpenCLDevice;
 import com.aparapi.internal.kernel.KernelManager;
 
 import java.util.LinkedHashSet;
@@ -61,7 +60,17 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
     // boolean is not available !?
     protected int mode;
 
-    public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
+    public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
+        if (pComputeDevice == ComputeDevice.CPU) {
+            setExecutionMode(EXECUTION_MODE.JTP);
+        } else {
+            setExecutionMode(EXECUTION_MODE.JTP);
+            // TODO opencl device auf aparapi device mappen
+//            final LinkedHashSet<Device> tPreferredDevices = new LinkedHashSet<>();
+//            tPreferredDevices.add(Device.firstCPU());
+//            KernelManager.instance().setPreferredDevices(this, tPreferredDevices);
+        }
+
         final int tWidth = pMandelResult.width;
         final int tHeight = pMandelResult.height;
         xInc = pParams.getXInc(tWidth, tHeight).doubleValue();
@@ -200,22 +209,8 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
     }
 
     @Override
-    public boolean setComputeDevice(final ComputeDevice pDevice) {
-        if (pDevice == ComputeDevice.CPU) {
-            setExecutionMode(EXECUTION_MODE.JTP);
-            return true;
-        }
-
-        // TODO check against Jocl device
-        if ( pDevice.getDeviceDescriptor() instanceof OpenCLDevice ) {
-            final LinkedHashSet<Device> tPreferredDevices = new LinkedHashSet<>();
-            tPreferredDevices.add((Device)pDevice.getDeviceDescriptor());
-            KernelManager.instance().setPreferredDevices(this, tPreferredDevices);
-
-            return true;
-        }
-
-        return false;
+    public boolean supports(final ComputeDevice pDevice) {
+        return true;
     }
 
     @Override

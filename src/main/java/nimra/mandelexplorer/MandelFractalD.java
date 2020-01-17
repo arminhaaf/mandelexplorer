@@ -5,7 +5,7 @@ package nimra.mandelexplorer;
  *
  * @author Armin Haaf
  */
-public class MandelFraktalD implements FractalDFunction {
+public class MandelFractalD implements FractalDFunction {
     @Override
     public void calc(final ComplexD tResult, final ComplexD z, final ComplexD c) {
         // z^2 + c;

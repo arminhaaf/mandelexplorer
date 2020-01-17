@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
@@ -167,10 +168,10 @@ public class JuliaChooser {
     }
 
     private void render() {
-        synchronized (doorBell) {
-            doorBell.set(true);
-            doorBell.notify();
-        }
+//        synchronized (doorBell) {
+//            doorBell.set(true);
+//            doorBell.notify();
+//        }
     }
 
     private void start() {
@@ -209,11 +210,15 @@ public class JuliaChooser {
     private void calc() {
         final MandelResult tResult = new MandelResult(getImageWidth(), getImageHeight());
 
-        MandelImpl tAlgo = mandelImpl.isThreadSafe() ? mandelImpl : mandelImpl.copy();
+        for (ComputeDevice tComputeDevice : new ArrayList<>(ComputeDevice.DEVICES)) {
+            if (tComputeDevice.isEnabled() && mandelImpl.supports(tComputeDevice)) {
+                final MandelImpl tAlgo = mandelImpl.isThreadSafe() ? mandelImpl : mandelImpl.copy();
 
-        tAlgo.mandel(mandelParams,
-                     tResult, new Tile(0, 0, getImageWidth(), getImageHeight())
-        );
+                tAlgo.mandel(tComputeDevice, mandelParams,
+                             tResult, new Tile(0, 0, getImageWidth(), getImageHeight()));
+                break;
+            }
+        }
 
         final int[] imageRgb = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 

@@ -10,14 +10,14 @@ import java.math.BigDecimal;
  * @author Armin Haaf
  */
 public interface MandelImpl {
-    void mandel(MandelParams pParams, MandelResult pMandelResult, Tile pTile);
+    void mandel(final ComputeDevice pComputeDevice, MandelParams pParams, MandelResult pMandelResult, Tile pTile);
 
     /**
      * the device to calc
      *
      * @return true, if calc device is supported
      */
-    default boolean setComputeDevice(ComputeDevice pDevice) {
+    default boolean supports(ComputeDevice pDevice) {
         return pDevice == ComputeDevice.CPU;
     }
 

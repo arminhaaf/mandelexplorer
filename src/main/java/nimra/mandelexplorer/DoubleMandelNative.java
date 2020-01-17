@@ -28,7 +28,7 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
 
 
     @Override
-    public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
+    public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         // depends on the tile size of copy is needed
 
         // create tile arrays and copy them back
@@ -76,7 +76,7 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
     }
 
     @Override
-    public boolean setComputeDevice(final ComputeDevice pDevice) {
+    public boolean supports(final ComputeDevice pDevice) {
         return pDevice == ComputeDevice.CPU;
     }
 

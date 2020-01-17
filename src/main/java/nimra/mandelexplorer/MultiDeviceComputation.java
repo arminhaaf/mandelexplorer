@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  *
  * @author Armin Haaf
  */
-public class MultiDeviceComputation {
+public class MultiDeviceComputation implements Computation {
 
     private final TileListener tileListener;
 
@@ -46,10 +46,10 @@ public class MultiDeviceComputation {
     }
 
 
+    @Override
     public void compute(
             final AtomicBoolean pCancel,
             final MandelImpl pImpl,
-            final List<ComputeDevice> enabledDevices,
             final MandelParams pMandelParams,
             final MandelResult pMandelResult,
             int tTileCount) {
@@ -57,9 +57,10 @@ public class MultiDeviceComputation {
         final List<Tile> tTilesList = tileGenerator.generateTiles(pMandelResult.width, pMandelResult.height, tTileCount);
 
         final List<Thread> tThreads = new ArrayList<>();
-        for (ComputeDevice tEnabledDevice : enabledDevices) {
+        // TODO get an instance per Device -> thread safety is then not relevant...
+        for (ComputeDevice tComputeDevice : ComputeDevice.DEVICES) {
             final MandelImpl tMandelImpl = getCalcInstance(pImpl);
-            if (tMandelImpl.setComputeDevice(tEnabledDevice)) {
+            if (tMandelImpl.supports(tComputeDevice) && tComputeDevice.isEnabled()) {
                 Thread tCalcThread = new Thread(() -> {
                     while (true) {
                         Tile tTile = null;
@@ -73,11 +74,11 @@ public class MultiDeviceComputation {
                             tMandelImpl.done();
                             return;
                         }
-                        tMandelImpl.mandel(pMandelParams, pMandelResult, tTile);
+                        tMandelImpl.mandel(tComputeDevice, pMandelParams, pMandelResult, tTile);
                         tileListener.tileReady(tTile);
                     }
                 });
-                tCalcThread.setName("Calc Thread " + tEnabledDevice.getName());
+                tCalcThread.setName("Calc Thread " + tComputeDevice.getName());
                 tThreads.add(tCalcThread);
                 tCalcThread.start();
             }
@@ -91,11 +92,6 @@ public class MultiDeviceComputation {
             }
         }
 
-    }
-
-
-    public interface TileListener {
-        void tileReady(Tile pTile);
     }
 
 
@@ -118,13 +114,13 @@ public class MultiDeviceComputation {
             }
 
             @Override
-            public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
-                impl.mandel(pParams, pMandelResult, pTile);
+            public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
+                impl.mandel(pComputeDevice, pParams, pMandelResult, pTile);
             }
 
             @Override
-            public boolean setComputeDevice(final ComputeDevice pDevice) {
-                return impl.setComputeDevice(pDevice);
+            public boolean supports(final ComputeDevice pDevice) {
+                return impl.supports(pDevice);
             }
 
             @Override

@@ -48,7 +48,7 @@ public class FractalDMandelImpl implements MandelImpl {
 
 
     @Override
-    public void mandel(final MandelParams pParams,
+    public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams,
             final MandelResult pMandelResult, final Tile pTile) {
         final int tWidth = pMandelResult.width;
         final int tHeight = pMandelResult.height;

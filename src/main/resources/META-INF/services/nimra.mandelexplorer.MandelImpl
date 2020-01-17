@@ -1,2 +1,4 @@
 nimra.mandelexplorer.StreamParallelDoubleMandelImpl
 nimra.mandelexplorer.AparapiDoubleMandelImpl
+nimra.mandelexplorer.OpenCLMandelImpl
+nimra.mandelexplorer.QFOpenCLMandelImpl

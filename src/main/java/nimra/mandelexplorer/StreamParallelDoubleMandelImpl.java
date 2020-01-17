@@ -16,7 +16,7 @@ public class StreamParallelDoubleMandelImpl extends AbstractDoubleMandelImpl imp
     }
 
     @Override
-    public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
+    public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         final double xmin = getXmin(pParams, pMandelResult.width, pMandelResult.height);
         final double ymin = getYmin(pParams, pMandelResult.width, pMandelResult.height);
         final double xinc = getXinc(pParams, pMandelResult.width, pMandelResult.height);
@@ -80,7 +80,7 @@ public class StreamParallelDoubleMandelImpl extends AbstractDoubleMandelImpl imp
     }
 
     @Override
-    public boolean setComputeDevice(final ComputeDevice pDevice) {
+    public boolean supports(final ComputeDevice pDevice) {
         return pDevice == ComputeDevice.CPU;
     }
 

@@ -14,6 +14,7 @@ import java.math.BigDecimal;
  * QF Double implementation from https://github.com/gpu/JOCLSamples
  *
  * Should provide precision near to DoubleDouble implemention. However precision is only Double. Its unclear why, maybe QuadFloat implementation is broken
+ * -> seems to be a compiler option -> -Ofast ist a problem
  *
  * @author Armin Haaf
  */
@@ -24,8 +25,13 @@ public class QFCLMandelKernel extends BDMandelKernel {
     }
 
     private float[] convertToQF(BigDecimal pBigDecimal) {
-        // how should this be done?
-        return convertToQF(pBigDecimal.doubleValue());
+        float[] tFF = new float[4];
+
+        for ( int i=0; i<tFF.length; i++) {
+            tFF[i] = (float)pBigDecimal.doubleValue();
+            pBigDecimal = pBigDecimal.subtract(BigDecimal.valueOf(tFF[i]));
+        }
+        return tFF;
     }
 
     private float[] convertToQF(double pDouble) {

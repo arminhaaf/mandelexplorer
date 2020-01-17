@@ -23,7 +23,7 @@ public class MandelDDNative extends AbstractDDMandelImpl {
             double pXIncHi, double pXIncLo, double pYIncHi, double pYIncLo, int pMaxIter, double pEscSqr);
 
     @Override
-    public void mandel(final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
+    public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         // create tile arrays and copy them back
         final int tTileWidth = pTile.endX - pTile.startX;
         final int tTileHeight = pTile.endY - pTile.startY;
