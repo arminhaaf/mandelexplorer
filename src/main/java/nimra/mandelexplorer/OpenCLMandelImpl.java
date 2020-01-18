@@ -145,10 +145,11 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
             clSetKernelArg(tOpenCLContext.kernel, 2, Sizeof.cl_mem, Pointer.to(tCLlastI));
             clSetKernelArg(tOpenCLContext.kernel, 3, Sizeof.cl_mem, Pointer.to(tCLdistanceR));
             clSetKernelArg(tOpenCLContext.kernel, 4, Sizeof.cl_mem, Pointer.to(tCLdistanceI));
-            clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? 1 : 0}));
+            clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode().getModeNumber()}));
             clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_double4, Pointer.to(new double[]{tXmin, tYmin, tXinc, tYinc}));
-            clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
-            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
+            clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_double2, Pointer.to(new double[]{pParams.getJuliaCr().doubleValue(), pParams.getJuliaCi().doubleValue()}));
+            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
+            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
 
             final long[] globalWorkSize = new long[2];
             globalWorkSize[0] = pTile.getWidth();

@@ -1,5 +1,9 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
+#define MODE_MANDEL 1
+#define MODE_MANDEL_DISTANCE 2
+#define MODE_JULIA 3
+
 #define WIDTH get_global_size(0)
 #define HEIGHT get_global_size(1)
 #define X get_global_id(0)
@@ -12,14 +16,17 @@ __kernel void compute(
       __global double *lastValuesI,
       __global double *distancesR,
       __global double *distancesI,
-      int calcDistance,
+      int mode,
       double4 area,
+      double2 julia,
       int maxIterations,
       double sqrEscapeRadius
       ) {
 
    const double x = area.x + X*area.z;
    const double y = area.y + Y*area.w;
+   const double cr = mode == MODE_JULIA ? julia.x : x;
+   const double ci = mode == MODE_JULIA ? julia.y : y;
 
    const double escape = sqrEscapeRadius;
 
@@ -32,8 +39,6 @@ __kernel void compute(
    double di = 0;
    double new_dr;
 
-   const bool tCalcDistance = calcDistance>0;
-
    int count = 0;
    for (; count<maxIterations; count++){
         const double zrsqr = zr * zr;
@@ -43,14 +48,14 @@ __kernel void compute(
             break;
         }
 
-        if ( tCalcDistance) {
+        if ( mode == MODE_MANDEL_DISTANCE) {
             new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
             di = 2.0f * (zr * di + zi * dr);
             dr = new_dr;
         }
 
-        new_zr = (zrsqr - zisqr) + x;
-        zi = ((2.0f * zr) * zi) + y;
+        new_zr = (zrsqr - zisqr) + cr;
+        zi = ((2.0f * zr) * zi) + ci;
         zr = new_zr;
 
         //If in a periodic orbit, assume it is trapped
@@ -63,7 +68,7 @@ __kernel void compute(
    iters[tIndex]  = count;
    lastValuesR[tIndex] = (double)zr;
    lastValuesI[tIndex] = (double)zi;
-   if ( tCalcDistance ) {
+   if ( mode == MODE_MANDEL_DISTANCE ) {
       distancesR[tIndex] = (double)dr;
       distancesI[tIndex] = (double)di;
    }
