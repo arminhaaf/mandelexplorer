@@ -3,3 +3,4 @@ nimra.mandelexplorer.AparapiDoubleMandelImpl
 nimra.mandelexplorer.DefaultDoubleOpenCLMandelImpl
 nimra.mandelexplorer.QFOpenCLMandelImpl
 nimra.mandelexplorer.DDOpenCLMandelImpl
+nimra.mandelexplorer.FFOpenCLMandelImpl
