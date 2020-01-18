@@ -356,7 +356,7 @@ float4 qfDiv(const float4 a, const float4 b)
     return (float4)(q0, q1, q2, q3);
 }
 
-__kernel void computeMandelBrot(
+__kernel void compute(
     __global int *iters,
     __global double *lastValuesR,
     __global double *lastValuesI,
