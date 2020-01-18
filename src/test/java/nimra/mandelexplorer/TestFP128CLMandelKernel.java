@@ -4,6 +4,7 @@ import com.aparapi.Kernel;
 import com.aparapi.Range;
 import com.aparapi.device.OpenCLDevice;
 import com.aparapi.internal.kernel.KernelManager;
+import nimra.mandelexplorer.old.BDMandelKernel;
 
 /**
  * Created: 04.01.20   by: Armin Haaf

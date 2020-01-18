@@ -1,12 +1,9 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.old;
 
 import com.aparapi.Kernel;
 import com.aparapi.Range;
-import com.aparapi.device.OpenCLDevice;
-import com.aparapi.internal.kernel.KernelManager;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 
 /**
  * Created: 31.12.19   by: Armin Haaf

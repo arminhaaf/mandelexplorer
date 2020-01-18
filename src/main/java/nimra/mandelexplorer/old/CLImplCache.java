@@ -1,4 +1,4 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.old;
 
 import com.aparapi.Kernel;
 import com.aparapi.device.Device;

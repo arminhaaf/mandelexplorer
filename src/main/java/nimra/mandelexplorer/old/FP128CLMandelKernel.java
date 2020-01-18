@@ -1,9 +1,8 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.old;
 
 import com.aparapi.Kernel;
 import com.aparapi.Range;
-import com.aparapi.device.OpenCLDevice;
-import com.aparapi.internal.kernel.KernelManager;
+import nimra.mandelexplorer.FP128;
 
 /**
  * Created: 31.12.19   by: Armin Haaf
@@ -12,16 +11,19 @@ import com.aparapi.internal.kernel.KernelManager;
  *
  * @author Armin Haaf
  */
-public class FloatCLMandelKernel extends FloatMandelKernel {
-    public FloatCLMandelKernel(final int pWidth, final int pHeight) {
+public class FP128CLMandelKernel extends BDMandelKernel {
+    public FP128CLMandelKernel(final int pWidth, final int pHeight) {
         super(pWidth, pHeight);
     }
 
+
+    @Override
     public synchronized Kernel execute(Range pRange) {
-        FloatCLMandel tImpl = CLImplCache.getImpl(this, FloatCLMandel.class);
+        FP128CLMandel tImpl = CLImplCache.getImpl(this, FP128CLMandel.class);
 
         tImpl.computeMandelBrot(pRange, iters, lastValuesR, lastValuesI, distancesR, distancesI, calcDistance[0] ? 1 : 0,
-                xStart, yStart, xInc, yInc, maxIterations, escapeSqr);
+                                FP128.from(xStart).vec, FP128.from(yStart).vec, FP128.from(xInc).vec, FP128.from(yInc).vec,
+                                maxIterations, (int)escapeSqr);
 
         return this;
     }
@@ -34,7 +36,8 @@ public class FloatCLMandelKernel extends FloatMandelKernel {
 
     @Override
     public String toString() {
-        return "FloatCL";
+        return "FP128CL (problems on nvidia)";
     }
+
 }
 

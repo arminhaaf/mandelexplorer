@@ -1,6 +1,7 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.old;
 
 import com.aparapi.Kernel;
+import nimra.mandelexplorer.MandelParams;
 
 import java.util.ArrayList;
 import java.util.List;

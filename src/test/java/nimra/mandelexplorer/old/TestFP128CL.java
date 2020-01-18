@@ -1,6 +1,9 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.old;
 
 import com.aparapi.Range;
+import nimra.mandelexplorer.FP128;
+import nimra.mandelexplorer.MandelParams;
+import nimra.mandelexplorer.old.FP128CLMandelKernel;
 
 import java.math.BigDecimal;
 

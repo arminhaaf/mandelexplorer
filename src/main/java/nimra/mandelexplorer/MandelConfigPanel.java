@@ -316,10 +316,6 @@ public class MandelConfigPanel {
         return tPaletteMapper;
     }
 
-    public MandelAlgo getSelectedAlgorithm() {
-        return (MandelAlgo)algorithmComboBox.getSelectedItem();
-    }
-
     public int getMaxIterations() {
         String tMaxIterationsString = (String)maxIterationChooser.getSelectedItem();
 
@@ -364,21 +360,6 @@ public class MandelConfigPanel {
         scaleTextField.setText(null);
         maxIterInfoTextField.setText(Integer.toString(pMandelParams.getMaxIterations()));
         escapeRadiusTextField.setText(Double.toString(pMandelParams.getEscapeRadius()));
-    }
-
-    public void setAlgoInfo(MandelAlgo pAlgo) {
-        algoInfoTextField.setText(pAlgo != null ? pAlgo.toString() : "");
-    }
-
-    @Deprecated
-    public List<MandelAlgo> getAlgos() {
-        final List<MandelAlgo> tResult = new ArrayList<>();
-//        for (int i = 0; i < algorithmModel.getSize(); i++) {
-//            if (algorithmModel.getElementAt(i) != null) {
-//                tResult.add(algorithmModel.getElementAt(i));
-//            }
-//        }
-        return tResult;
     }
 
     public void setRenderMillis(long pCalcMillis, long pColorMillis) {
@@ -553,26 +534,6 @@ public class MandelConfigPanel {
                 algorithmModel.addElement(tMandelImpl);
             }
         }
-    }
-
-    @Deprecated
-    public void setAlgorithms(final MandelAlgo... pAlgos) {
-//        MandelAlgo tSelection = getSelectedAlgorithm();
-//        algorithmModel.removeAllElements();
-//        algorithmModel.addElement(null);
-//        for (MandelAlgo tAlgo : pAlgos) {
-//            algorithmModel.addElement(tAlgo);
-//
-//            if (tSelection != null && tSelection.toString().equals(tAlgo.toString())) {
-//                tSelection = tAlgo;
-//            }
-//        }
-//
-//        if (tSelection != null) {
-//            algorithmComboBox.setSelectedItem(tSelection);
-//        } else {
-//            algorithmComboBox.setSelectedItem(null);
-//        }
     }
 
     public Device getDevice() {
