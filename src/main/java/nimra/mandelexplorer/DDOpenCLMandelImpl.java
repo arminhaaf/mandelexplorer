@@ -74,19 +74,23 @@ public class DDOpenCLMandelImpl extends OpenCLMandelImpl {
             final double[] tYinc = convertToDD(tBDYInc);
             final double[] tXmin = convertToDD(pParams.getXMin(pMandelResult.width, pMandelResult.height).add(tBDXInc.multiply(new BigDecimal(pTile.startX))));
             final double[] tYmin = convertToDD(pParams.getYMin(pMandelResult.width, pMandelResult.height).add(tBDYInc.multiply(new BigDecimal(pTile.startY))));
+            final double[] tJuliaCr = convertToDD(pParams.getJuliaCr());
+            final double[] tJuliaCi = convertToDD(pParams.getJuliaCi());
 
             clSetKernelArg(tOpenCLContext.kernel, 0, Sizeof.cl_mem, Pointer.to(tCLiters));
             clSetKernelArg(tOpenCLContext.kernel, 1, Sizeof.cl_mem, Pointer.to(tCLlastR));
             clSetKernelArg(tOpenCLContext.kernel, 2, Sizeof.cl_mem, Pointer.to(tCLlastI));
             clSetKernelArg(tOpenCLContext.kernel, 3, Sizeof.cl_mem, Pointer.to(tCLdistanceR));
             clSetKernelArg(tOpenCLContext.kernel, 4, Sizeof.cl_mem, Pointer.to(tCLdistanceI));
-            clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? 1 : 0}));
+            clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode().getModeNumber()}));
             clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_double2, Pointer.to(tXmin));
             clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_double2, Pointer.to(tYmin));
-            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_double2, Pointer.to(tXinc));
-            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_double2, Pointer.to(tYinc));
-            clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
-            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
+            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_double2, Pointer.to(tJuliaCr));
+            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_double2, Pointer.to(tJuliaCi));
+            clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_double2, Pointer.to(tXinc));
+            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_double2, Pointer.to(tYinc));
+            clSetKernelArg(tOpenCLContext.kernel, 12, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
+            clSetKernelArg(tOpenCLContext.kernel, 13, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
 
             final long[] globalWorkSize = new long[2];
             globalWorkSize[0] = pTile.getWidth();

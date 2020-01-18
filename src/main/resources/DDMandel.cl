@@ -1,5 +1,9 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
+#define MODE_MANDEL 1
+#define MODE_MANDEL_DISTANCE 2
+#define MODE_JULIA 3
+
 #define WIDTH get_global_size(0)
 #define HEIGHT get_global_size(1)
 #define X get_global_id(0)
@@ -112,20 +116,23 @@ __kernel void compute(
        __global double *lastValuesI,
        __global double *distancesR,
        __global double *distancesI,
-       int calcDistance,
+       const int mode,
 
-       double2 xStart,
-       double2 yStart,
-       double2 xInc,
-       double2 yInc,
-       int maxIterations,
-       double sqrEscapeRadius
+       const double2 xStart,
+       const double2 yStart,
+       const double2 juliaCr,
+       const double2 juliaCi,
+       const double2 xInc,
+       const double2 yInc,
+       const int maxIterations,
+       const double sqrEscapeRadius
        ) {
 
     const double2 x = add((double2)(xStart.x, xStart.y),mulDouble((double2)(xInc.x,xInc.y),X));
     const double2 y = add((double2)(yStart.x, yStart.y),mulDouble((double2)(yInc.x,yInc.y),Y));
 
-    const double escape = (double)sqrEscapeRadius;
+    const double2 cr = mode == MODE_JULIA ? juliaCr : x;
+    const double2 ci = mode == MODE_JULIA ? juliaCi : y;
 
     double2 zr = x;
     double2 zi = y;
@@ -136,19 +143,17 @@ __kernel void compute(
     double2 di = (double2)(0,0);
     double2 new_dr;
 
-    const bool tCalcDistance = calcDistance>0;
-
     int count = 0;
 
     for (; count<maxIterations; count++){
         const double2 zrsqr = mul(zr,zr);
         const double2 zisqr = mul(zi,zi);
 
-        if ( add(zrsqr,zisqr).x >= escape ) {
+        if ( add(zrsqr,zisqr).x >= sqrEscapeRadius ) {
             break;
         }
 
-        if ( tCalcDistance) {
+        if ( mode == MODE_MANDEL_DISTANCE) {
 //            new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
             new_dr = addDouble(mulDouble(sub(mul(zr,dr),mul(zi,di)),2.0),1.0);
 //            di = 2.0f * (zr * di + zi * dr);
@@ -156,8 +161,8 @@ __kernel void compute(
             dr = new_dr;
         }
 
-        tmp = add(sub(zrsqr,zisqr),x);
-        zi = add(mulDouble(mul(zr,zi),2.0),y);
+        tmp = add(sub(zrsqr,zisqr),cr);
+        zi = add(mulDouble(mul(zr,zi),2.0),ci);
         zr = tmp;
     }
        
@@ -165,7 +170,7 @@ __kernel void compute(
     iters[tIndex]  = count;
     lastValuesR[tIndex] = (double)zr.x + (double)zr.y;
     lastValuesI[tIndex] = (double)zi.x + (double)zi.y;
-    if ( tCalcDistance ) {
+    if ( mode == MODE_MANDEL_DISTANCE ) {
         distancesR[tIndex] = (double)dr.x + (double)dr.y;
         distancesI[tIndex] = (double)di.x + (double)di.y;
     }
