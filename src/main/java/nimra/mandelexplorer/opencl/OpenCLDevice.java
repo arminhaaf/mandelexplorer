@@ -132,7 +132,7 @@ public class OpenCLDevice {
     }
 
 
-    enum Type {
+    public enum Type {
         UNKNOWN,
         GPU,
         CPU,

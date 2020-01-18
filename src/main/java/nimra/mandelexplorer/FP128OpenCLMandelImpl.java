@@ -19,20 +19,14 @@ import static org.jocl.CL.clSetKernelArg;
  *
  * @author Armin Haaf
  */
-public class DDOpenCLMandelImpl extends OpenCLMandelImpl {
+public class FP128OpenCLMandelImpl extends OpenCLMandelImpl {
 
-    public DDOpenCLMandelImpl() {
-        setCode(new Scanner(OpenCLDevice.class.getResourceAsStream("/DDMandel.cl"), "UTF-8").useDelimiter("\\A").next());
+    public FP128OpenCLMandelImpl() {
+        setCode(new Scanner(OpenCLDevice.class.getResourceAsStream("/FP128Mandel.cl"), "UTF-8").useDelimiter("\\A").next());
         // compile should not optimize (no -cl-unsafe-math-optimizations !) -> however, seems that the optimization is always on
         // only Portable CPU implementation works as expected
         setCompilerOptions(null);
 
-    }
-
-    private double[] convertToDD(BigDecimal pBD) {
-        final DD tDD = new DD(pBD);
-
-        return new double[]{tDD.getHi(), tDD.getLo()};
     }
 
     @Override
@@ -70,10 +64,10 @@ public class DDOpenCLMandelImpl extends OpenCLMandelImpl {
 
             final BigDecimal tBDXInc = pParams.getXInc(pMandelResult.width, pMandelResult.height);
             final BigDecimal tBDYInc = pParams.getYInc(pMandelResult.width, pMandelResult.height);
-            final double[] tXinc = convertToDD(tBDXInc);
-            final double[] tYinc = convertToDD(tBDYInc);
-            final double[] tXmin = convertToDD(pParams.getXMin(pMandelResult.width, pMandelResult.height).add(tBDXInc.multiply(new BigDecimal(pTile.startX))));
-            final double[] tYmin = convertToDD(pParams.getYMin(pMandelResult.width, pMandelResult.height).add(tBDYInc.multiply(new BigDecimal(pTile.startY))));
+            final int[] tXinc = FP128.from(tBDXInc).vec;
+            final int[] tYinc = FP128.from(tBDYInc).vec;
+            final int[] tXmin = FP128.from(pParams.getXMin(pMandelResult.width, pMandelResult.height).add(tBDXInc.multiply(new BigDecimal(pTile.startX)))).vec;
+            final int[] tYmin = FP128.from(pParams.getYMin(pMandelResult.width, pMandelResult.height).add(tBDYInc.multiply(new BigDecimal(pTile.startY)))).vec;
 
             clSetKernelArg(tOpenCLContext.kernel, 0, Sizeof.cl_mem, Pointer.to(tCLiters));
             clSetKernelArg(tOpenCLContext.kernel, 1, Sizeof.cl_mem, Pointer.to(tCLlastR));
@@ -81,12 +75,12 @@ public class DDOpenCLMandelImpl extends OpenCLMandelImpl {
             clSetKernelArg(tOpenCLContext.kernel, 3, Sizeof.cl_mem, Pointer.to(tCLdistanceR));
             clSetKernelArg(tOpenCLContext.kernel, 4, Sizeof.cl_mem, Pointer.to(tCLdistanceI));
             clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? 1 : 0}));
-            clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_double2, Pointer.to(tXmin));
-            clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_double2, Pointer.to(tYmin));
-            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_double2, Pointer.to(tXinc));
-            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_double2, Pointer.to(tYinc));
+            clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_uint4, Pointer.to(tXmin));
+            clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_uint4, Pointer.to(tYmin));
+            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_uint4, Pointer.to(tXinc));
+            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_uint4, Pointer.to(tYinc));
             clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
-            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
+            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_uint, Pointer.to(new int[]{(int)(pParams.getEscapeRadius() * pParams.getEscapeRadius())}));
 
             final long[] globalWorkSize = new long[2];
             globalWorkSize[0] = pTile.getWidth();
@@ -116,6 +110,6 @@ public class DDOpenCLMandelImpl extends OpenCLMandelImpl {
 
     @Override
     public String toString() {
-        return "DD OpenCL";
+        return "FP128 OpenCL";
     }
 }

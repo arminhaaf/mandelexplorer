@@ -172,7 +172,7 @@ double convert(uint4 v)
     return tResult;
 }
 
-__kernel void computeMandelBrot(
+__kernel void compute(
     __global int *iters,
     __global double *lastValuesR,
     __global double *lastValuesI,
@@ -180,10 +180,10 @@ __kernel void computeMandelBrot(
     __global double *distancesI,
     int calcDistance,
 
-    __global unsigned int *xStart,
-    __global unsigned int *yStart,
-    __global unsigned int *xInc,
-    __global unsigned int *yInc,
+    uint4 xStart,
+    uint4 yStart,
+    uint4 xInc,
+    uint4 yInc,
 
     int maxIterations,
     int sqrEscapeRadius)
@@ -195,10 +195,10 @@ __kernel void computeMandelBrot(
 //      uint4 stepX = (uint4)(0x00000000,0x00c00000,0x00000000,0x00000000);
 //      uint4 stepY = (uint4)(0x00000000,0x00c00000,0x00000000,0x00000000);
 
-    uint4 leftX = vload4(0, xStart);
-    uint4 topY = vload4(0, yStart);
-    uint4 stepX = vload4(0, xInc);
-    uint4 stepY = vload4(0, yInc);
+    uint4 leftX = xStart;
+    uint4 topY = yStart;
+    uint4 stepX = xInc;
+    uint4 stepY = yInc;
 
     const bool tCalcDistance = calcDistance > 0;
 
