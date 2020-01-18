@@ -106,7 +106,7 @@ public class QFOpenCLMandelImpl extends OpenCLMandelImpl {
         clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_float4, Pointer.to(tXinc));
         clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_float4, Pointer.to(tYinc));
         clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
-        clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius()}));
+        clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius()*pParams.getEscapeRadius()}));
 
         final long globalWorkSize[] = new long[2];
         globalWorkSize[0] = pTile.getWidth();
@@ -131,5 +131,10 @@ public class QFOpenCLMandelImpl extends OpenCLMandelImpl {
         clReleaseMemObject(tCLlastI);
         clReleaseMemObject(tCLdistanceR);
         clReleaseMemObject(tCLdistanceI);
+    }
+
+    @Override
+    public String toString() {
+        return "QF OpenCL";
     }
 }

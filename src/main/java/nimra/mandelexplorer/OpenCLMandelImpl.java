@@ -42,6 +42,10 @@ import static org.jocl.CL.clSetKernelArg;
  */
 public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements MandelImpl {
 
+    static {
+        CL.setExceptionsEnabled(true);
+    }
+
     private String code = "abcs";
 
     private String compilerOptions = "-cl-unsafe-math-optimizations -cl-fast-relaxed-math -cl-mad-enable -cl-finite-math-only";
@@ -53,7 +57,10 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
     protected int simdCount = 1;
 
     public OpenCLMandelImpl() {
-        setCode(new Scanner(OpenCLDevice.class.getResourceAsStream("/DoubleMandel.cl"), "UTF-8").useDelimiter("\\A").next());
+    }
+
+    public OpenCLMandelImpl(String pCode) {
+        setCode(pCode);
     }
 
     public OpenCLMandelImpl(final OpenCLMandelImpl other) {
@@ -152,7 +159,7 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
             clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? 1 : 0}));
             clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_double4, Pointer.to(new double[]{tXmin, tYmin, tXinc, tYinc}));
             clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
-            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius()}));
+            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
 
             final long[] globalWorkSize = new long[2];
             globalWorkSize[0] = pTile.getWidth();
@@ -195,43 +202,6 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
                 pContext.commandQueue, pBuffer, true, bufferOffset, hostOffset,
                 region, bufferRowPitch, bufferSlicePitch, hostRowPitch,
                 hostSlicePitch, pHostBuffer, 0, null, null);
-    }
-
-    public static void main(String[] args) {
-        CL.setExceptionsEnabled(true);
-
-        OpenCLMandelImpl tCLMandel = new OpenCLMandelImpl();
-        tCLMandel.setCode(new Scanner(OpenCLDevice.class.getResourceAsStream("/DoubleMandel.cl"), "UTF-8").useDelimiter("\\A").next());
-        for (OpenCLDevice tOpenCLDevice : OpenCLDevice.getDevices()) {
-            System.out.println(tOpenCLDevice);
-
-            try {
-                tCLMandel.supports(new ComputeDevice(tOpenCLDevice.getName(), tOpenCLDevice));
-
-                MandelResult tMandelResult = new MandelResult(1000, 1000);
-                final MandelParams tParams = new MandelParams();
-                tParams.setMaxIterations(1000);
-
-                TileGenerator tTileGenerator = new TileGenerator();
-                List<Tile> tTiles = tTileGenerator.generateTiles(tMandelResult.width, tMandelResult.height, 5);
-                for (int i = 0; i < 2; i++) {
-                    long tStartMillis = System.currentTimeMillis();
-                    for (Tile tTile : tTiles) {
-                        try {
-                            tCLMandel.mandel(null, tParams, tMandelResult, tTile);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                    System.out.println("duration loop " + i + " " + (System.currentTimeMillis() - tStartMillis));
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-
-        }
     }
 
     public void setCode(final String pCode) {

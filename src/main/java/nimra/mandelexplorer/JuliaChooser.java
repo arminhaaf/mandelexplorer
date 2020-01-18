@@ -168,10 +168,10 @@ public class JuliaChooser {
     }
 
     private void render() {
-//        synchronized (doorBell) {
-//            doorBell.set(true);
-//            doorBell.notify();
-//        }
+        synchronized (doorBell) {
+            doorBell.set(true);
+            doorBell.notify();
+        }
     }
 
     private void start() {

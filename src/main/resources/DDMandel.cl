@@ -106,7 +106,7 @@ inline double2 sub(const double2 pFF1,const  double2 pFF2) {
 }
 
 
-__kernel void computeMandelBrot(
+__kernel void compute(
        __global int *iters,
        __global double *lastValuesR,
        __global double *lastValuesI,
@@ -114,16 +114,16 @@ __kernel void computeMandelBrot(
        __global double *distancesI,
        int calcDistance,
 
-       __global double *xStart,
-       __global double *yStart,
-       __global double *xInc,
-       __global double *yInc,
+       double2 xStart,
+       double2 yStart,
+       double2 xInc,
+       double2 yInc,
        int maxIterations,
        double sqrEscapeRadius
        ) {
 
-    const double2 x = add((double2)(xStart[0], xStart[1]),mulDouble((double2)(xInc[0],xInc[1]),X));
-    const double2 y = add((double2)(yStart[0], yStart[1]),mulDouble((double2)(yInc[0],yInc[1]),Y));
+    const double2 x = add((double2)(xStart.x, xStart.y),mulDouble((double2)(xInc.x,xInc.y),X));
+    const double2 y = add((double2)(yStart.x, yStart.y),mulDouble((double2)(yInc.x,yInc.y),Y));
 
     const double escape = (double)sqrEscapeRadius;
 
