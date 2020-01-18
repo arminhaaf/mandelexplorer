@@ -10,7 +10,7 @@
 extern	"C"	{
 #endif
 
-JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelDDNative_mandelDD
+JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DDMandelNative_mandelDD
 		(JNIEnv	*env,	jobject obj,
 		const jint algo,
 		jintArray iters,
@@ -69,7 +69,7 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelDDNative_mandelDD
 
 
 
-JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_MandelNative_mandel
+JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DoubleMandelNative_mandel
 		(JNIEnv	*env,	jobject obj,
 		const jint algo,
 		jintArray iters,

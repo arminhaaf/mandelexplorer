@@ -34,11 +34,11 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
         // create tile arrays and copy them back
         final int tTileWidth = pTile.getWidth();
         final int tTileHeight = pTile.getHeight();
-        int[] tItersTile = new int[tTileWidth * tTileHeight];
-        double[] tLastZrTile = new double[tTileWidth * tTileHeight];
-        double[] tLastZiTile = new double[tTileWidth * tTileHeight];
-        double[] tDistanceRTile = new double[tTileWidth * tTileHeight];
-        double[] tDistanceITile = new double[tTileWidth * tTileHeight];
+        final int[] tItersTile = new int[tTileWidth * tTileHeight];
+        final double[] tLastZrTile = new double[tTileWidth * tTileHeight];
+        final double[] tLastZiTile = new double[tTileWidth * tTileHeight];
+        final double[] tDistanceRTile = new double[tTileWidth * tTileHeight];
+        final double[] tDistanceITile = new double[tTileWidth * tTileHeight];
 
         final double tXinc = getXinc(pParams, pMandelResult.width, pMandelResult.height);
         final double tYinc = getYinc(pParams, pMandelResult.width, pMandelResult.height);
@@ -46,7 +46,7 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
                pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
                getXmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startX * tXinc,
                getYmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startY * tYinc,
-               0.0, 0.0,
+               pParams.getJuliaCr().doubleValue(), pParams.getJuliaCi().doubleValue(),
                tXinc, tYinc, pParams.getMaxIterations(), getEscapeSqr(pParams));
 
         for (int y = 0; y < tTileHeight; y++) {

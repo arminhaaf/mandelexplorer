@@ -112,6 +112,7 @@ void checkCompilerOptimization() {
 
    if ( erg.lo!=4.2085453253312943e-17) {
         printf("compiler break DD Logik -> please do not use -ffast-math or -funsafe-math-optimizations\n");
+        fflush(stdout);
     }
 }
 
@@ -136,11 +137,6 @@ mandel_dd(unsigned int *iters,
           const double sqrEscapeRadius)
 {
     checkCompilerOptimization();
-    printf("double double native\n");
-    fflush(stdout);
-
-
-
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {

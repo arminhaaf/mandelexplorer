@@ -1,25 +1,32 @@
 package nimra.mandelexplorer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created: 08.01.20   by: Armin Haaf
  *
  * @author Armin Haaf
  */
-public class MandelDDNative extends AbstractDDMandelImpl {
+public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFactory {
     static {
         System.loadLibrary("mandel_jni");
     }
 
     private final Algo algo;
 
-    public MandelDDNative(Algo pAlgo) {
+    public DDMandelNative() {
+        algo = Algo.DoubleDouble;
+    }
+
+    public DDMandelNative(Algo pAlgo) {
         algo = pAlgo;
     }
 
     public static native void mandelDD(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, int pMode,
             int pWidth, int pHeight,
             double pXStartHi, double pXStartLo, double pYStartHi, double pYStartLo,
-            double pJuliaCrHi, double pJuliaCrLo,double pJuliaCiHi, double pJuliaCiLo,
+//            double pJuliaCrHi, double pJuliaCrLo, double pJuliaCiHi, double pJuliaCiLo,
             double pXIncHi, double pXIncLo, double pYIncHi, double pYIncLo, int pMaxIter, double pEscSqr);
 
     @Override
@@ -41,7 +48,7 @@ public class MandelDDNative extends AbstractDDMandelImpl {
                  pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
                  tXmin.getHi(), tXmin.getLo(),
                  tYmin.getHi(), tYmin.getLo(),
-                 0.0,0.0,0.0,0.0,
+//                 0.0, 0.0, 0.0, 0.0,
                  tXinc.getHi(), tXinc.getLo(),
                  tYinc.getHi(), tYinc.getLo(),
                  pParams.getMaxIterations(), getEscapeSqr(pParams));
@@ -58,14 +65,30 @@ public class MandelDDNative extends AbstractDDMandelImpl {
 
     }
 
+    @Override
+    public List<MandelImpl> getMandelImpls() {
+        final List<MandelImpl> tMandelImpls = new ArrayList<>();
+        for (Algo tAlgo : Algo.values()) {
+            tMandelImpls.add(new DDMandelNative(tAlgo));
+        }
+        return tMandelImpls;
+    }
+
+    @Override
+    public String toString() {
+        return "Native " + algo.name;
+    }
 
     public enum Algo {
-        AVXDoubleDouble(1), DoubleDouble(2);
+        AVXDoubleDouble(1, "AVX-DD"), DoubleDouble(2, "DD");
 
-        private int code;
+        final int code;
 
-        private Algo(final int pCode) {
+        final String name;
+
+        Algo(final int pCode, final String pName) {
             code = pCode;
+            name = pName;
         }
     }
 }
