@@ -64,23 +64,20 @@ public class FractalDMandelImpl implements MandelImpl {
             final double tY = ymin + y * yinc;
 
             final ComplexD c = new ComplexD(0, pParams.getCalcMode() == CalcMode.JULIA ? juliaCi : tY);
+            final ComplexD z = new ComplexD();
+            final ComplexD tmp = new ComplexD();
+
             for (int x = pTile.startX; x < pTile.endX; x++) {
                 final double tX = xmin + x * xinc;
                 c.re = pParams.getCalcMode() == CalcMode.JULIA ? juliaCr : tX;
 
                 int count = 0;
 
-                final ComplexD z = new ComplexD(tX, tY);
+                z.set(tX, tY);
 
                 while ((count < pParams.getMaxIterations()) && (z.magn() < escapeSqr)) {
-
-
-                    // z^3 + c
-//                    double tmp = zrsqr * zr - 3 * zisqr * zr + tCr;
-//                    zi = 3 * zrsqr * zi - zisqr * zi + tCi;
-//                    zr = tmp;
-
-                    fractalDFunction.calc(z, z, c);
+                    fractalDFunction.calc(tmp, z, c);
+                    z.set(tmp);
                     count++;
                 }
 
