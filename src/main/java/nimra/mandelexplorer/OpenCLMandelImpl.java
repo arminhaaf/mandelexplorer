@@ -13,9 +13,7 @@ import org.jocl.cl_program;
 import org.jocl.cl_queue_properties;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import static org.jocl.CL.CL_MEM_WRITE_ONLY;
 import static org.jocl.CL.clBuildProgram;
@@ -52,10 +50,6 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
 
     protected final Map<ComputeDevice, OpenCLContext> deviceContext = new HashMap<>();
 
-    // Anzahl ermittelter werte -> bei float4 Implementierung 4,...
-    // entsprechend müssen die buffers immer ein vielfaches von simdCount gross sein
-    protected int simdCount = 1;
-
     public OpenCLMandelImpl() {
     }
 
@@ -66,16 +60,11 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
     public OpenCLMandelImpl(final OpenCLMandelImpl other) {
         this.code = other.code;
         this.compilerOptions = other.compilerOptions;
-        this.simdCount = other.simdCount;
     }
 
     @Override
     public boolean supports(final ComputeDevice pDevice) {
         return pDevice.getDeviceDescriptor() != null && pDevice.getDeviceDescriptor() instanceof OpenCLDevice;
-    }
-
-    public int getSimdCount() {
-        return simdCount;
     }
 
     protected synchronized OpenCLContext getContext(final ComputeDevice pComputeDevice) {
