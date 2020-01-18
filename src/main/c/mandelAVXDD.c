@@ -219,7 +219,7 @@ void mandel_avxdd(
                 mlastZi  = _mm256_and_pd(noticeZMask, zi.hi) + mlastZi;
                 if( mode == MODE_MANDEL_DISTANCE ) {
                     lastDr  = _mm256_and_pd(noticeZMask, dr.hi) + lastDr;
-                    lastDi  = _mm256_and_pd(noticeZMask, di.lo) + lastDi;
+                    lastDi  = _mm256_and_pd(noticeZMask, di.hi) + lastDi;
                 }
                 previousInsideMask = insideMask;
 
