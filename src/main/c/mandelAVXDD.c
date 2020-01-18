@@ -138,13 +138,17 @@ void mandel_avxdd(
             double *lastZis,
             double *distancesR,
             double *distancesI,
-            const bool calcDistance,
+            const int mode,
             const int width,
             const int height,
             const double xStartHi,
             const double xStartLo,
             const double yStartHi,
             const double yStartLo,
+            const double juliaCrHi,
+            const double juliaCrLo,
+            const double juliaCiHi,
+            const double juliaCiLo,
             const double xIncHi,
             const double xIncLo,
             const double yIncHi,
@@ -164,18 +168,22 @@ void mandel_avxdd(
     const DD4 ymin = (DD4){_mm256_set1_pd(yStartHi), _mm256_set1_pd(yStartLo)};
     const DD4 xScale = (DD4){_mm256_set1_pd(xIncHi), _mm256_set1_pd(xIncLo)};
     const DD4 yScale = (DD4){_mm256_set1_pd(yIncHi), _mm256_set1_pd(yIncLo)};
+    const DD4 juliaCr = (DD4){_mm256_set1_pd(juliaCrHi), _mm256_set1_pd(juliaCrLo)};
+    const DD4 juliaCi = (DD4){_mm256_set1_pd(juliaCiHi), _mm256_set1_pd(juliaCiLo)};
     const DD4 zero = (DD4){mZero, mZero};
     const DD4 one = (DD4){mOne, mZero};
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
-        const DD4 ci = DD4_add(ymin,DD4_mul_m256d(yScale,_mm256_set1_pd(y)));
+        const DD4 tY = DD4_add(ymin,DD4_mul_m256d(yScale,_mm256_set1_pd(y)));
+        const DD4 ci = mode == MODE_JULIA ? juliaCi : tY;
         for (int x = 0; x < width; x += 4) {
-            const DD4 cr = DD4_add(xmin,DD4_mul_m256d(xScale,_mm256_set_pd(x+3,x+2,x+1,x)));
+            const DD4 tX = DD4_add(xmin,DD4_mul_m256d(xScale,_mm256_set_pd(x+3,x+2,x+1,x)));
+            const DD4 cr = mode == MODE_JULIA ? juliaCr : tX;
 
-            DD4 zr = zero;
-            DD4 zi = zero;
+            DD4 zr = tX;
+            DD4 zi = tY;
 
             unsigned int k = 0;
             // store the iterations
@@ -209,7 +217,7 @@ void mandel_avxdd(
                 const __m256d noticeZMask = _mm256_xor_pd(insideMask, previousInsideMask);
                 mlastZr  = _mm256_and_pd(noticeZMask, zr.hi) + mlastZr;
                 mlastZi  = _mm256_and_pd(noticeZMask, zi.hi) + mlastZi;
-                if( calcDistance ) {
+                if( mode == MODE_MANDEL_DISTANCE ) {
                     lastDr  = _mm256_and_pd(noticeZMask, dr.hi) + lastDr;
                     lastDi  = _mm256_and_pd(noticeZMask, di.lo) + lastDi;
                 }
@@ -223,7 +231,7 @@ void mandel_avxdd(
                 /* Increment k for all vectors inside */
                 mk = _mm256_and_pd(insideMask, mOne) + mk;
 
-                if ( calcDistance) {
+                if ( mode == MODE_MANDEL_DISTANCE) {
                     const DD4 zwergDr = DD4_sub(DD4_mul(zr,dr), DD4_mul(zi,di));
                     const DD4 zwergDi = DD4_add(DD4_mul(zr,di), DD4_mul(zi,dr));
                     dr = DD4_add(DD4_add(zwergDr,zwergDr), one);
@@ -255,7 +263,7 @@ void mandel_avxdd(
                 lastZis[tIndex+i] = tLastZis[i];
             }
 
-            if ( calcDistance) {
+            if ( mode == MODE_MANDEL_DISTANCE) {
                 double tLastDrs[4];
                 double tLastDis[4];
 

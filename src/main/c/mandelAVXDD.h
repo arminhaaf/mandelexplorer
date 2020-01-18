@@ -8,6 +8,9 @@
 #include <immintrin.h>
 #include <stdbool.h>
 
+#define MODE_MANDEL 1
+#define MODE_MANDEL_DISTANCE 2
+#define MODE_JULIA 3
 
 typedef struct {
     __m256d hi;
@@ -21,13 +24,17 @@ void mandel_avxdd(
         double *lastZis,
         double *distancesR,
         double *distancesI,
-        const bool calcDistance,
+        const int mode,
         const int width,
         const int height,
         const double xStartHi,
         const double xStartLo,
         const double yStartHi,
         const double yStartLo,
+        const double juliaCrHi,
+        const double juliaCrLo,
+        const double juliaCiHi,
+        const double juliaCiLo,
         const double xIncHi,
         const double xIncLo,
         const double yIncHi,

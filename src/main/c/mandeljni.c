@@ -18,13 +18,17 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DDMandelNative_mandelDD
    		jdoubleArray lastZis,
 		jdoubleArray distancesR,
 		jdoubleArray distancesI,
-		const bool calcDistance,
+		const int mode,
 		const jint width,
         const jint height,
         const jdouble xStartHi,
         const jdouble xStartLo,
         const jdouble yStartHi,
         const jdouble yStartLo,
+        const jdouble juliaCrHi,
+        const jdouble juliaCrLo,
+        const jdouble juliaCiHi,
+        const jdouble juliaCiLo,
         const jdouble xIncHi,
         const jdouble xIncLo,
         const jdouble yIncHi,
@@ -43,16 +47,18 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DDMandelNative_mandelDD
 
         switch ( algo ) {
             case 1:
-                    mandel_avxdd((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
+                    mandel_avxdd((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
                         width, height,
                         xStartHi, xStartLo, yStartHi, yStartLo,
+                        juliaCrHi, juliaCrLo, juliaCiHi, juliaCiLo,
                         xIncHi, xIncLo, yIncHi, yIncLo,
                         maxIterations,sqrEscapeRadius);
                 break;
             case 2:
-                    mandel_dd((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, calcDistance,
+                    mandel_dd((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
                         width, height,
                         xStartHi, xStartLo, yStartHi, yStartLo,
+                        juliaCrHi, juliaCrLo, juliaCiHi, juliaCiLo,
                         xIncHi, xIncLo, yIncHi, yIncLo,
                         maxIterations,sqrEscapeRadius);
                 break;
@@ -97,7 +103,7 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DoubleMandelNative_mandel
         switch ( algo ) {
             case 1:
                 mandel_avxd((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
-                    width, height, xStart, yStart, juliaCr,juliaCi, xInc, yInc, maxIterations,sqrEscapeRadius);
+                    width, height, xStart, yStart, juliaCr, juliaCi, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
             case 2:
                 mandel_avxs((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,

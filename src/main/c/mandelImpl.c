@@ -36,17 +36,21 @@ mandel_avxd(unsigned int *iters,
     const __m256d one = _mm256_set1_pd(1);
     const __m256d zero = _mm256_set1_pd(0);
     const __m256d oneminus = _mm256_set1_pd(-1);
+    const __m256d jcr = _mm256_set1_pd(juliaCr);
+    const __m256d jci = _mm256_set1_pd(juliaCi);
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
         const __m256d my = _mm256_set1_pd(y);
-        const __m256d ci = ymin + my * yscale;
+        const __m256d tY = ymin + my * yscale;
+        const __m256d ci = mode == MODE_JULIA ? jci : tY;
         for (int x = 0; x < width; x += 4) {
             __m256d mx = _mm256_set_pd(x + 3, x + 2, x + 1, x + 0);
-            __m256d cr = xmin + mx * xscale;
-            __m256d zr = zero;
-            __m256d zi = zero;
+            const __m256d tX = xmin + mx * xscale;
+            const __m256d cr = mode == MODE_JULIA ? jcr : tX;
+            __m256d zr = tX;
+            __m256d zi = tY;
 
             int k = 0;
             // store the iterations
@@ -177,17 +181,21 @@ mandel_avxs(unsigned int *iters,
     const __m256 one = _mm256_set1_ps(1);
     const __m256 zero = _mm256_set1_ps(0);
     const __m256 oneminus = _mm256_set1_ps(-1);
+    const __m256 jcr = _mm256_set1_ps(juliaCr);
+    const __m256 jci = _mm256_set1_ps(juliaCi);
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
         const __m256 my = _mm256_set1_ps(y);
-        const __m256 ci = ymin + my * yscale;
+        const __m256 tY = ymin + my * yscale;
+        const __m256 ci = mode == MODE_JULIA ? jci : tY;
         for (int x = 0; x < width; x += 8) {
-            __m256 mx = _mm256_set_ps(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x + 0);
-            __m256 cr = xmin + mx * xscale;
-            __m256 zr = zero;
-            __m256 zi = zero;
+            const __m256 mx = _mm256_set_ps(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x + 0);
+            const __m256 tX = xmin + mx * xscale;
+            __m256 cr = mode == MODE_JULIA ? jcr : tX;
+            __m256 zr = tX;
+            __m256 zi = tY;
 
             int k = 0;
             // store the iterations
@@ -311,14 +319,15 @@ mandel_double(unsigned int *iters,
 {
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
-        const double ci = yStart + y*yInc;
+        const double tY = yStart + y*yInc;
+        const double ci = mode == MODE_JULIA ? juliaCi : tY;
+
         for (int x = 0; x < width; x ++) {
-            const double cr = xStart + x*xInc;
+            const double tX = xStart + x*xInc;
+            const double cr = mode == MODE_JULIA ? juliaCr : tX;
 
-            const double escape = sqrEscapeRadius;
-
-            double zr = cr;
-            double zi = ci;
+            double zr = tX;
+            double zi = tY;
             double new_zr = 0.0;
 
             // distance
@@ -331,7 +340,7 @@ mandel_double(unsigned int *iters,
                 const double zrsqr = zr * zr;
                 const double zisqr = zi * zi;
 
-                if ( (zrsqr + zisqr) >= escape ) {
+                if ( (zrsqr + zisqr) >= sqrEscapeRadius ) {
                     break;
                 }
 

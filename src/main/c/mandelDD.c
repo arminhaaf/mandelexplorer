@@ -122,13 +122,17 @@ mandel_dd(unsigned int *iters,
           double *lastZis,
           double *distancesR,
           double *distancesI,
-          bool calcDistance,
+          int mode,
           const int width,
           const int height,
           const double xStartHi,
           const double xStartLo,
           const double yStartHi,
           const double yStartLo,
+          const double juliaCrHi,
+          const double juliaCrLo,
+          const double juliaCiHi,
+          const double juliaCiLo,
           const double xIncHi,
           const double xIncLo,
           const double yIncHi,
@@ -138,21 +142,29 @@ mandel_dd(unsigned int *iters,
 {
     checkCompilerOptimization();
 
+    const DD ddXStart = (DD) {xStartHi, xStartLo};
+    const DD ddYStart = (DD) {yStartHi, yStartLo};
+    const DD ddXInc = (DD) {xIncHi, xIncLo};
+    const DD ddYInc = (DD) {yIncHi, yIncLo};
+    const DD ddJuliaCr = (DD) {juliaCrHi, juliaCrLo};
+    const DD ddJuliaCi = (DD) {juliaCiHi, juliaCiLo};
+
     #pragma omp parallel for schedule(dynamic, 1)
+
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
-        const DD ci = DD_add((DD) {yStartHi, yStartLo}, DD_mulDouble((DD) {yIncHi, yIncLo}, y));
+        const DD tY = DD_add(ddYStart, DD_mulDouble(ddYInc, y));
+        const DD ci = mode == MODE_JULIA ? ddJuliaCi : tY;
         for (int x = 0; x < width; x ++) {
-            const DD cr = DD_add((DD) {xStartHi, xStartLo}, DD_mulDouble((DD) {xIncHi, xIncLo}, x));
+            const DD tX = DD_add(ddXStart, DD_mulDouble(ddXInc, x));
+            const DD cr = mode == MODE_JULIA ? ddJuliaCr : tX;
 
-            DD zr = cr;
-            DD zi = ci;
+            DD zr = tX;
+            DD zi = tY;
 
             // distance
             DD dr = (DD){1,0};
             DD di = (DD){0,0};
-
-            const bool tCalcDistance = calcDistance>0;
 
             unsigned int count = 0;
 
@@ -164,7 +176,7 @@ mandel_dd(unsigned int *iters,
                     break;
                 }
 
-                if ( tCalcDistance) {
+                if ( mode == MODE_MANDEL_DISTANCE ) {
 //            new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
                     DD new_dr = DD_addDouble(DD_mulDouble(DD_sub(DD_mul(zr, dr), DD_mul(zi, di)), 2.0), 1.0);
 //            di = 2.0f * (zr * di + zi * dr);
@@ -181,7 +193,7 @@ mandel_dd(unsigned int *iters,
             iters[tIndex]  = count;
             lastZrs[tIndex] = (double)zr.hi + (double)zr.lo;
             lastZis[tIndex] = (double)zi.hi + (double)zi.lo;
-            if ( tCalcDistance ) {
+            if ( mode == MODE_MANDEL_DISTANCE ) {
                 distancesR[tIndex] = (double)dr.hi + (double)dr.lo;
                 distancesI[tIndex] = (double)di.hi + (double)di.lo;
             }
