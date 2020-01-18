@@ -95,7 +95,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>nimra.mandelexplorer.MandelExplorerOld</mainClass>
+                    <mainClass>nimra.mandelexplorer.FractalExplorer</mainClass>
                     <arguments>
                         <argument>com.aparapi.executionMode=GPU</argument>
                         <argument>com.aparapi.enableShowGeneratedOpenCL=true</argument>
@@ -124,7 +124,7 @@
                             <transformers>
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>nimra.mandelexplorer.MandelExplorerOld</mainClass>
+                                    <mainClass>nimra.mandelexplorer.FractalExplorer</mainClass>
                                 </transformer>
                             </transformers>
                             <finalName>MandelExporer</finalName>
