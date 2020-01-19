@@ -222,6 +222,11 @@ public class JuliaChooser {
 
         final int[] imageRgb = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
+        if ( imageRgb.length!=tResult.iters.length) {
+            // inconsistent view sizes
+            return;
+        }
+
         final PaletteMapper tPaletteMapper = paletteMapper.clone();
 
         tPaletteMapper.init(mandelParams);

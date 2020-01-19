@@ -273,17 +273,22 @@ public class FractalExplorer {
 
 
     private void doPaint() {
+        MandelResult tMandelResult = currentMandelResult;
         long tStartMillis = System.currentTimeMillis();
 
         final int[] imageRgb = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
+        if (imageRgb.length != tMandelResult.iters.length) {
+            // inconsistent view sizes
+            return;
+        }
+
         final PaletteMapper tPaletteMapper = explorerConfigPanel.getPaletteMapper().clone();
-        final MandelResult tCurrentMandelResult = currentMandelResult;
-        final int[] tIters = tCurrentMandelResult.iters;
-        final double[] tLastR = tCurrentMandelResult.lastValuesR;
-        final double[] tLastI = tCurrentMandelResult.lastValuesI;
-        final double[] tDistancesR = tCurrentMandelResult.distancesR;
-        final double[] tDistancesI = tCurrentMandelResult.distancesI;
+        final int[] tIters = tMandelResult.iters;
+        final double[] tLastR = tMandelResult.lastValuesR;
+        final double[] tLastI = tMandelResult.lastValuesI;
+        final double[] tDistancesR = tMandelResult.distancesR;
+        final double[] tDistancesI = tMandelResult.distancesI;
         tPaletteMapper.init(mandelParams);
 
         // parallelize this -> some palettemappers needs a lot power -> DistanceLight
