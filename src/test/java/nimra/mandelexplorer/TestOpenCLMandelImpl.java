@@ -22,28 +22,40 @@ public class TestOpenCLMandelImpl {
                 final ComputeDevice tComputeDevice = new ComputeDevice(tOpenCLDevice.getName(), tOpenCLDevice);
                 tCLMandel.supports(tComputeDevice);
 
-                MandelResult tMandelResult = new MandelResult(1000, 1000);
+                MandelResult tMandelResult = new MandelResult(48, 24);
                 final MandelParams tParams = new MandelParams();
-                tParams.setMaxIterations(1000);
+                tParams.setMaxIterations(10);
 
                 TileGenerator tTileGenerator = new TileGenerator();
-                List<Tile> tTiles = tTileGenerator.generateTiles(tMandelResult.width, tMandelResult.height, 5);
-                for (int i = 0; i < 5; i++) {
+                List<Tile> tTiles = tTileGenerator.generateTiles(tMandelResult.width, tMandelResult.height, 1);
+                for (int i = 0; i < 1; i++) {
                     long tStartMillis = System.currentTimeMillis();
-                    for (Tile tTile : tTiles) {
-                        try {
+                    try {
+                        for (Tile tTile : tTiles) {
                             tCLMandel.mandel(tComputeDevice, tParams, tMandelResult, tTile);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
                         }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                     System.out.println("duration loop " + i + " " + (System.currentTimeMillis() - tStartMillis));
+                    for ( int y=0; y<tMandelResult.height; y++ ) {
+                        for ( int x=0; x<tMandelResult.width; x++ ) {
+                            if ( tMandelResult.iters[x+y*tMandelResult.width]<tParams.getMaxIterations()) {
+                                System.out.print(".");
+                            } else {
+                                System.out.print("x");
+                            }
+                        }
+                        System.out.println();
+                    }
                 }
+                
 
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
+            return;
 
         }
     }
