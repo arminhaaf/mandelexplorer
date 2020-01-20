@@ -117,14 +117,14 @@ void checkCompilerOptimization() {
 }
 
 void
-mandel_dd(unsigned int *iters,
+mandel_dd(int32_t *iters,
           double *lastZrs,
           double *lastZis,
           double *distancesR,
           double *distancesI,
-          int mode,
-          const int width,
-          const int height,
+          const int32_t mode,
+          const int32_t width,
+          const int32_t height,
           const double xStartHi,
           const double xStartLo,
           const double yStartHi,
@@ -137,7 +137,7 @@ mandel_dd(unsigned int *iters,
           const double xIncLo,
           const double yIncHi,
           const double yIncLo,
-          const unsigned int maxIterations,
+          const int32_t maxIterations,
           const double sqrEscapeRadius)
 {
     checkCompilerOptimization();
@@ -166,7 +166,7 @@ mandel_dd(unsigned int *iters,
             DD dr = (DD){1,0};
             DD di = (DD){0,0};
 
-            unsigned int count = 0;
+            int32_t count = 0;
 
             for (; count<maxIterations; count++){
                 const DD zrsqr = DD_mul(zr, zr);
@@ -189,7 +189,7 @@ mandel_dd(unsigned int *iters,
                 zr = tmp;
             }
 
-            const int tIndex = x + y * width;
+            const int32_t tIndex = x + y * width;
             iters[tIndex]  = count;
             lastZrs[tIndex] = (double)zr.hi + (double)zr.lo;
             lastZis[tIndex] = (double)zi.hi + (double)zi.lo;

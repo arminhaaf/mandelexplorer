@@ -11,21 +11,21 @@
 
 
 void
-mandel_avxd(unsigned int *iters,
+mandel_avxd(int32_t *iters,
             double *lastZrs,
             double *lastZis,
             double *distancesR,
             double *distancesI,
-            int mode,
-            const int width,
-            const int height,
+            const int32_t mode,
+            const int32_t width,
+            const int32_t height,
             const double xStart,
             const double yStart,
             const double juliaCr,
             const double juliaCi,
             const double xInc,
             const double yInc,
-            const int maxIterations,
+            const int32_t maxIterations,
             const double sqrEscapeRadius)
 {
     const __m256d xmin = _mm256_set1_pd(xStart);
@@ -52,7 +52,7 @@ mandel_avxd(unsigned int *iters,
             __m256d zr = tX;
             __m256d zi = tY;
 
-            int k = 0;
+            int32_t k = 0;
             // store the iterations
             __m256d mk = _mm256_set1_pd(k);
 
@@ -105,9 +105,9 @@ mandel_avxd(unsigned int *iters,
                 zr = zr2 - zi2 + cr;
             }
 
-            // convert counter to int and make it accessible via array index
+            // convert counter to int32_t and make it accessible via array index
             union {
-                int i[4];
+                int32_t i[4];
                 __m128i m;
             } vCount;
             vCount.m = _mm256_cvtpd_epi32(mk);
@@ -118,8 +118,8 @@ mandel_avxd(unsigned int *iters,
             _mm256_storeu_pd(tLastZrs, mlastZr);
             _mm256_storeu_pd(tLastZis, mlastZi);
 
-            const int tIndex = x + y * width;
-            for ( int i=0; i<4 && x+i<width; i++ ) {
+            const int32_t tIndex = x + y * width;
+            for ( int32_t i=0; i<4 && x+i<width; i++ ) {
                 iters[tIndex+i] = vCount.i[i];
                 lastZrs[tIndex+i] = tLastZrs[i];
                 lastZis[tIndex+i] = tLastZis[i];
@@ -132,18 +132,18 @@ mandel_avxd(unsigned int *iters,
                 _mm256_storeu_pd(tLastDrs, lastDr);
                 _mm256_storeu_pd(tLastDis, lastDi);
 
-                for ( int i=0; i<4 && x+i<width; i++ ) {
+                for ( int32_t i=0; i<4 && x+i<width; i++ ) {
                     distancesR[tIndex+i] = tLastDrs[i];
                     distancesI[tIndex+i] = tLastDis[i];
                 }
             }
 
 
-            //            const int *counts = (int *)&mCount;
+            //            const int32_t *counts = (int *)&mCount;
             //            const double *lastZr = (double *)&mlastZr;
             //            const double *lastZi = (double *)&mlastZi;
             // unclear why this did not work with loop
-            //            for ( int i=0; i<4 && x+i<width; i++ ) {
+            //            for ( int32_t i=0; i<4 && x+i<width; i++ ) {
             //                iters[tIndex + i]  = counts[i];
             //                lastZrs[tIndex+i] = (double)lastZr[i];
             //                lastZis[tIndex+i] = (double)lastZi[i];
@@ -156,21 +156,21 @@ mandel_avxd(unsigned int *iters,
 
 
 void
-mandel_avxs(unsigned int *iters,
+mandel_avxs(int32_t *iters,
             double *lastZrs,
             double *lastZis,
             double *distancesR,
             double *distancesI,
-            int mode,
-            const int width,
-            const int height,
+            const int32_t mode,
+            const int32_t width,
+            const int32_t height,
             const float xStart,
             const float yStart,
             const float juliaCr,
             const float juliaCi,
             const float xInc,
             const float yInc,
-            const int maxIterations,
+            const int32_t maxIterations,
             const float sqrEscapeRadius)
 {
     const __m256 xmin = _mm256_set1_ps(xStart);
@@ -197,7 +197,7 @@ mandel_avxs(unsigned int *iters,
             __m256 zr = tX;
             __m256 zi = tY;
 
-            int k = 0;
+            int32_t k = 0;
             // store the iterations
             __m256 mk = _mm256_set1_ps(k);
 
@@ -250,9 +250,9 @@ mandel_avxs(unsigned int *iters,
                 zr = zr2 - zi2 + cr;
             }
 
-            // convert counter to int and make it accessible via array index
+            // convert counter to int32_t and make it accessible via array index
             union {
-                int i[8];
+                int32_t i[8];
                 __m256i m;
             } vCount;
             vCount.m = _mm256_cvtps_epi32(mk);
@@ -263,8 +263,8 @@ mandel_avxs(unsigned int *iters,
             _mm256_storeu_ps(tLastZrs, mlastZr);
             _mm256_storeu_ps(tLastZis, mlastZi);
 
-            const int tIndex = x + y * width;
-            for ( int i=0; i<8 && x+i<width; i++ ) {
+            const int32_t tIndex = x + y * width;
+            for ( int32_t i=0; i<8 && x+i<width; i++ ) {
                 iters[tIndex+i] = vCount.i[i];
                 lastZrs[tIndex+i] = tLastZrs[i];
                 lastZis[tIndex+i] = tLastZis[i];
@@ -277,7 +277,7 @@ mandel_avxs(unsigned int *iters,
                 _mm256_storeu_ps(tLastDrs, lastDr);
                 _mm256_storeu_ps(tLastDis, lastDi);
 
-                for ( int i=0; i<8 && x+i<width; i++ ) {
+                for ( int32_t i=0; i<8 && x+i<width; i++ ) {
                     distancesR[tIndex+i] = tLastDrs[i];
                     distancesI[tIndex+i] = tLastDis[i];
                 }
@@ -285,10 +285,10 @@ mandel_avxs(unsigned int *iters,
 
 
             // totally unclear why the loop did not work
-            //                        int *counts = (int *)&mCount;
+            //                        int32_t *counts = (int *)&mCount;
             //                        float *lastZr = (float *)&mlastZr;
             //                        float *lastZi = (float *)&mlastZi;
-            //             for ( int i=0; i<8 && x+i<width; i++ ) {
+            //             for ( int32_t i=0; i<8 && x+i<width; i++ ) {
             //                 iters[tIndex+i] = counts[i];
             //                lastZrs[tIndex+i] = (double)lastZr[i];
             //                lastZis[tIndex+i] = (double)lastZi[i];
@@ -300,21 +300,21 @@ mandel_avxs(unsigned int *iters,
 
 
 void
-mandel_double(unsigned int *iters,
+mandel_double(int32_t *iters,
               double *lastZrs,
               double *lastZis,
               double *distancesR,
               double *distancesI,
-              int mode,
-              const int width,
-              const int height,
+              const int32_t mode,
+              const int32_t width,
+              const int32_t height,
               const double xStart,
               const double yStart,
               const double juliaCr,
               const double juliaCi,
               const double xInc,
               const double yInc,
-              const int maxIterations,
+              const int32_t maxIterations,
               const double sqrEscapeRadius)
 {
     #pragma omp parallel for schedule(dynamic, 1)
@@ -335,7 +335,7 @@ mandel_double(unsigned int *iters,
             double di = 0;
             double new_dr;
 
-            int count = 0;
+            int32_t count = 0;
             for (; count<maxIterations; count++){
                 const double zrsqr = zr * zr;
                 const double zisqr = zi * zi;
@@ -360,7 +360,7 @@ mandel_double(unsigned int *iters,
                     break;
                 }
             }
-            const int tIndex = x + y * width;
+            const int32_t tIndex = x + y * width;
             iters[tIndex] = count;
             lastZrs[tIndex] = zr;
             lastZis[tIndex] = zi;

@@ -36,7 +36,7 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DDMandelNative_mandelDD
         const jint maxIterations,
         const jdouble sqrEscapeRadius) {
 
-        int* tIters = (*env)->GetIntArrayElements(env, iters, 0);
+        int32_t* tIters = (*env)->GetIntArrayElements(env, iters, 0);
         double* tLastZrs = (*env)->GetDoubleArrayElements(env, lastZrs, 0);
         double* tLastZis = (*env)->GetDoubleArrayElements(env, lastZis, 0);
         double* tDistancesR = (*env)->GetDoubleArrayElements(env, distancesR, 0);
@@ -47,7 +47,7 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DDMandelNative_mandelDD
 
         switch ( algo ) {
             case 1:
-                    mandel_avxdd((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                    mandel_avxdd(tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
                         width, height,
                         xStartHi, xStartLo, yStartHi, yStartLo,
                         juliaCrHi, juliaCrLo, juliaCiHi, juliaCiLo,
@@ -55,7 +55,7 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DDMandelNative_mandelDD
                         maxIterations,sqrEscapeRadius);
                 break;
             case 2:
-                    mandel_dd((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                    mandel_dd(tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
                         width, height,
                         xStartHi, xStartLo, yStartHi, yStartLo,
                         juliaCrHi, juliaCrLo, juliaCiHi, juliaCiLo,
@@ -83,7 +83,7 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DoubleMandelNative_mandel
    		jdoubleArray lastZis,
 		jdoubleArray distancesR,
 		jdoubleArray distancesI,
-		const int mode,
+		const jint mode,
 		const jint width,
         const jint height,
         const jdouble xStart,
@@ -95,22 +95,22 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DoubleMandelNative_mandel
         const jint maxIterations,
         const jdouble sqrEscapeRadius) {
 
-        int* tIters = (*env)->GetIntArrayElements(env, iters, 0);
+        jint* tIters = (*env)->GetIntArrayElements(env, iters, 0);
         double* tLastZrs = (*env)->GetDoubleArrayElements(env, lastZrs, 0);
         double* tLastZis = (*env)->GetDoubleArrayElements(env, lastZis, 0);
         double* tDistancesR = (*env)->GetDoubleArrayElements(env, distancesR, 0);
         double* tDistancesI = (*env)->GetDoubleArrayElements(env, distancesI, 0);
         switch ( algo ) {
             case 1:
-                mandel_avxd((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                mandel_avxd(tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
                     width, height, xStart, yStart, juliaCr, juliaCi, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
             case 2:
-                mandel_avxs((unsigned int*)tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                mandel_avxs(tIters, tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
                     width, height, xStart, yStart, juliaCr, juliaCi, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
             case 3:
-                mandel_double((unsigned int*)tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                mandel_double(tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
                     width, height, xStart, yStart, juliaCr, juliaCi, xInc, yInc, maxIterations,sqrEscapeRadius);
                 break;
         }

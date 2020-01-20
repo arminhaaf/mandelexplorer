@@ -133,14 +133,14 @@ void checkCompilerOptimizationDD4() {
 
 
 void mandel_avxdd(
-            unsigned int *iters,
+            int32_t *iters,
             double *lastZrs,
             double *lastZis,
             double *distancesR,
             double *distancesI,
-            const int mode,
-            const int width,
-            const int height,
+            const int32_t mode,
+            const int32_t width,
+            const int32_t height,
             const double xStartHi,
             const double xStartLo,
             const double yStartHi,
@@ -153,7 +153,7 @@ void mandel_avxdd(
             const double xIncLo,
             const double yIncHi,
             const double yIncLo,
-            const unsigned int maxIterations,
+            const int32_t maxIterations,
             const double sqrEscapeRadius)
 {
     checkCompilerOptimizationDD4();
@@ -185,7 +185,7 @@ void mandel_avxdd(
             DD4 zr = tX;
             DD4 zi = tY;
 
-            unsigned int k = 0;
+            int32_t k = 0;
             // store the iterations
             __m256d mk = _mm256_set1_pd(k);
 
@@ -245,7 +245,7 @@ void mandel_avxdd(
 
             // convert counter to int and make it accessible via array index
             union {
-                int i[4];
+                int32_t i[4];
                 __m128i m;
             } vCount;
             vCount.m = _mm256_cvtpd_epi32(mk);

@@ -7,6 +7,8 @@
 
 #include <immintrin.h>
 #include <stdbool.h>
+#include <stdint.h>
+
 
 #define MODE_MANDEL 1
 #define MODE_MANDEL_DISTANCE 2
@@ -19,14 +21,14 @@ typedef struct {
 
 
 void mandel_avxdd(
-        unsigned int *iters,
+        int32_t *iters,
         double *lastZrs,
         double *lastZis,
         double *distancesR,
         double *distancesI,
-        const int mode,
-        const int width,
-        const int height,
+        const int32_t mode,
+        const int32_t width,
+        const int32_t height,
         const double xStartHi,
         const double xStartLo,
         const double yStartHi,
@@ -39,7 +41,7 @@ void mandel_avxdd(
         const double xIncLo,
         const double yIncHi,
         const double yIncLo,
-        const unsigned int maxIterations,
+        const int32_t maxIterations,
         const double sqrEscapeRadius);
 
 
