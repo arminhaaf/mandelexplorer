@@ -1,8 +1,7 @@
 package nimra.mandelexplorer;
 
-import org.scijava.nativelib.NativeLoader;
+import nimra.mandelexplorer.util.NativeLoader;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,11 +12,7 @@ import java.util.List;
  */
 public class DoubleMandelNative extends AbstractDoubleMandelImpl implements MandelImplFactory {
     static {
-        try {
-            NativeLoader.loadLibrary("mandel_jni");
-        } catch (IOException pE) {
-            pE.printStackTrace();
-        }
+        NativeLoader.loadNativeLib("mandel_jni");
     }
 
     private final Algo algo;
