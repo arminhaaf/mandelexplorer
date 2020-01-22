@@ -30,7 +30,7 @@ endif
 install : $(LIBNAME)
 	cp $(LIBNAME) ../resources/natives/linux_64
 
-$(LIBNAME) :  mandeljni.c mandelImpl.o mandelAVXDD.o mandelDD.o mandelFloat128.o
+$(LIBNAME) :  mandeljni.c mandelImpl.o mandelAVXDD.o mandelDD.o mandelFloat128.o mandelFloat80.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -I. -lstdc++ -shared -D_JNI_IMPLEMENTATION_ -o $@ $^ $(LDLIBS)
 
 mandelImpl.o : mandelImpl.c
@@ -43,6 +43,9 @@ mandelDD.o : mandelDD.c
 	$(CC) -c $(CFLAGS) -ffp-contract=off -fno-unsafe-math-optimizations  -o $@ $^
 
 mandelFloat128.o : mandelFloat128.c
+	$(CC) -c $(CFLAGS) -Ofast -o $@ $^
+
+mandelFloat80.o : mandelFloat80.c
 	$(CC) -c $(CFLAGS) -Ofast -o $@ $^
 
 .PHONY: clean

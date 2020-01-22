@@ -4,10 +4,12 @@
 #include <stdbool.h>
 #include <math.h>
 
+#define __float80 long double
+
 #include "mandel.h"
 
 void
-mandel_float128(int32_t *iters,
+mandel_float80(int32_t *iters,
               double *lastZrs,
               double *lastZis,
               double *distancesR,
@@ -30,35 +32,35 @@ mandel_float128(int32_t *iters,
               const int32_t maxIterations,
               const double sqrEscapeRadius)
 {
-    __float128 xStart = pxStartHi + pxStartLo;
-    __float128 yStart = pyStartHi + pyStartLo;
-    __float128 juliaCr = pjuliaCrHi + pjuliaCrLo;
-    __float128 juliaCi = pjuliaCiHi + pjuliaCiLo;
-    __float128 xInc = pxIncHi + pxIncLo;
-    __float128 yInc = pyIncHi + pyIncLo;
+    __float80 xStart = pxStartHi + pxStartLo;
+    __float80 yStart = pyStartHi + pyStartLo;
+    __float80 juliaCr = pjuliaCrHi + pjuliaCrLo;
+    __float80 juliaCi = pjuliaCiHi + pjuliaCiLo;
+    __float80 xInc = pxIncHi + pxIncLo;
+    __float80 yInc = pyIncHi + pyIncLo;
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
-        const __float128 tY = yStart + y*yInc;
-        const __float128 ci = mode == MODE_JULIA ? juliaCi : tY;
+        const __float80 tY = yStart + y*yInc;
+        const __float80 ci = mode == MODE_JULIA ? juliaCi : tY;
 
         for (int x = 0; x < width; x ++) {
-            const __float128 tX = xStart + x*xInc;
-            const __float128 cr = mode == MODE_JULIA ? juliaCr : tX;
+            const __float80 tX = xStart + x*xInc;
+            const __float80 cr = mode == MODE_JULIA ? juliaCr : tX;
 
-            __float128 zr = tX;
-            __float128 zi = tY;
-            __float128 new_zr = 0.0;
+            __float80 zr = tX;
+            __float80 zi = tY;
+            __float80 new_zr = 0.0;
 
             // distance
-            __float128 dr = 1;
-            __float128 di = 0;
-            __float128 new_dr;
+            __float80 dr = 1;
+            __float80 di = 0;
+            __float80 new_dr;
 
             int32_t count = 0;
             for (; count<maxIterations; count++){
-                const __float128 zrsqr = zr * zr;
-                const __float128 zisqr = zi * zi;
+                const __float80 zrsqr = zr * zr;
+                const __float80 zisqr = zi * zi;
 
                 if ( (zrsqr + zisqr) >= sqrEscapeRadius ) {
                     break;

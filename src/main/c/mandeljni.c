@@ -63,7 +63,15 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DDMandelNative_mandelDD
                         maxIterations,sqrEscapeRadius);
                 break;
             case 3:
-                mandel_longdouble(tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                mandel_float128(tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                        width, height,
+                        xStartHi, xStartLo, yStartHi, yStartLo,
+                        juliaCrHi, juliaCrLo, juliaCiHi, juliaCiLo,
+                        xIncHi, xIncLo, yIncHi, yIncLo,
+                        maxIterations,sqrEscapeRadius);
+                break;
+            case 4:
+                mandel_float80(tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
                         width, height,
                         xStartHi, xStartLo, yStartHi, yStartLo,
                         juliaCrHi, juliaCrLo, juliaCiHi, juliaCiLo,

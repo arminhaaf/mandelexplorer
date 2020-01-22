@@ -69,7 +69,7 @@ mandel_double(int32_t *iters,
               const double sqrEscapeRadius);
 
 void
-mandel_longdouble(int32_t *iters,
+mandel_float128(int32_t *iters,
               double *lastZrs,
               double *lastZis,
               double *distancesR,
@@ -92,6 +92,30 @@ mandel_longdouble(int32_t *iters,
               const int32_t maxIterations,
               const double sqrEscapeRadius);
               
+void
+mandel_float80(int32_t *iters,
+              double *lastZrs,
+              double *lastZis,
+              double *distancesR,
+              double *distancesI,
+              const int32_t mode,
+              const int32_t width,
+              const int32_t height,
+          const double pxStartHi,
+          const double pxStartLo,
+          const double pyStartHi,
+          const double pyStartLo,
+          const double pjuliaCrHi,
+          const double pjuliaCrLo,
+          const double pjuliaCiHi,
+          const double pjuliaCiLo,
+          const double pxIncHi,
+          const double pxIncLo,
+          const double pyIncHi,
+          const double pyIncLo,
+              const int32_t maxIterations,
+              const double sqrEscapeRadius);
+
 void
 mandel_dd(int32_t *iters,
           double *lastZrs,
