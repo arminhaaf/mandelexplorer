@@ -62,6 +62,20 @@ JNIEXPORT	void	JNICALL	Java_nimra_mandelexplorer_DDMandelNative_mandelDD
                         xIncHi, xIncLo, yIncHi, yIncLo,
                         maxIterations,sqrEscapeRadius);
                 break;
+            case 3:
+                mandel_longdouble(tIters,tLastZrs, tLastZis, tDistancesR, tDistancesI, mode,
+                        width, height,
+                        xStartHi, xStartLo, yStartHi, yStartLo,
+                        juliaCrHi, juliaCrLo, juliaCiHi, juliaCiLo,
+                        xIncHi, xIncLo, yIncHi, yIncLo,
+                        maxIterations,sqrEscapeRadius);
+                break;
+            default:
+                printf("unknown algorithm %d", algo);
+                fflush(stdout);
+                break;
+
+
         }
 
 

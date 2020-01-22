@@ -84,7 +84,7 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
     }
 
     public enum Algo {
-        AVXDoubleDouble(1, "AVX-DD"), DoubleDouble(2, "DD");
+        AVXDoubleDouble(1, "AVX-DD"), DoubleDouble(2, "DD"), LongDouble(3, "Float128");
 
         final int code;
 
