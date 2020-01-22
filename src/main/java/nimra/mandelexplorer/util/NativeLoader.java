@@ -43,8 +43,14 @@ public class NativeLoader {
         try {
             File tTempFile = File.createTempFile("MandelExplorer", "native");
             tTempFile.deleteOnExit();
-            try (InputStream tLibStream = NativeLoader.class.getResourceAsStream("/natives/" + tSystemDir +"/" + tSystemLibName);
+            String tLibResource = "/natives/" + tSystemDir + "/" + tSystemLibName;
+            try (InputStream tLibStream = NativeLoader.class.getResourceAsStream(tLibResource);
                  OutputStream tOutputStream = new FileOutputStream(tTempFile)) {
+
+                if ( tLibStream==null ) {
+                    System.out.println(tLibResource + " not found");
+                    return;
+                }
 
                 byte[] tBuffer = new byte[1024];
                 int tReadBytes;
