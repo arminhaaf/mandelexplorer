@@ -29,6 +29,7 @@ public class NativeLoader {
         final String tSystemLibName = System.mapLibraryName(pLib);
 
         String tSystemDir = "unknown";
+        final String tSuffix = tSystemLibName.substring(tSystemLibName.lastIndexOf("."));
         final boolean t64Bit = OS_ARCH.contains("64");
 
         if (OS_NAME.startsWith("linux")) {
@@ -41,7 +42,7 @@ public class NativeLoader {
 
         // Prepare temporary file
         try {
-            File tTempFile = File.createTempFile("MandelExplorer", "native");
+            File tTempFile = File.createTempFile("MandelExplorer", tSuffix);
             tTempFile.deleteOnExit();
             String tLibResource = "/natives/" + tSystemDir + "/" + tSystemLibName;
             try (InputStream tLibStream = NativeLoader.class.getResourceAsStream(tLibResource);
