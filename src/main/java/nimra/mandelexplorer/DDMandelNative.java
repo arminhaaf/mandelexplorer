@@ -11,12 +11,16 @@ import java.util.List;
  * @author Armin Haaf
  */
 public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFactory {
+    private static final boolean NATIVE_LIB_LOADED;
+
     static {
+        boolean tSuccess = false;
         try {
-            NativeLoader.loadNativeLib("mandel_jni");
-        } catch ( Throwable ex ) {
+            tSuccess = NativeLoader.loadNativeLib("mandel_jni");
+        } catch (Throwable ex) {
             ex.printStackTrace();
         }
+        NATIVE_LIB_LOADED = tSuccess;
     }
 
     private final Algo algo;
@@ -30,10 +34,10 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
     }
 
     public static native void mandelDD(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, int pMode,
-            int pWidth, int pHeight,
-            double pXStartHi, double pXStartLo, double pYStartHi, double pYStartLo,
-            double pJuliaCrHi, double pJuliaCrLo, double pJuliaCiHi, double pJuliaCiLo,
-            double pXIncHi, double pXIncLo, double pYIncHi, double pYIncLo, int pMaxIter, double pEscSqr);
+                                       int pWidth, int pHeight,
+                                       double pXStartHi, double pXStartLo, double pYStartHi, double pYStartLo,
+                                       double pJuliaCrHi, double pJuliaCrLo, double pJuliaCiHi, double pJuliaCiLo,
+                                       double pXIncHi, double pXIncLo, double pYIncHi, double pYIncLo, int pMaxIter, double pEscSqr);
 
     @Override
     public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
@@ -53,13 +57,13 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
         final DD tJuliaCr = new DD(pParams.getJuliaCr());
         final DD tJuliaCi = new DD(pParams.getJuliaCi());
         mandelDD(algo.code, tItersTile, tLastZrTile, tLastZiTile, tDistanceRTile, tDistanceITile,
-                 pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
-                 tXmin.getHi(), tXmin.getLo(),
-                 tYmin.getHi(), tYmin.getLo(),
-                 tJuliaCr.getHi(), tJuliaCr.getLo(), tJuliaCi.getHi(), tJuliaCi.getLo(),
-                 tXinc.getHi(), tXinc.getLo(),
-                 tYinc.getHi(), tYinc.getLo(),
-                 pParams.getMaxIterations(), getEscapeSqr(pParams));
+                pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
+                tXmin.getHi(), tXmin.getLo(),
+                tYmin.getHi(), tYmin.getLo(),
+                tJuliaCr.getHi(), tJuliaCr.getLo(), tJuliaCi.getHi(), tJuliaCi.getLo(),
+                tXinc.getHi(), tXinc.getLo(),
+                tYinc.getHi(), tYinc.getLo(),
+                pParams.getMaxIterations(), getEscapeSqr(pParams));
 
         for (int y = 0; y < tTileHeight; y++) {
             final int tDestPos = pMandelResult.width * (pTile.startY + y) + pTile.startX;
@@ -73,11 +77,15 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
 
     }
 
+
+
     @Override
     public List<MandelImpl> getMandelImpls() {
         final List<MandelImpl> tMandelImpls = new ArrayList<>();
-        for (Algo tAlgo : Algo.values()) {
-            tMandelImpls.add(new DDMandelNative(tAlgo));
+        if (NATIVE_LIB_LOADED) {
+            for (Algo tAlgo : Algo.values()) {
+                tMandelImpls.add(new DDMandelNative(tAlgo));
+            }
         }
         return tMandelImpls;
     }
@@ -85,6 +93,11 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
     @Override
     public String toString() {
         return "Native " + algo.name;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return NATIVE_LIB_LOADED;
     }
 
     public enum Algo {

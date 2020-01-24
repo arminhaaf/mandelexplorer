@@ -40,12 +40,17 @@ import static org.jocl.CL.clSetKernelArg;
  */
 public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements MandelImpl {
 
+    private static final boolean OPENCL_AVAILABLE;
+
     static {
+        boolean tOpenCLAvailable = false;
         try {
             CL.setExceptionsEnabled(true);
+            tOpenCLAvailable = true;
         } catch ( Throwable ex ) {
             ex.printStackTrace();
         }
+        OPENCL_AVAILABLE = tOpenCLAvailable;
     }
 
     private String code = "abcs";
@@ -222,6 +227,11 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
     @Override
     public MandelImpl copy() {
         return new OpenCLMandelImpl(this);
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return OPENCL_AVAILABLE;
     }
 
     protected static class OpenCLContext {

@@ -34,6 +34,11 @@ public class FastDDMandelImpl implements MandelImpl {
     }
 
     @Override
+    public boolean isAvailable() {
+        return gpuImpl.isAvailable() && cpuImpl.isAvailable();
+    }
+
+    @Override
     public String toString() {
         return "Fast DD";
     }

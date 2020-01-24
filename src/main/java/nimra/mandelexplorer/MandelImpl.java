@@ -61,4 +61,8 @@ public interface MandelImpl {
     default void done() {
     }
 
+    default boolean isAvailable(){
+        return true;
+    }
+
 }

@@ -19,12 +19,10 @@ public class NativeLoader {
 
     private static Set<String> LOADEDLIBS = new HashSet<>();
 
-    public static synchronized void loadNativeLib(String pLib) {
+    public static synchronized boolean loadNativeLib(String pLib) {
         if ( LOADEDLIBS.contains(pLib)) {
-            return;
+            return true;
         }
-
-        LOADEDLIBS.add(pLib);
 
         final String tSystemLibName = System.mapLibraryName(pLib);
 
@@ -50,7 +48,7 @@ public class NativeLoader {
 
                 if ( tLibStream==null ) {
                     System.out.println(tLibResource + " not found");
-                    return;
+                    return false;
                 }
 
                 byte[] tBuffer = new byte[1024];
@@ -61,9 +59,13 @@ public class NativeLoader {
             }
 
             System.load(tTempFile.getAbsolutePath());
+
+            LOADEDLIBS.add(pLib);
+
+            return true;
         } catch (IOException pE) {
             pE.printStackTrace();
-            return;
+            return false;
         }
     }
 }

@@ -11,8 +11,16 @@ import java.util.List;
  * @author Armin Haaf
  */
 public class DoubleMandelNative extends AbstractDoubleMandelImpl implements MandelImplFactory {
+    private static final boolean NATIVE_LIB_LOADED;
+
     static {
-        NativeLoader.loadNativeLib("mandel_jni");
+        boolean tSuccess = false;
+        try {
+            tSuccess = NativeLoader.loadNativeLib("mandel_jni");
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+        NATIVE_LIB_LOADED = tSuccess;
     }
 
     private final Algo algo;
@@ -26,7 +34,7 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
     }
 
     public static native void mandel(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, int pMode,
-            int pWidth, int pHeight, double pXStart, double pYStart, double juliaCr, double juliaCi, double pXInc, double pYInc, int pMaxIter, double pEscSqr);
+                                     int pWidth, int pHeight, double pXStart, double pYStart, double juliaCr, double juliaCi, double pXInc, double pYInc, int pMaxIter, double pEscSqr);
 
 
     @Override
@@ -45,11 +53,11 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
         final double tXinc = getXinc(pParams, pMandelResult.width, pMandelResult.height);
         final double tYinc = getYinc(pParams, pMandelResult.width, pMandelResult.height);
         mandel(algo.code, tItersTile, tLastZrTile, tLastZiTile, tDistanceRTile, tDistanceITile,
-               pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
-               getXmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startX * tXinc,
-               getYmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startY * tYinc,
-               pParams.getJuliaCr().doubleValue(), pParams.getJuliaCi().doubleValue(),
-               tXinc, tYinc, pParams.getMaxIterations(), getEscapeSqr(pParams));
+                pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
+                getXmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startX * tXinc,
+                getYmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startY * tYinc,
+                pParams.getJuliaCr().doubleValue(), pParams.getJuliaCi().doubleValue(),
+                tXinc, tYinc, pParams.getMaxIterations(), getEscapeSqr(pParams));
 
         for (int y = 0; y < tTileHeight; y++) {
             final int tDestPos = pMandelResult.width * (pTile.startY + y) + pTile.startX;
@@ -64,10 +72,17 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
     }
 
     @Override
+    public boolean isAvailable() {
+        return NATIVE_LIB_LOADED;
+    }
+
+    @Override
     public List<MandelImpl> getMandelImpls() {
         final List<MandelImpl> tMandelImpls = new ArrayList<>();
-        for (Algo tAlgo : Algo.values()) {
-            tMandelImpls.add(new DoubleMandelNative(tAlgo));
+        if (NATIVE_LIB_LOADED) {
+            for (Algo tAlgo : Algo.values()) {
+                tMandelImpls.add(new DoubleMandelNative(tAlgo));
+            }
         }
         return tMandelImpls;
     }
