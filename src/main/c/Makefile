@@ -16,7 +16,7 @@ CFLAGS =-Wall -Wextra -O3 -fopenmp -I${JAVA_HOME}/include/  -fPIC
 
 ifeq ($(detected_OS),Windows)
     CFLAGS += -I${JAVA_HOME}/include/win32 -fopenmp
-    LDFLAGS += -L. -static-libgcc -static-libstdc++ -Wl,--add-stdcall-alias -Wl,-Bstatic -lgomp -lpthread
+    LDFLAGS += -static-libgcc -Wl,--add-stdcall-alias -Wl,-Bstatic -lgomp -lpthread
     LIBNAME=$(BASELIBNAME).dll
     TARGETDIR=../resources/natives/windows_64
     # currently only mingw is supported
@@ -36,7 +36,7 @@ install : $(LIBNAME)
 	cp $(LIBNAME) $(TARGETDIR)
 
 $(LIBNAME) :  mandeljni.c mandelImpl.o mandelAVXDD.o mandelDD.o mandelFloat128.o mandelFloat80.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -I. -lstdc++ -shared -D_JNI_IMPLEMENTATION_ -o $@ $^ $(LDLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -I. -shared -D_JNI_IMPLEMENTATION_ -o $@ $^ $(LDLIBS)
 
 mandelImpl.o : mandelImpl.c
 	$(CC) -c $(CFLAGS) -Ofast -mavx2 -mfma -o $@ $^
