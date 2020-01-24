@@ -12,7 +12,11 @@ import java.util.List;
  */
 public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFactory {
     static {
-        NativeLoader.loadNativeLib("mandel_jni");
+        try {
+            NativeLoader.loadNativeLib("mandel_jni");
+        } catch ( Throwable ex ) {
+            ex.printStackTrace();
+        }
     }
 
     private final Algo algo;

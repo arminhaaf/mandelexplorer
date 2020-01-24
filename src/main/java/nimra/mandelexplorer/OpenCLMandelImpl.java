@@ -41,7 +41,11 @@ import static org.jocl.CL.clSetKernelArg;
 public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements MandelImpl {
 
     static {
-        CL.setExceptionsEnabled(true);
+        try {
+            CL.setExceptionsEnabled(true);
+        } catch ( Throwable ex ) {
+            ex.printStackTrace();
+        }
     }
 
     private String code = "abcs";

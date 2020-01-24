@@ -121,7 +121,7 @@ public class OpenCLDevice {
                 }
             }
 
-        } catch ( Exception ex) {
+        } catch ( Throwable ex) {
             ex.printStackTrace();
         }
         DEVICES = Collections.unmodifiableList(tDevices);
