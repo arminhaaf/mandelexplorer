@@ -22,7 +22,7 @@ ifeq ($(detected_OS),Windows)
     # currently only mingw is supported
     CC=cc
 endif
-ifeq ($(detected_OS),Darwin)        # Mac OS X
+ifeq ($(detected_OS),Darwin)        # Mac OS X currently not supported
     CFLAGS += -I${JAVA_HOME}/include/darwin
 endif
 ifeq ($(detected_OS),Linux)
@@ -56,4 +56,5 @@ mandelFloat80.o : mandelFloat80.c
 .PHONY: clean
 clean:
 	rm *.o
+	rm $(LIBNAME)
 
