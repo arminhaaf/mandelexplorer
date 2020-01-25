@@ -17,36 +17,41 @@ __global__ void compute(
       double *distancesR,
       double *distancesI,
       int mode,
+      int4 tile,
       double4 area,
       double2 julia,
       int maxIterations,
-      float sqrEscapeRadius
+      double sqrEscapeRadius
       ) {
 
-   const float x = area.x + X*area.z;
-   const float y = area.y + Y*area.w;
-   const float cr = mode == MODE_JULIA ? julia.x : x;
-   const float ci = mode == MODE_JULIA ? julia.y : y;
+   if ( X>=tile.z || Y>=tile.w) {      // tile.z is width of tile, tile.w is height of tile
+        return;
+   }
+
+   const double x = area.x + X*area.z;
+   const double y = area.y + Y*area.w;
+   const double cr = mode == MODE_JULIA ? julia.x : x;
+   const double ci = mode == MODE_JULIA ? julia.y : y;
 
 //    if ( X % 100 == 0 )
 //   printf("compute %d %d ",X,Y);
 //
 
-   const float escape = sqrEscapeRadius;
+   const double escape = sqrEscapeRadius;
 
-   float zr = x;
-   float zi = y;
-   float new_zr = 0.0f;
+   double zr = x;
+   double zi = y;
+   double new_zr = 0.0f;
 
    // distance
-   float dr = 1;
-   float di = 0;
-   float new_dr;
+   double dr = 1;
+   double di = 0;
+   double new_dr;
 
    int count = 0;
    for (; count<maxIterations; count++){
-        const float zrsqr = zr * zr;
-        const float zisqr = zi * zi;
+        const double zrsqr = zr * zr;
+        const double zisqr = zi * zi;
 
         if ( (zrsqr + zisqr) >= escape ) {
             break;
@@ -68,7 +73,7 @@ __global__ void compute(
             break;
         }
    }
-   const int tIndex = X + Y * WIDTH;
+   const int tIndex = X + Y * tile.z;  // tile.z is width of tile
    iters[tIndex]  = count;
    lastValuesR[tIndex] = (double)zr;
    lastValuesI[tIndex] = (double)zi;

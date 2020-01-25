@@ -7,3 +7,5 @@ nimra.mandelexplorer.QFOpenCLMandelImpl
 nimra.mandelexplorer.DDOpenCLMandelImpl
 nimra.mandelexplorer.FFOpenCLMandelImpl
 nimra.mandelexplorer.FP128OpenCLMandelImpl
+nimra.mandelexplorer.cuda.CudaDoubleMandelImpl
+nimra.mandelexplorer.cuda.CudaFloatMandelImpl

@@ -1,6 +1,8 @@
 package nimra.mandelexplorer.cuda;
 
+import jcuda.driver.CUcontext;
 import jcuda.driver.CUdevice;
+import jcuda.driver.JCudaDriver;
 import jcuda.runtime.JCuda;
 import jcuda.runtime.cudaDeviceProp;
 
@@ -9,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static jcuda.driver.CUresult.CUDA_SUCCESS;
+import static jcuda.driver.JCudaDriver.cuCtxCreate;
+import static jcuda.driver.JCudaDriver.cuCtxDestroy;
 import static jcuda.driver.JCudaDriver.cuDeviceGet;
 import static jcuda.driver.JCudaDriver.cuInit;
 import static jcuda.runtime.JCuda.cudaGetDeviceCount;
@@ -30,9 +34,17 @@ public class CudaDevice {
         cuDevice = new CUdevice();
         cuDeviceGet(cuDevice, pDeviceId);
 
+        CUcontext tContext = new CUcontext();
+        cuCtxCreate(tContext, 0, cuDevice);
+
         deviceProperties = new cudaDeviceProp();
         cudaGetDeviceProperties(deviceProperties, pDeviceId);
 
+        cuCtxDestroy(tContext);
+    }
+
+    public CUdevice getCuDevice() {
+        return cuDevice;
     }
 
     public int getDeviceId() {
@@ -52,6 +64,10 @@ public class CudaDevice {
         return deviceId + " " + getName();
     }
 
+    public int getWarpSize() {
+        return deviceProperties.warpSize;
+    }
+
 
     private static final List<CudaDevice> DEVICES;
 
@@ -60,6 +76,7 @@ public class CudaDevice {
         if (cuInit(0) == CUDA_SUCCESS) {
             try {
                 JCuda.setExceptionsEnabled(true);
+                JCudaDriver.setExceptionsEnabled(true);
                 int tDeviceCount[] = {0};
                 cudaGetDeviceCount(tDeviceCount);
                 for (int tDeviceId = 0; tDeviceId < tDeviceCount[0]; tDeviceId++) {
