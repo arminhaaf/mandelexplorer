@@ -1,5 +1,7 @@
 package nimra.mandelexplorer;
 
+import nimra.mandelexplorer.math.FP128;
+
 import java.math.BigDecimal;
 
 /**

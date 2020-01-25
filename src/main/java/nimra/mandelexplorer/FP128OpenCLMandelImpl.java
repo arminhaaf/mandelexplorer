@@ -1,6 +1,7 @@
 package nimra.mandelexplorer;
 
 import nimra.mandelexplorer.opencl.OpenCLDevice;
+import nimra.mandelexplorer.math.FP128;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_mem;

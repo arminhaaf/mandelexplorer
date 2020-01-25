@@ -1,4 +1,4 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.math;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -20,8 +20,7 @@ public class FP128 {
     }
 
     public FP128(final FP128 other) {
-        this.vec = new int[4];
-        System.arraycopy(other.vec, 0, vec, 0, vec.length);
+        vec = new int[] {other.vec[0], other.vec[1], other.vec[2], other.vec[3]};
     }
 
     public FP128(final int pX, final int pY, final int pZ, final int pW) {
@@ -65,9 +64,7 @@ public class FP128 {
     }
 
     public void copy(int[] pData, int tIndex) {
-        for (int i = 0; i < vec.length; i++) {
-            pData[tIndex*4+i] = vec[i];
-        }
+        System.arraycopy(vec, 0, pData, tIndex * 4, vec.length);
     }
 
     public static FP128 from(final BigDecimal pValue) {
@@ -113,7 +110,7 @@ public class FP128 {
         }
 
         // 27 decimals
-        tBigDecimal = tBigDecimal.setScale(27, BigDecimal.ROUND_FLOOR);
+        tBigDecimal = tBigDecimal.setScale(27, RoundingMode.FLOOR);
         if (tNeg) {
             return tBigDecimal.negate().toString();
         } else {

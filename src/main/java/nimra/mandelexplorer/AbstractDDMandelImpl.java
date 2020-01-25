@@ -1,5 +1,7 @@
 package nimra.mandelexplorer;
 
+import nimra.mandelexplorer.math.DD;
+
 /**
  * Created: 12.01.20   by: Armin Haaf
  *

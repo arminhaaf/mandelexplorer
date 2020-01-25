@@ -1,5 +1,6 @@
 package nimra.mandelexplorer;
 
+import nimra.mandelexplorer.math.ComplexD;
 import org.json.JSONObject;
 
 /**

@@ -1,4 +1,4 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.math;
 
 import java.util.Objects;
 

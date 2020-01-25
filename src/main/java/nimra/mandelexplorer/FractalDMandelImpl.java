@@ -1,5 +1,7 @@
 package nimra.mandelexplorer;
 
+import nimra.mandelexplorer.math.ComplexD;
+
 import java.util.stream.IntStream;
 
 /**

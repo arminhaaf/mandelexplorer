@@ -21,6 +21,10 @@ public class ComputeDevice {
             tDevices.add(new ComputeDevice("OpenCL " + tDevice.getName(), tDevice));
         }
 
+        for (nimra.mandelexplorer.cuda.CudaDevice tDevice : nimra.mandelexplorer.cuda.CudaDevice.getDevices()) {
+            tDevices.add(new ComputeDevice("Cuda " + tDevice.getName(), tDevice));
+        }
+
         DEVICES = Collections.unmodifiableList(tDevices);
     }
 

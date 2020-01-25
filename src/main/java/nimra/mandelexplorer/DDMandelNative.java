@@ -1,5 +1,6 @@
 package nimra.mandelexplorer;
 
+import nimra.mandelexplorer.math.DD;
 import nimra.mandelexplorer.util.NativeLoader;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.math;
 
 /*
  * Copyright (c) 2016 Martin Davis.
