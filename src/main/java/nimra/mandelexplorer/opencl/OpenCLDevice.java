@@ -117,7 +117,9 @@ public class OpenCLDevice {
                 clGetDeviceIDs(pPlatform, CL_DEVICE_TYPE_ALL, numDevices[0], devicesArray, null);
 
                 for (cl_device_id tCl_device_id : devicesArray) {
-                    tDevices.add(new OpenCLDevice(tCl_device_id));
+                    final OpenCLDevice tOpenCLDevice = new OpenCLDevice(tCl_device_id);
+                    System.out.println("found " + tOpenCLDevice);
+                    tDevices.add(tOpenCLDevice);
                 }
             }
 
