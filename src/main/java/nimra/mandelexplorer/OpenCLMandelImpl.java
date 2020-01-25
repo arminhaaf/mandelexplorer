@@ -168,6 +168,7 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
             clEnqueueNDRangeKernel(tOpenCLContext.commandQueue, tOpenCLContext.kernel, 2, null,
                                    globalWorkSize, null, 0, null, null);
 
+            // TODO copy async -> about 70ms for 1024x1024 with distance
 
             readBuffer(tOpenCLContext, pMandelResult, pTile, tCLiters, Pointer.to(pMandelResult.iters), Sizeof.cl_int);
             readBuffer(tOpenCLContext, pMandelResult, pTile, tCLlastR, Pointer.to(pMandelResult.lastValuesR), Sizeof.cl_double);
