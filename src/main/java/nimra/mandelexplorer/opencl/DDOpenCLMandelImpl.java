@@ -1,6 +1,11 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.opencl;
 
-import nimra.mandelexplorer.opencl.OpenCLDevice;
+import nimra.mandelexplorer.CalcMode;
+import nimra.mandelexplorer.ComputeDevice;
+import nimra.mandelexplorer.MandelParams;
+import nimra.mandelexplorer.MandelResult;
+import nimra.mandelexplorer.Tile;
+import nimra.mandelexplorer.math.DD;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_mem;
@@ -19,50 +24,28 @@ import static org.jocl.CL.clSetKernelArg;
  *
  * @author Armin Haaf
  */
-public class QFOpenCLMandelImpl extends OpenCLMandelImpl {
+public class DDOpenCLMandelImpl extends OpenCLMandelImpl {
 
-    public QFOpenCLMandelImpl() {
-        setCode(new Scanner(OpenCLDevice.class.getResourceAsStream("/QFMandel.cl"), "UTF-8").useDelimiter("\\A").next());
+    public DDOpenCLMandelImpl() {
+        setCode(new Scanner(OpenCLDevice.class.getResourceAsStream("/opencl/DDMandel.cl"), "UTF-8").useDelimiter("\\A").next());
+        // compile should not optimize (no -cl-unsafe-math-optimizations !) -> however, seems that the optimization is always on
+        // only Portable CPU implementation works as expected
         setCompilerOptions(null);
+
     }
 
-    private float[] convertToQF(BigDecimal pBigDecimal) {
-        float[] tFF = new float[4];
+    private double[] convertToDD(BigDecimal pBD) {
+        final DD tDD = new DD(pBD);
 
-        for (int i = 0; i < tFF.length; i++) {
-            tFF[i] = (float)pBigDecimal.doubleValue();
-            pBigDecimal = pBigDecimal.subtract(BigDecimal.valueOf(tFF[i]));
-        }
-        return tFF;
+        return new double[]{tDD.getHi(), tDD.getLo()};
     }
-
-    private float[] convertToQF(double pDouble) {
-        float[] tFF = new float[4];
-
-        tFF[0] = computeHi(pDouble);
-        tFF[1] = computeLo(pDouble);
-        return tFF;
-    }
-
-    private float computeLo(double a) {
-        double temp = ((1 << 27) + 1) * a;
-        double hi = temp - (temp - a);
-        double lo = a - (float)hi;
-        return (float)lo;
-    }
-
-    private float computeHi(double a) {
-        double temp = ((1 << 27) + 1) * a;
-        double hi = temp - (temp - a);
-        return (float)hi;
-    }
-
 
     @Override
     public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         final OpenCLContext tOpenCLContext = getContext(pComputeDevice);
 
-        synchronized ( tOpenCLContext) {
+
+        synchronized (tOpenCLContext) {
             final int tTileWidth = pTile.getWidth();
             final int tTileHeight = pTile.getHeight();
             final int tBufferSize = tTileHeight * tTileWidth;
@@ -70,53 +53,57 @@ public class QFOpenCLMandelImpl extends OpenCLMandelImpl {
             final int tDistanceBufferSize = pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? tBufferSize : 1;
 
             final cl_mem tCLiters = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                    tBufferSize * Sizeof.cl_int, null, null);
+                                                   tBufferSize * Sizeof.cl_int, null, null);
             final cl_mem tCLlastR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                    tBufferSize * Sizeof.cl_double, null, null);
+                                                   tBufferSize * Sizeof.cl_double, null, null);
             final cl_mem tCLlastI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                    tBufferSize * Sizeof.cl_double, null, null);
+                                                   tBufferSize * Sizeof.cl_double, null, null);
 
             final cl_mem tCLdistanceR;
             final cl_mem tCLdistanceI;
             if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
                 tCLdistanceR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                        tDistanceBufferSize * Sizeof.cl_double, null, null);
+                                              tDistanceBufferSize * Sizeof.cl_double, null, null);
                 tCLdistanceI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                        tDistanceBufferSize * Sizeof.cl_double, null, null);
+                                              tDistanceBufferSize * Sizeof.cl_double, null, null);
             } else {
                 tCLdistanceR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                        1, null, null);
+                                              1, null, null);
                 tCLdistanceI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                        1, null, null);
+                                              1, null, null);
             }
 
             final BigDecimal tBDXInc = pParams.getXInc(pMandelResult.width, pMandelResult.height);
             final BigDecimal tBDYInc = pParams.getYInc(pMandelResult.width, pMandelResult.height);
-            final float[] tXinc = convertToQF(tBDXInc);
-            final float[] tYinc = convertToQF(tBDYInc);
-            final float[] tXmin = convertToQF(pParams.getXMin(pMandelResult.width, pMandelResult.height).add(tBDXInc.multiply(new BigDecimal(pTile.startX))));
-            final float[] tYmin = convertToQF(pParams.getYMin(pMandelResult.width, pMandelResult.height).add(tBDYInc.multiply(new BigDecimal(pTile.startY))));
+            final double[] tXinc = convertToDD(tBDXInc);
+            final double[] tYinc = convertToDD(tBDYInc);
+            final double[] tXmin = convertToDD(pParams.getXMin(pMandelResult.width, pMandelResult.height).add(tBDXInc.multiply(new BigDecimal(pTile.startX))));
+            final double[] tYmin = convertToDD(pParams.getYMin(pMandelResult.width, pMandelResult.height).add(tBDYInc.multiply(new BigDecimal(pTile.startY))));
+            final double[] tJuliaCr = convertToDD(pParams.getJuliaCr());
+            final double[] tJuliaCi = convertToDD(pParams.getJuliaCi());
 
             clSetKernelArg(tOpenCLContext.kernel, 0, Sizeof.cl_mem, Pointer.to(tCLiters));
             clSetKernelArg(tOpenCLContext.kernel, 1, Sizeof.cl_mem, Pointer.to(tCLlastR));
             clSetKernelArg(tOpenCLContext.kernel, 2, Sizeof.cl_mem, Pointer.to(tCLlastI));
             clSetKernelArg(tOpenCLContext.kernel, 3, Sizeof.cl_mem, Pointer.to(tCLdistanceR));
             clSetKernelArg(tOpenCLContext.kernel, 4, Sizeof.cl_mem, Pointer.to(tCLdistanceI));
-            clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? 1 : 0}));
-            clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_float4, Pointer.to(tXmin));
-            clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_float4, Pointer.to(tYmin));
-            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_float4, Pointer.to(tXinc));
-            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_float4, Pointer.to(tYinc));
-            clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
-            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
+            clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode().getModeNumber()}));
+            clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_double2, Pointer.to(tXmin));
+            clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_double2, Pointer.to(tYmin));
+            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_double2, Pointer.to(tJuliaCr));
+            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_double2, Pointer.to(tJuliaCi));
+            clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_double2, Pointer.to(tXinc));
+            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_double2, Pointer.to(tYinc));
+            clSetKernelArg(tOpenCLContext.kernel, 12, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
+            clSetKernelArg(tOpenCLContext.kernel, 13, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
 
-            final long globalWorkSize[] = new long[2];
+            final long[] globalWorkSize = new long[2];
             globalWorkSize[0] = pTile.getWidth();
             globalWorkSize[1] = pTile.getHeight();
 
 
             clEnqueueNDRangeKernel(tOpenCLContext.commandQueue, tOpenCLContext.kernel, 2, null,
-                    globalWorkSize, null, 0, null, null);
+                                   globalWorkSize, null, 0, null, null);
 
 
             readBuffer(tOpenCLContext, pMandelResult, pTile, tCLiters, Pointer.to(pMandelResult.iters), Sizeof.cl_int);
@@ -133,12 +120,11 @@ public class QFOpenCLMandelImpl extends OpenCLMandelImpl {
             clReleaseMemObject(tCLlastI);
             clReleaseMemObject(tCLdistanceR);
             clReleaseMemObject(tCLdistanceI);
-
         }
     }
 
     @Override
     public String toString() {
-        return "QF OpenCL";
+        return "DD OpenCL";
     }
 }

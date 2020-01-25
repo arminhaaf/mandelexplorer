@@ -1,11 +1,11 @@
 nimra.mandelexplorer.StreamParallelDoubleMandelImpl
 nimra.mandelexplorer.FastDDMandelImpl
-nimra.mandelexplorer.FloatOpenCLMandelImpl
+nimra.mandelexplorer.opencl.FloatOpenCLMandelImpl
 nimra.mandelexplorer.AparapiDoubleMandelImpl
-nimra.mandelexplorer.DefaultDoubleOpenCLMandelImpl
-nimra.mandelexplorer.QFOpenCLMandelImpl
-nimra.mandelexplorer.DDOpenCLMandelImpl
-nimra.mandelexplorer.FFOpenCLMandelImpl
-nimra.mandelexplorer.FP128OpenCLMandelImpl
+nimra.mandelexplorer.opencl.DefaultDoubleOpenCLMandelImpl
+nimra.mandelexplorer.opencl.QFOpenCLMandelImpl
+nimra.mandelexplorer.opencl.DDOpenCLMandelImpl
+nimra.mandelexplorer.opencl.FFOpenCLMandelImpl
+nimra.mandelexplorer.opencl.FP128OpenCLMandelImpl
 nimra.mandelexplorer.cuda.CudaDoubleMandelImpl
 nimra.mandelexplorer.cuda.CudaFloatMandelImpl

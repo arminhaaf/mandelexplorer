@@ -1,6 +1,12 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.opencl;
 
-import nimra.mandelexplorer.opencl.OpenCLDevice;
+import nimra.mandelexplorer.AbstractDoubleMandelImpl;
+import nimra.mandelexplorer.CalcMode;
+import nimra.mandelexplorer.ComputeDevice;
+import nimra.mandelexplorer.MandelImpl;
+import nimra.mandelexplorer.MandelParams;
+import nimra.mandelexplorer.MandelResult;
+import nimra.mandelexplorer.Tile;
 import org.jocl.CL;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;

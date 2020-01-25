@@ -1,6 +1,4 @@
-package nimra.mandelexplorer;
-
-import nimra.mandelexplorer.opencl.OpenCLDevice;
+package nimra.mandelexplorer.opencl;
 
 import java.util.Scanner;
 
@@ -11,7 +9,7 @@ import java.util.Scanner;
  */
 public class DefaultDoubleOpenCLMandelImpl extends OpenCLMandelImpl {
     public DefaultDoubleOpenCLMandelImpl() {
-        super(new Scanner(OpenCLDevice.class.getResourceAsStream("/DoubleMandel.cl"), "UTF-8").useDelimiter("\\A").next());
+        super(new Scanner(OpenCLDevice.class.getResourceAsStream("/opencl/DoubleMandel.cl"), "UTF-8").useDelimiter("\\A").next());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package nimra.mandelexplorer;
 
+import nimra.mandelexplorer.opencl.DDOpenCLMandelImpl;
 import nimra.mandelexplorer.opencl.OpenCLDevice;
 
 /**
