@@ -1,7 +1,7 @@
 package nimra.mandelexplorer.palette;
 
 import nimra.mandelexplorer.CalcMode;
-import nimra.mandelexplorer.ComplexD;
+import nimra.mandelexplorer.math.ComplexD;
 import nimra.mandelexplorer.PaletteMapper;
 import org.json.JSONObject;
 
