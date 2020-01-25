@@ -51,6 +51,11 @@
             <version>2.0.0</version>
         </dependency>
         <dependency>
+            <groupId>org.jcuda</groupId>
+            <artifactId>jcuda</artifactId>
+            <version>10.1.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.jgoodies</groupId>
             <artifactId>jgoodies-forms</artifactId>
             <version>1.9.0</version>
