@@ -1,7 +1,11 @@
 package nimra.mandelexplorer;
 
+import javax.swing.AbstractAction;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.WindowConstants;
@@ -10,7 +14,10 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.MenuBar;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -64,6 +71,8 @@ public class FractalExplorer {
 
     private final JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false, explorerConfigPanel.getComponent(), viewer);
 
+    private JMenuBar menuBar = new JMenuBar();
+
     public FractalExplorer() {
         setSize(1024, 1024);
 
@@ -87,7 +96,22 @@ public class FractalExplorer {
 
         viewer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 
+        initMenu();
+
         initPaintThread();
+    }
+
+    private void initMenu() {
+        final JMenu tDevices = new JMenu("Devices");
+
+        for (ComputeDevice tDevice : ComputeDevice.DEVICES) {
+            final JCheckBoxMenuItem tDeviceItem = new JCheckBoxMenuItem(tDevice.getName());
+            tDevices.add(tDeviceItem);
+            tDeviceItem.setSelected(true);
+            tDeviceItem.addActionListener(e -> tDevice.setEnabled(tDeviceItem.isSelected()));
+        }
+
+        getMenuBar().add(tDevices);
     }
 
     protected void initPaintThread() {
@@ -382,6 +406,7 @@ public class FractalExplorer {
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.add(tFractalExplorer.getComponent(), BorderLayout.CENTER);
+        frame.setJMenuBar(tFractalExplorer.getMenuBar());
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
@@ -393,6 +418,10 @@ public class FractalExplorer {
             JOptionPane.showMessageDialog(null, ex.getMessage());
             System.exit(-1);
         }
+    }
+
+    private JMenuBar getMenuBar() {
+        return menuBar;
     }
 
     static class CalcStatistics {
