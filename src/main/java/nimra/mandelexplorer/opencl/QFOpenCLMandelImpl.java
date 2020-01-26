@@ -67,32 +67,6 @@ public class QFOpenCLMandelImpl extends OpenCLMandelImpl {
         final OpenCLContext tOpenCLContext = getContext(pComputeDevice);
 
         synchronized ( tOpenCLContext) {
-            final int tTileWidth = pTile.getWidth();
-            final int tTileHeight = pTile.getHeight();
-            final int tBufferSize = tTileHeight * tTileWidth;
-
-            final int tDistanceBufferSize = pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? tBufferSize : 1;
-
-            final cl_mem tCLiters = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                    tBufferSize * Sizeof.cl_int, null, null);
-            final cl_mem tCLlastR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                    tBufferSize * Sizeof.cl_double, null, null);
-            final cl_mem tCLlastI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                    tBufferSize * Sizeof.cl_double, null, null);
-
-            final cl_mem tCLdistanceR;
-            final cl_mem tCLdistanceI;
-            if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
-                tCLdistanceR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                        tDistanceBufferSize * Sizeof.cl_double, null, null);
-                tCLdistanceI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                        tDistanceBufferSize * Sizeof.cl_double, null, null);
-            } else {
-                tCLdistanceR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                        1, null, null);
-                tCLdistanceI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                        1, null, null);
-            }
 
             final BigDecimal tBDXInc = pParams.getXInc(pMandelResult.width, pMandelResult.height);
             final BigDecimal tBDYInc = pParams.getYInc(pMandelResult.width, pMandelResult.height);
@@ -101,12 +75,7 @@ public class QFOpenCLMandelImpl extends OpenCLMandelImpl {
             final float[] tXmin = convertToQF(pParams.getXMin(pMandelResult.width, pMandelResult.height).add(tBDXInc.multiply(new BigDecimal(pTile.startX))));
             final float[] tYmin = convertToQF(pParams.getYMin(pMandelResult.width, pMandelResult.height).add(tBDYInc.multiply(new BigDecimal(pTile.startY))));
 
-            clSetKernelArg(tOpenCLContext.kernel, 0, Sizeof.cl_mem, Pointer.to(tCLiters));
-            clSetKernelArg(tOpenCLContext.kernel, 1, Sizeof.cl_mem, Pointer.to(tCLlastR));
-            clSetKernelArg(tOpenCLContext.kernel, 2, Sizeof.cl_mem, Pointer.to(tCLlastI));
-            clSetKernelArg(tOpenCLContext.kernel, 3, Sizeof.cl_mem, Pointer.to(tCLdistanceR));
-            clSetKernelArg(tOpenCLContext.kernel, 4, Sizeof.cl_mem, Pointer.to(tCLdistanceI));
-            clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? 1 : 0}));
+            tOpenCLContext.prepareDefaultKernelBuffers(pParams, pTile);
             clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_float4, Pointer.to(tXmin));
             clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_float4, Pointer.to(tYmin));
             clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_float4, Pointer.to(tXinc));
@@ -122,21 +91,7 @@ public class QFOpenCLMandelImpl extends OpenCLMandelImpl {
             clEnqueueNDRangeKernel(tOpenCLContext.commandQueue, tOpenCLContext.kernel, 2, null,
                     globalWorkSize, null, 0, null, null);
 
-
-            readBuffer(tOpenCLContext, pMandelResult, pTile, tCLiters, Pointer.to(pMandelResult.iters), Sizeof.cl_int);
-            readBuffer(tOpenCLContext, pMandelResult, pTile, tCLlastR, Pointer.to(pMandelResult.lastValuesR), Sizeof.cl_double);
-            readBuffer(tOpenCLContext, pMandelResult, pTile, tCLlastI, Pointer.to(pMandelResult.lastValuesI), Sizeof.cl_double);
-            if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
-                readBuffer(tOpenCLContext, pMandelResult, pTile, tCLdistanceR, Pointer.to(pMandelResult.distancesR), Sizeof.cl_double);
-                readBuffer(tOpenCLContext, pMandelResult, pTile, tCLdistanceI, Pointer.to(pMandelResult.distancesI), Sizeof.cl_double);
-            }
-
-            // TODO cache mem objects
-            clReleaseMemObject(tCLiters);
-            clReleaseMemObject(tCLlastR);
-            clReleaseMemObject(tCLlastI);
-            clReleaseMemObject(tCLdistanceR);
-            clReleaseMemObject(tCLdistanceI);
+            tOpenCLContext.readTo(pParams, pTile,pMandelResult);
 
         }
     }

@@ -53,7 +53,7 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
         try {
             CL.setExceptionsEnabled(true);
             tOpenCLAvailable = true;
-        } catch ( Throwable ex ) {
+        } catch (Throwable ex) {
             ex.printStackTrace();
         }
         OPENCL_AVAILABLE = tOpenCLAvailable;
@@ -122,45 +122,12 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
 
         // Kontext darf nur in einem Thread benutzt werden!
         synchronized (tOpenCLContext) {
-
-            final int tTileWidth = pTile.getWidth();
-            final int tTileHeight = pTile.getHeight();
-            final int tBufferSize = tTileHeight * tTileWidth;
-
-            final int tDistanceBufferSize = pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? tBufferSize : 1;
-
-            final cl_mem tCLiters = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                                                   tBufferSize * Sizeof.cl_int, null, null);
-            final cl_mem tCLlastR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                                                   tBufferSize * Sizeof.cl_double, null, null);
-            final cl_mem tCLlastI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                                                   tBufferSize * Sizeof.cl_double, null, null);
-
-            final cl_mem tCLdistanceR;
-            final cl_mem tCLdistanceI;
-            if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
-                tCLdistanceR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                                              tDistanceBufferSize * Sizeof.cl_double, null, null);
-                tCLdistanceI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                                              tDistanceBufferSize * Sizeof.cl_double, null, null);
-            } else {
-                tCLdistanceR = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                                              1, null, null);
-                tCLdistanceI = clCreateBuffer(tOpenCLContext.context, CL_MEM_WRITE_ONLY,
-                                              1, null, null);
-            }
-
             final double tXinc = pParams.getXInc(pMandelResult.width, pMandelResult.height).doubleValue();
             final double tYinc = pParams.getYInc(pMandelResult.width, pMandelResult.height).doubleValue();
             final double tXmin = getXmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startX * tXinc;
             final double tYmin = getYmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startY * tYinc;
 
-            clSetKernelArg(tOpenCLContext.kernel, 0, Sizeof.cl_mem, Pointer.to(tCLiters));
-            clSetKernelArg(tOpenCLContext.kernel, 1, Sizeof.cl_mem, Pointer.to(tCLlastR));
-            clSetKernelArg(tOpenCLContext.kernel, 2, Sizeof.cl_mem, Pointer.to(tCLlastI));
-            clSetKernelArg(tOpenCLContext.kernel, 3, Sizeof.cl_mem, Pointer.to(tCLdistanceR));
-            clSetKernelArg(tOpenCLContext.kernel, 4, Sizeof.cl_mem, Pointer.to(tCLdistanceI));
-            clSetKernelArg(tOpenCLContext.kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getCalcMode().getModeNumber()}));
+            tOpenCLContext.prepareDefaultKernelBuffers(pParams,pTile);
             clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_double4, Pointer.to(new double[]{tXmin, tYmin, tXinc, tYinc}));
             clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_double2, Pointer.to(new double[]{pParams.getJuliaCr().doubleValue(), pParams.getJuliaCi().doubleValue()}));
             clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
@@ -174,29 +141,16 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
             clEnqueueNDRangeKernel(tOpenCLContext.commandQueue, tOpenCLContext.kernel, 2, null,
                                    globalWorkSize, null, 0, null, null);
 
+
             // TODO copy async -> about 70ms for 1024x1024 with distance
-
-            readBuffer(tOpenCLContext, pMandelResult, pTile, tCLiters, Pointer.to(pMandelResult.iters), Sizeof.cl_int);
-            readBuffer(tOpenCLContext, pMandelResult, pTile, tCLlastR, Pointer.to(pMandelResult.lastValuesR), Sizeof.cl_double);
-            readBuffer(tOpenCLContext, pMandelResult, pTile, tCLlastI, Pointer.to(pMandelResult.lastValuesI), Sizeof.cl_double);
-            if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
-                readBuffer(tOpenCLContext, pMandelResult, pTile, tCLdistanceR, Pointer.to(pMandelResult.distancesR), Sizeof.cl_double);
-                readBuffer(tOpenCLContext, pMandelResult, pTile, tCLdistanceI, Pointer.to(pMandelResult.distancesI), Sizeof.cl_double);
-            }
-
-            // TODO cache mem objects
-            clReleaseMemObject(tCLiters);
-            clReleaseMemObject(tCLlastR);
-            clReleaseMemObject(tCLlastI);
-            clReleaseMemObject(tCLdistanceR);
-            clReleaseMemObject(tCLdistanceI);
+            tOpenCLContext.readTo(pParams, pTile, pMandelResult);
         }
     }
 
     /**
      * read tile into hostbuffer
      */
-    protected void readBuffer(final OpenCLContext pContext, final MandelResult pMandelResult, final Tile pTile, final cl_mem pBuffer, Pointer pHostBuffer, int pDataTypeSize) {
+    protected static void readBuffer(final OpenCLContext pContext, final MandelResult pMandelResult, final Tile pTile, final cl_mem pBuffer, Pointer pHostBuffer, int pDataTypeSize) {
         long[] bufferOffset = new long[]{0, 0, 0};
         long[] hostOffset = new long[]{pTile.startX * pDataTypeSize, pTile.startY, 0};
         long[] region = new long[]{pTile.getWidth() * pDataTypeSize, pTile.getHeight(), 1};
@@ -249,6 +203,88 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
         public cl_program program;
 
 
+        private int bufferSize;
+        private CalcMode calcMode;
+
+        private cl_mem iters;
+        private cl_mem lastR;
+        private cl_mem lastI;
+
+        private cl_mem distanceR;
+        private cl_mem distanceI;
+
+        public cl_mem getIters() {
+            return iters;
+        }
+
+        public cl_mem getLastR() {
+            return lastR;
+        }
+
+        public cl_mem getLastI() {
+            return lastI;
+        }
+
+        public cl_mem getDistanceR() {
+            return distanceR;
+        }
+
+        public cl_mem getDistanceI() {
+            return distanceI;
+        }
+
+        public void prepareDefaultKernelBuffers(MandelParams pMandelParams, Tile pTile) {
+            createBuffers(pMandelParams, pTile);
+
+            clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(iters));
+            clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(lastR));
+            clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(lastI));
+            clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(distanceR));
+            clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(distanceI));
+            clSetKernelArg(kernel, 5, Sizeof.cl_uint, Pointer.to(new int[]{pMandelParams.getCalcMode().getModeNumber()}));
+        }
+
+        public void createBuffers(MandelParams pMandelParams, Tile pTile) {
+            final int tTileWidth = pTile.getWidth();
+            final int tTileHeight = pTile.getHeight();
+            final int tBufferSize = tTileHeight * tTileWidth;
+
+            if ( bufferSize==tBufferSize && calcMode==pMandelParams.getCalcMode()) {
+                return;
+            }
+
+            freeBuffers();
+
+            final int tDistanceBufferSize = pMandelParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? tBufferSize : 1;
+
+            iters = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                                      tBufferSize * Sizeof.cl_int, null, null);
+            lastR = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                                      tBufferSize * Sizeof.cl_double, null, null);
+            lastI = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                                      tBufferSize * Sizeof.cl_double, null, null);
+
+            distanceR = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                                          tDistanceBufferSize * Sizeof.cl_double, null, null);
+            distanceI = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                                          tDistanceBufferSize * Sizeof.cl_double, null, null);
+
+            bufferSize = tBufferSize;
+        }
+
+
+        public void readTo(MandelParams pParams, Tile pTile, MandelResult pMandelResult) {
+            readBuffer(this, pMandelResult, pTile, iters, Pointer.to(pMandelResult.iters), Sizeof.cl_int);
+
+            readBuffer(this, pMandelResult, pTile, lastR, Pointer.to(pMandelResult.lastValuesR), Sizeof.cl_double);
+
+            readBuffer(this, pMandelResult, pTile, lastI, Pointer.to(pMandelResult.lastValuesI), Sizeof.cl_double);
+            if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
+                readBuffer(this, pMandelResult, pTile, distanceR, Pointer.to(pMandelResult.distancesR), Sizeof.cl_double);
+                readBuffer(this, pMandelResult, pTile, distanceI, Pointer.to(pMandelResult.distancesI), Sizeof.cl_double);
+            }
+        }
+
         private void cleanup() {
             if (kernel != null) {
                 clReleaseKernel(kernel);
@@ -267,7 +303,35 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
                 clReleaseContext(context);
                 context = null;
             }
+
+            freeBuffers();
         }
 
+        public void freeBuffers() {
+            if (iters != null ) {
+                clReleaseMemObject(iters);
+                iters = null;
+            }
+
+            if (lastR != null ) {
+                clReleaseMemObject(lastR);
+                lastR = null;
+            }
+
+            if (lastI != null) {
+                clReleaseMemObject(lastI);
+                lastI = null;
+            }
+            if (distanceR != null) {
+                clReleaseMemObject(distanceR);
+                distanceR = null;
+            }
+
+            if (distanceI != null) {
+                clReleaseMemObject(distanceI);
+                distanceI = null;
+            }
+        }
     }
+
 }
