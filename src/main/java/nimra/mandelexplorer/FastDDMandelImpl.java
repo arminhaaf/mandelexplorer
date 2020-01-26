@@ -29,7 +29,7 @@ public class FastDDMandelImpl implements MandelImpl {
     public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         if ( pComputeDevice==ComputeDevice.CPU) {
             cpuImpl.mandel(pComputeDevice, pParams, pMandelResult, pTile);
-        } else {
+        } else if ( pComputeDevice.getDeviceDescriptor() instanceof OpenCLDevice ){
             gpuImpl.mandel(pComputeDevice, pParams, pMandelResult, pTile);
         }
     }
