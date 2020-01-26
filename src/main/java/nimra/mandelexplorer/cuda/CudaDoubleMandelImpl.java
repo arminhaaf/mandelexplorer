@@ -98,29 +98,7 @@ public class CudaDoubleMandelImpl extends AbstractDoubleMandelImpl implements Ma
         final CudaContext tCudaContext = getContext(pComputeDevice);
         cuCtxPushCurrent(tCudaContext.context);
 
-        final int tTileWidth = pTile.getWidth();
-        final int tTileHeight = pTile.getHeight();
-        final int tBufferSize = tTileHeight * tTileWidth;
-
-        final int tDistanceBufferSize = pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? tBufferSize : 1;
-
-
-        CUdeviceptr tCudaIters = new CUdeviceptr();
-        cuMemAlloc(tCudaIters, tBufferSize * Sizeof.INT);
-
-        CUdeviceptr tCudaLastR = new CUdeviceptr();
-        cuMemAlloc(tCudaLastR, tBufferSize * Sizeof.DOUBLE);
-
-        CUdeviceptr tCudaLastI = new CUdeviceptr();
-        cuMemAlloc(tCudaLastI, tBufferSize * Sizeof.DOUBLE);
-
-
-        CUdeviceptr tCudaDistanceR = new CUdeviceptr();
-        cuMemAlloc(tCudaDistanceR, tDistanceBufferSize * Sizeof.DOUBLE);
-
-        CUdeviceptr tCudaDistanceI = new CUdeviceptr();
-        cuMemAlloc(tCudaDistanceI, tDistanceBufferSize * Sizeof.DOUBLE);
-
+        final CudaBuffers tCudaBuffers = new CudaBuffers(pParams, pTile);
 
         final double tXinc = pParams.getXInc(pMandelResult.width, pMandelResult.height).doubleValue();
         final double tYinc = pParams.getYInc(pMandelResult.width, pMandelResult.height).doubleValue();
@@ -128,11 +106,11 @@ public class CudaDoubleMandelImpl extends AbstractDoubleMandelImpl implements Ma
         final double tYmin = getYmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startY * tYinc;
 
         final Pointer tKernelParameters = Pointer.to(
-                Pointer.to(tCudaIters),
-                Pointer.to(tCudaLastR),
-                Pointer.to(tCudaLastI),
-                Pointer.to(tCudaDistanceR),
-                Pointer.to(tCudaDistanceI),
+                Pointer.to(tCudaBuffers.iters),
+                Pointer.to(tCudaBuffers.lastR),
+                Pointer.to(tCudaBuffers.lastI),
+                Pointer.to(tCudaBuffers.distanceR),
+                Pointer.to(tCudaBuffers.distanceI),
                 Pointer.to(new int[]{pParams.getCalcMode().getModeNumber()}),
                 Pointer.to(new int[]{pTile.startX, pTile.startY, pTile.getWidth(), pTile.getHeight()}),
                 Pointer.to(new double[]{tXmin, tYmin, tXinc, tYinc}),
@@ -156,21 +134,8 @@ public class CudaDoubleMandelImpl extends AbstractDoubleMandelImpl implements Ma
         cuCtxSynchronize();
 
         // TODO -> read async (around 25 ms for 1024x1024 with distance)
-
-        readBuffer(pMandelResult, pTile, tCudaIters, Pointer.to(pMandelResult.iters), Sizeof.INT);
-        readBuffer(pMandelResult, pTile, tCudaLastR, Pointer.to(pMandelResult.lastValuesR), Sizeof.DOUBLE);
-        readBuffer(pMandelResult, pTile, tCudaLastI, Pointer.to(pMandelResult.lastValuesI), Sizeof.DOUBLE);
-
-        if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
-            readBuffer(pMandelResult, pTile, tCudaDistanceR, Pointer.to(pMandelResult.distancesR), Sizeof.DOUBLE);
-            readBuffer(pMandelResult, pTile, tCudaDistanceI, Pointer.to(pMandelResult.distancesI), Sizeof.DOUBLE);
-        }
-
-        cuMemFree(tCudaIters);
-        cuMemFree(tCudaLastR);
-        cuMemFree(tCudaLastI);
-        cuMemFree(tCudaDistanceR);
-        cuMemFree(tCudaDistanceI);
+        tCudaBuffers.readTo(pParams, pTile, pMandelResult);
+        tCudaBuffers.free();
 
         cuCtxPopCurrent(tCudaContext.context);
     }
@@ -178,7 +143,7 @@ public class CudaDoubleMandelImpl extends AbstractDoubleMandelImpl implements Ma
     /**
      * read tile into hostbuffer
      */
-    protected void readBuffer(final MandelResult pMandelResult, final Tile pTile, final CUdeviceptr pBuffer, Pointer pHostBuffer, int pDataTypeSize) {
+    protected static void readBuffer(final MandelResult pMandelResult, final Tile pTile, final CUdeviceptr pBuffer, Pointer pHostBuffer, int pDataTypeSize) {
         CUDA_MEMCPY2D tMEMCPY2D = new CUDA_MEMCPY2D();
         tMEMCPY2D.srcMemoryType = CUmemorytype.CU_MEMORYTYPE_DEVICE;
         tMEMCPY2D.srcDevice = pBuffer;
@@ -217,6 +182,47 @@ public class CudaDoubleMandelImpl extends AbstractDoubleMandelImpl implements Ma
                 context = null;
                 function = null;
             }
+        }
+    }
+
+    protected static class CudaBuffers {
+
+        final CUdeviceptr iters = new CUdeviceptr();
+        final CUdeviceptr lastR = new CUdeviceptr();
+        final CUdeviceptr lastI = new CUdeviceptr();
+        final CUdeviceptr distanceR = new CUdeviceptr();
+        final CUdeviceptr distanceI = new CUdeviceptr();
+
+
+        public CudaBuffers(MandelParams pParams, Tile pTile) {
+
+            final int tBufferSize = pTile.getHeight() * pTile.getWidth();
+            final int tDistanceBufferSize = pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? tBufferSize : 1;
+
+            cuMemAlloc(iters, tBufferSize * Sizeof.INT);
+            cuMemAlloc(lastR, tBufferSize * Sizeof.DOUBLE);
+            cuMemAlloc(lastI, tBufferSize * Sizeof.DOUBLE);
+            cuMemAlloc(distanceR, tDistanceBufferSize * Sizeof.DOUBLE);
+            cuMemAlloc(distanceI, tDistanceBufferSize * Sizeof.DOUBLE);
+        }
+
+        public void readTo(MandelParams pMandelParams, Tile pTile, MandelResult pMandelResult) {
+            readBuffer(pMandelResult, pTile, iters, Pointer.to(pMandelResult.iters), Sizeof.INT);
+            readBuffer(pMandelResult, pTile, lastR, Pointer.to(pMandelResult.lastValuesR), Sizeof.DOUBLE);
+            readBuffer(pMandelResult, pTile, lastI, Pointer.to(pMandelResult.lastValuesI), Sizeof.DOUBLE);
+
+            if (pMandelParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
+                readBuffer(pMandelResult, pTile, distanceR, Pointer.to(pMandelResult.distancesR), Sizeof.DOUBLE);
+                readBuffer(pMandelResult, pTile, distanceI, Pointer.to(pMandelResult.distancesI), Sizeof.DOUBLE);
+            }
+        }
+
+        public void free() {
+            cuMemFree(iters);
+            cuMemFree(lastR);
+            cuMemFree(lastI);
+            cuMemFree(distanceR);
+            cuMemFree(distanceI);
         }
 
     }

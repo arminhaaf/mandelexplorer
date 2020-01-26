@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #define MODE_MANDEL 1
 #define MODE_MANDEL_DISTANCE 2
 #define MODE_JULIA 3
