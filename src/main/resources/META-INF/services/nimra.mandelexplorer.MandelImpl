@@ -11,3 +11,4 @@ nimra.mandelexplorer.cuda.CudaDoubleMandelImpl
 nimra.mandelexplorer.cuda.CudaFloatMandelImpl
 nimra.mandelexplorer.cuda.CudaDDMandelImpl
 nimra.mandelexplorer.cuda.CudaFFMandelImpl
+nimra.mandelexplorer.cuda.CudaQFMandelImpl
