@@ -32,19 +32,13 @@ fromDouble(double pDouble) {
     return make_float4(computeHi(pDouble), computeLo(pDouble), 0.0f, 0.0f);
 }
 
-__device__ inline float4
-qfAssign2(float2
-value)
-{
+__device__ inline float4 qfAssign2(float2 value) {
 return
 make_float4(value
 .x, value.y, 0.0f, 0.0f);
 }
 
-__device__ inline float4
-qfNegate(float4
-value)
-{
+__device__ inline float4 qfNegate(float4 value) {
 return make_float4(-value.x, -value.y, -value.z, -value.w);
 }
 
@@ -254,12 +248,7 @@ __device__ inline void qfMulFloat(float4 *prod, const float4 a, const float b) {
     (*prod).w = s3;
 }
 
-__device__ inline bool
-qfLessThan(float4
-*a,
-float b
-)
-{
+__device__ inline bool qfLessThan(float4 *a, float b){
 return ((*a).x < b || ((*a).x == b && (*a).y < 0.0f));
 }
 
