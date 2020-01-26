@@ -1,7 +1,10 @@
 package nimra.mandelexplorer.opencl;
 
-import nimra.mandelexplorer.*;
-import nimra.mandelexplorer.opencl.OpenCLDevice;
+import nimra.mandelexplorer.ComputeDevice;
+import nimra.mandelexplorer.MandelParams;
+import nimra.mandelexplorer.MandelResult;
+import nimra.mandelexplorer.Tile;
+import nimra.mandelexplorer.TileGenerator;
 
 import java.util.List;
 import java.util.Scanner;
@@ -39,9 +42,9 @@ public class TestOpenCLMandelImpl {
                         ex.printStackTrace();
                     }
                     System.out.println("duration loop " + i + " " + (System.currentTimeMillis() - tStartMillis));
-                    for ( int y=0; y<tMandelResult.height; y++ ) {
-                        for ( int x=0; x<tMandelResult.width; x++ ) {
-                            if ( tMandelResult.iters[x+y*tMandelResult.width]<tParams.getMaxIterations()) {
+                    for (int y = 0; y < tMandelResult.height; y++) {
+                        for (int x = 0; x < tMandelResult.width; x++) {
+                            if (tMandelResult.iters[x + y * tMandelResult.width] < tParams.getMaxIterations()) {
                                 System.out.print(".");
                             } else {
                                 System.out.print("x");
@@ -50,7 +53,7 @@ public class TestOpenCLMandelImpl {
                         System.out.println();
                     }
                 }
-                
+
 
             } catch (Exception ex) {
                 ex.printStackTrace();
