@@ -1,5 +1,6 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.opencl;
 
+import nimra.mandelexplorer.*;
 import nimra.mandelexplorer.opencl.OpenCLDevice;
 
 import java.util.List;
