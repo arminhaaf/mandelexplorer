@@ -81,7 +81,7 @@ public class CudaDevice {
                 cudaGetDeviceCount(tDeviceCount);
                 for (int tDeviceId = 0; tDeviceId < tDeviceCount[0]; tDeviceId++) {
                     CudaDevice tCudaDevice = new CudaDevice(tDeviceId);
-                    System.out.println("found " + tCudaDevice);
+                    System.out.println("found cuda device " + tCudaDevice);
                     tDevices.add(tCudaDevice);
                 }
             } catch (Throwable ex) {
