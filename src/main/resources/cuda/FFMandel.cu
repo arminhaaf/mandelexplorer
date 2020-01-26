@@ -30,7 +30,7 @@ __device__ inline float2 mul(const float2 pFF1, const float2 pFF2) {
     hx = C - zhi;
     const float zlo = c + hx;
 
-    return make_float2(zhi,zlo);
+    return make_float2(zhi, zlo);
 }
 
 __device__ inline float2 mulFloat(const float2 pFF1, const float pFloat) {
@@ -53,11 +53,11 @@ __device__ inline float2 mulFloat(const float2 pFF1, const float pFloat) {
     hx = C - zhi;
     const float zlo = c + hx;
 
-    return make_float2(zhi,zlo);
+    return make_float2(zhi, zlo);
 }
 
 
-__device__ inline float2 add(const float2 pFF1,  const float2 pFF2) {
+__device__ inline float2 add(const float2 pFF1, const float2 pFF2) {
     const float hi = pFF1.x;
     const float lo = pFF1.y;
     const float yhi = pFF2.x;
@@ -80,10 +80,10 @@ __device__ inline float2 add(const float2 pFF1,  const float2 pFF2) {
     const float zhi = H + e;
     const float zlo = e + (H - zhi);
 
-    return make_float2(zhi,zlo);
+    return make_float2(zhi, zlo);
 }
 
-__device__ inline float2 addFloat(const float2 pFF1,const  float y) {
+__device__ inline float2 addFloat(const float2 pFF1, const float y) {
     float hi = pFF1.x;
     float lo = pFF1.y;
 
@@ -98,40 +98,40 @@ __device__ inline float2 addFloat(const float2 pFF1,const  float y) {
     hi = H + h;
     lo = h + (H - hi);
 
-    return make_float2(hi,lo);
+    return make_float2(hi, lo);
 }
 
-__device__ inline float2 sub(const float2 pFF1,const  float2 pFF2) {
+__device__ inline float2 sub(const float2 pFF1, const float2 pFF2) {
     return add(pFF1, make_float2(-pFF2.x, -pFF2.y));
 }
 
 
 extern "C"
 __global__ void compute(
-       int *iters,
-       double *lastValuesR,
-       double *lastValuesI,
-       double *distancesR,
-       double *distancesI,
-       int mode,
-       int4 tile,
-       float2 xStart,
-       float2 yStart,
-       float2 xInc,
-       float2 yInc,
-       int maxIterations,
-       double sqrEscapeRadius
-       ) {
+        int *iters,
+        double *lastValuesR,
+        double *lastValuesI,
+        double *distancesR,
+        double *distancesI,
+        const int mode,
+        const int4 tile,
+        const float2 xStart,
+        const float2 yStart,
+        const float2 xInc,
+        const float2 yInc,
+        const int maxIterations,
+        const double sqrEscapeRadius
+) {
 
-   if ( X>=tile.z || Y>=tile.w) {      // tile.z is width of tile, tile.w is height of tile
+    if (X >= tile.z || Y >= tile.w) {      // tile.z is width of tile, tile.w is height of tile
         return;
-   }
+    }
 
 
-    const float2 x = add(make_float2(xStart.x, xStart.y),mulFloat(make_float2(xInc.x,xInc.y),X));
-    const float2 y = add(make_float2(yStart.x, yStart.y),mulFloat(make_float2(yInc.x,yInc.y),Y));
+    const float2 x = add(make_float2(xStart.x, xStart.y), mulFloat(make_float2(xInc.x, xInc.y), X));
+    const float2 y = add(make_float2(yStart.x, yStart.y), mulFloat(make_float2(yInc.x, yInc.y), Y));
 
-    const float escape = (float)sqrEscapeRadius;
+    const float escape = (float) sqrEscapeRadius;
 
     float2 zr = x;
     float2 zi = y;
@@ -139,39 +139,39 @@ __global__ void compute(
     float2 tmp;
 
     // distance
-    float2 dr = make_float2(1,0);
-    float2 di = make_float2(0,0);
+    float2 dr = make_float2(1, 0);
+    float2 di = make_float2(0, 0);
     float2 new_dr;
 
     int count = 0;
 
-    for (; count<maxIterations; count++){
-        const float2 zrsqr = mul(zr,zr);
-        const float2 zisqr = mul(zi,zi);
+    for (; count < maxIterations; count++) {
+        const float2 zrsqr = mul(zr, zr);
+        const float2 zisqr = mul(zi, zi);
 
-        if ( add(zrsqr,zisqr).x >= escape ) {
+        if (add(zrsqr, zisqr).x >= escape) {
             break;
         }
 
-        if ( mode == MODE_MANDEL_DISTANCE) {
+        if (mode == MODE_MANDEL_DISTANCE) {
 //            new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
-            new_dr = addFloat(mulFloat(sub(mul(zr,dr),mul(zi,di)),2.0f),1.0f);
+            new_dr = addFloat(mulFloat(sub(mul(zr, dr), mul(zi, di)), 2.0f), 1.0f);
 //            di = 2.0f * (zr * di + zi * dr);
-            di = mulFloat(add(mul(zr,di),mul(zi,dr)),2.0f);
+            di = mulFloat(add(mul(zr, di), mul(zi, dr)), 2.0f);
             dr = new_dr;
         }
 
-        tmp = add(sub(zrsqr,zisqr),x);
-        zi = add(mulFloat(mul(zr,zi),2.0f),y);
+        tmp = add(sub(zrsqr, zisqr), x);
+        zi = add(mulFloat(mul(zr, zi), 2.0f), y);
         zr = tmp;
 
     }
-   const int tIndex = X + Y * tile.z;  // tile.z is width of tile
-    iters[tIndex]  = count;
-    lastValuesR[tIndex] = (double)zr.x + (double)zr.y;
-    lastValuesI[tIndex] = (double)zi.x + (double)zi.y;
-    if ( mode == MODE_MANDEL_DISTANCE) {
-        distancesR[tIndex] = (double)dr.x + (double)dr.y;
-        distancesI[tIndex] = (double)di.x + (double)di.y;
+    const int tIndex = X + Y * tile.z;  // tile.z is width of tile
+    iters[tIndex] = count;
+    lastValuesR[tIndex] = (double) zr.x + (double) zr.y;
+    lastValuesI[tIndex] = (double) zi.x + (double) zi.y;
+    if (mode == MODE_MANDEL_DISTANCE) {
+        distancesR[tIndex] = (double) dr.x + (double) dr.y;
+        distancesI[tIndex] = (double) di.x + (double) di.y;
     }
 }

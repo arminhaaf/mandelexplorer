@@ -7,43 +7,48 @@
 #define X ((blockIdx.x * blockDim.x) + threadIdx.x)
 #define Y ((blockIdx.y * blockDim.y) + threadIdx.y)
 
-__device__ inline float4 qfAssign(float value)
-{
+__device__ inline float4
+
+qfAssign(float value) {
     return make_float4(value, 0.0f, 0.0f, 0.0f);
 }
 
-__device__ inline float computeLo(double a)
-{
+__device__ inline float computeLo(double a) {
     double temp = ((1 << 27) + 1) * a;
     double hi = temp - (temp - a);
-    double lo = a - (float)hi;
-    return (float)lo;
+    double lo = a - (float) hi;
+    return (float) lo;
 }
 
-__device__ inline float computeHi(double a)
-{
+__device__ inline float computeHi(double a) {
     double temp = ((1 << 27) + 1) * a;
     double hi = temp - (temp - a);
-    return (float)hi;
+    return (float) hi;
 }
 
-__device__ inline float4 fromDouble(double pDouble)
-{
+__device__ inline float4
+
+fromDouble(double pDouble) {
     return make_float4(computeHi(pDouble), computeLo(pDouble), 0.0f, 0.0f);
 }
 
-__device__ inline float4 qfAssign2(float2 value)
+__device__ inline float4
+qfAssign2(float2
+value)
 {
-    return make_float4(value.x, value.y, 0.0f, 0.0f);
+return
+make_float4(value
+.x, value.y, 0.0f, 0.0f);
 }
 
-__device__ inline float4 qfNegate(float4 value)
+__device__ inline float4
+qfNegate(float4
+value)
 {
-    return make_float4(-value.x, -value.y, -value.z, -value.w);
+return make_float4(-value.x, -value.y, -value.z, -value.w);
 }
 
-__device__ inline float two_sum(float a, float b, float *err)
-{
+__device__ inline float two_sum(float a, float b, float *err) {
     float s = a + b;
     float bb = s - a;
     *err = (a - (s - bb)) + (b - bb);
@@ -51,32 +56,28 @@ __device__ inline float two_sum(float a, float b, float *err)
     return s;
 }
 
-__device__ inline void three_sum(float *a, float *b, float *c)
-{
+__device__ inline void three_sum(float *a, float *b, float *c) {
     float t1, t2, t3;
     t1 = two_sum(*a, *b, &t2);
     *a = two_sum(*c, t1, &t3);
     *b = two_sum(t2, t3, c);
 }
 
-__device__ inline void three_sum2(float *a, float *b, float *c)
-{
+__device__ inline void three_sum2(float *a, float *b, float *c) {
     float t1, t2, t3;
     t1 = two_sum(*a, *b, &t2);
     *a = two_sum(*c, t1, &t3);
     *b = t2 + t3;
 }
 
-__device__ inline float quick_two_sum(float a, float b, float *err)
-{
+__device__ inline float quick_two_sum(float a, float b, float *err) {
     float s = a + b;
     *err = b - (s - a);
     return s;
 }
 
 __device__ inline void renorm(float *c0, float *c1,
-                   float *c2, float *c3, float *c4)
-{
+                              float *c2, float *c3, float *c4) {
     float s0, s1, s2 = 0.0f, s3 = 0.0f;
     s0 = quick_two_sum(*c3, *c4, c4);
     s0 = quick_two_sum(*c2, s0, c3);
@@ -85,58 +86,37 @@ __device__ inline void renorm(float *c0, float *c1,
     s0 = *c0;
     s1 = *c1;
 
-    if (s1 != 0.0f)
-    {
+    if (s1 != 0.0f) {
         s1 = quick_two_sum(s1, *c2, &s2);
-        if (s2 != 0.0f)
-        {
+        if (s2 != 0.0f) {
             s2 = quick_two_sum(s2, *c3, &s3);
-            if (s3 != 0.0f)
-            {
+            if (s3 != 0.0f) {
                 s3 += *c4;
-            }
-            else
-            {
+            } else {
                 s2 = quick_two_sum(s2, *c4, &s3);
             }
-        }
-        else
-        {
+        } else {
             s1 = quick_two_sum(s1, *c3, &s2);
-            if (s2 != 0.0f)
-            {
+            if (s2 != 0.0f) {
                 s2 = quick_two_sum(s2, *c4, &s3);
-            }
-            else
-            {
+            } else {
                 s1 = quick_two_sum(s1, *c4, &s2);
             }
         }
-    }
-    else
-    {
+    } else {
         s0 = quick_two_sum(s0, *c2, &s1);
-        if (s1 != 0.0f)
-        {
+        if (s1 != 0.0f) {
             s1 = quick_two_sum(s1, *c3, &s2);
-            if (s2 != 0.0f)
-            {
+            if (s2 != 0.0f) {
                 s2 = quick_two_sum(s2, *c4, &s3);
-            }
-            else
-            {
+            } else {
                 s1 = quick_two_sum(s1, *c4, &s2);
             }
-        }
-        else
-        {
+        } else {
             s0 = quick_two_sum(s0, *c3, &s1);
-            if (s1 != 0.0f)
-            {
+            if (s1 != 0.0f) {
                 s1 = quick_two_sum(s1, *c4, &s2);
-            }
-            else
-            {
+            } else {
                 s0 = quick_two_sum(s0, *c4, &s1);
             }
         }
@@ -148,44 +128,43 @@ __device__ inline void renorm(float *c0, float *c1,
     *c3 = s3;
 }
 
-__device__ inline void qfAdd(float4 *sum, const float4 a, const float4 b)
-{
+__device__ inline void qfAdd(float4 *sum, const float4 a, const float4 b) {
     float s0, s1, s2, s3;
     float t0, t1, t2, t3;
 
-  float v0, v1, v2, v3;
-  float u0, u1, u2, u3;
-  float w0, w1, w2, w3;
+    float v0, v1, v2, v3;
+    float u0, u1, u2, u3;
+    float w0, w1, w2, w3;
 
-  s0 = a.x + b.x;
-  s1 = a.y + b.y;
-  s2 = a.z + b.z;
-  s3 = a.w + b.w;
+    s0 = a.x + b.x;
+    s1 = a.y + b.y;
+    s2 = a.z + b.z;
+    s3 = a.w + b.w;
 
-  v0 = s0 - a.x;
-  v1 = s1 - a.y;
-  v2 = s2 - a.z;
-  v3 = s3 - a.w;
+    v0 = s0 - a.x;
+    v1 = s1 - a.y;
+    v2 = s2 - a.z;
+    v3 = s3 - a.w;
 
-  u0 = s0 - v0;
-  u1 = s1 - v1;
-  u2 = s2 - v2;
-  u3 = s3 - v3;
+    u0 = s0 - v0;
+    u1 = s1 - v1;
+    u2 = s2 - v2;
+    u3 = s3 - v3;
 
-  w0 = a.x - u0;
-  w1 = a.y - u1;
-  w2 = a.z - u2;
-  w3 = a.w - u3;
+    w0 = a.x - u0;
+    w1 = a.y - u1;
+    w2 = a.z - u2;
+    w3 = a.w - u3;
 
-  u0 = b.x - v0;
-  u1 = b.y - v1;
-  u2 = b.z - v2;
-  u3 = b.w - v3;
+    u0 = b.x - v0;
+    u1 = b.y - v1;
+    u2 = b.z - v2;
+    u3 = b.w - v3;
 
-  t0 = w0 + u0;
-  t1 = w1 + u1;
-  t2 = w2 + u2;
-  t3 = w3 + u3;
+    t0 = w0 + u0;
+    t1 = w1 + u1;
+    t2 = w2 + u2;
+    t3 = w3 + u3;
 
     s1 = two_sum(s1, t0, &t0);
     three_sum(&s2, &t0, &t1);
@@ -198,17 +177,15 @@ __device__ inline void qfAdd(float4 *sum, const float4 a, const float4 b)
     (*sum).w = s3;
 }
 
-__device__ inline void split(float a, float *hi, float *lo)
-{
+__device__ inline void split(float a, float *hi, float *lo) {
 
-    float temp = ((1<<12)+1) * a;
+    float temp = ((1 << 12) + 1) * a;
 
     *hi = temp - (temp - a);
     *lo = a - *hi;
 }
 
-__device__ inline float two_prod(float a, float b, float *err)
-{
+__device__ inline float two_prod(float a, float b, float *err) {
     float a_hi, a_lo, b_hi, b_lo;
     float p = a * b;
     split(a, &a_hi, &a_lo);
@@ -218,8 +195,7 @@ __device__ inline float two_prod(float a, float b, float *err)
     return p;
 }
 
-__device__ inline void qfMul(float4 *prod, const float4 a, const float4 b)
-{
+__device__ inline void qfMul(float4 *prod, const float4 a, const float4 b) {
     float p0, p1, p2, p3, p4, p5;
     float q0, q1, q2, q3, q4, q5;
     float t0, t1;
@@ -251,8 +227,7 @@ __device__ inline void qfMul(float4 *prod, const float4 a, const float4 b)
     (*prod).w = p3;
 }
 
-__device__ inline void qfMulFloat(float4 *prod, const float4 a, const float b)
-{
+__device__ inline void qfMulFloat(float4 *prod, const float4 a, const float b) {
     float p0, p1, p2, p3;
     float q0, q1, q2;
     float s0, s1, s2, s3, s4;
@@ -279,14 +254,17 @@ __device__ inline void qfMulFloat(float4 *prod, const float4 a, const float b)
     (*prod).w = s3;
 }
 
-__device__ inline bool qfLessThan(float4 *a, float b)
+__device__ inline bool
+qfLessThan(float4
+*a,
+float b
+)
 {
-    return ((*a).x < b || ((*a).x == b && (*a).y < 0.0f));
+return ((*a).x < b || ((*a).x == b && (*a).y < 0.0f));
 }
 
 __device__ inline void renorm4(float *c0, float *c1,
-                    float *c2, float *c3)
-{
+                               float *c2, float *c3) {
     float s0, s1, s2 = 0.0f, s3 = 0.0f;
 
     s0 = quick_two_sum(*c2, *c3, c3);
@@ -295,27 +273,18 @@ __device__ inline void renorm4(float *c0, float *c1,
     s0 = *c0;
     s1 = *c1;
 
-    if (s1 != 0.0f)
-    {
+    if (s1 != 0.0f) {
         s1 = quick_two_sum(s1, *c2, &s2);
-        if (s2 != 0.0f)
-        {
+        if (s2 != 0.0f) {
             s2 = quick_two_sum(s2, *c3, &s3);
-        }
-        else
-        {
+        } else {
             s1 = quick_two_sum(s1, *c3, &s2);
         }
-    }
-    else
-    {
+    } else {
         s0 = quick_two_sum(s0, *c2, &s1);
-        if (s1 != 0.0f)
-        {
+        if (s1 != 0.0f) {
             s1 = quick_two_sum(s1, *c3, &s2);
-        }
-        else
-        {
+        } else {
             s0 = quick_two_sum(s0, *c3, &s1);
         }
     }
@@ -326,8 +295,7 @@ __device__ inline void renorm4(float *c0, float *c1,
     *c3 = s3;
 }
 
-float4 qfDiv(const float4 a, const float4 b)
-{
+float4 qfDiv(const float4 a, const float4 b) {
 
     float q0, q1, q2, q3;
     float4 r;
@@ -360,25 +328,23 @@ float4 qfDiv(const float4 a, const float4 b)
 
 extern "C"
 __global__ void compute(
-       int *iters,
-       double *lastValuesR,
-       double *lastValuesI,
-       double *distancesR,
-       double *distancesI,
-       const int mode,
-       int4 tile,
+        int *iters,
+        double *lastValuesR,
+        double *lastValuesI,
+        double *distancesR,
+        double *distancesI,
+        const int mode,
+        const int4 tile,
+        const float4 xStart,
+        const float4 yStart,
+        const float4 xInc,
+        const float4 yInc,
+        const int maxIterations,
+        const double sqrEscapeRadius) {
 
-    float4 xStart,
-    float4 yStart,
-    float4 xInc,
-    float4 yInc,
-    int maxIterations,
-    double sqrEscapeRadius)
-{
-
-   if ( X>=tile.z || Y>=tile.w) {      // tile.z is width of tile, tile.w is height of tile
+    if (X >= tile.z || Y >= tile.w) {      // tile.z is width of tile, tile.w is height of tile
         return;
-   }
+    }
 
     const float escape = sqrEscapeRadius;
 
@@ -408,21 +374,20 @@ __global__ void compute(
     float4 magnitudeSquared = qfAssign(0);
 
     // distance
-    float4 dr = make_float4(1,0,0,0);
-    float4 di = make_float4(0,0,0,0);
+    float4 dr = make_float4(1, 0, 0, 0);
+    float4 di = make_float4(0, 0, 0, 0);
     float4 new_dr;
 
     int iteration = 0;
 
-    while (iteration < maxIterations && qfLessThan(&magnitudeSquared, escape))
-    {
-        if ( mode == MODE_MANDEL_DISTANCE) {
+    while (iteration < maxIterations && qfLessThan(&magnitudeSquared, escape)) {
+        if (mode == MODE_MANDEL_DISTANCE) {
             //         new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
             qfMul(&new_dr, zr, dr);
             qfMul(&qfTemp, zi, di);
             qfAdd(&new_dr, new_dr, qfNegate(qfTemp));
             qfMulFloat(&new_dr, new_dr, 2.0f);
-            qfAdd(&new_dr, new_dr, make_float4(1.0f,0,0,0));
+            qfAdd(&new_dr, new_dr, make_float4(1.0f, 0, 0, 0));
 
             //         di = 2.0f * (zr * di + zi * dr);
             qfMul(&di, zr, di);
@@ -459,10 +424,10 @@ __global__ void compute(
 
     const int tIndex = X + Y * tile.z;  // tile.z is width of tile
     iters[tIndex] = iteration;
-    lastValuesR[tIndex] = (double)zr.x + (double)zr.y;
-    lastValuesI[tIndex] = (double)zi.x + (double)zi.y;
-    if ( mode == MODE_MANDEL_DISTANCE) {
-        distancesR[tIndex] = (double)dr.x + (double)dr.y;
-        distancesI[tIndex] = (double)di.x + (double)di.y;
+    lastValuesR[tIndex] = (double) zr.x + (double) zr.y;
+    lastValuesI[tIndex] = (double) zi.x + (double) zi.y;
+    if (mode == MODE_MANDEL_DISTANCE) {
+        distancesR[tIndex] = (double) dr.x + (double) dr.y;
+        distancesI[tIndex] = (double) di.x + (double) di.y;
     }
 }
