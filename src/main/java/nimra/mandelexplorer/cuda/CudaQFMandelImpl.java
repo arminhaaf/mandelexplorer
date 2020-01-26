@@ -21,7 +21,7 @@ import static jcuda.driver.JCudaDriver.cuLaunchKernel;
 public class CudaQFMandelImpl extends CudaDoubleMandelImpl {
 
     public CudaQFMandelImpl() {
-        super("/cuda/FFMandel.ptx");
+        super("/cuda/QFMandel.ptx");
     }
 
     private float[] convertToQF(BigDecimal pBigDecimal) {
