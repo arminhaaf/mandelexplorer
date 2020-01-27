@@ -117,6 +117,8 @@ __global__ void compute(
         const int4 tile,
         const float2 xStart,
         const float2 yStart,
+        const float2 juliaCr,
+        const float2 juliaCi,
         const float2 xInc,
         const float2 yInc,
         const int maxIterations,
@@ -130,6 +132,9 @@ __global__ void compute(
 
     const float2 x = add(make_float2(xStart.x, xStart.y), mulFloat(make_float2(xInc.x, xInc.y), X));
     const float2 y = add(make_float2(yStart.x, yStart.y), mulFloat(make_float2(yInc.x, yInc.y), Y));
+
+    const float2 cr = mode == MODE_JULIA ? juliaCr : x;
+    const float2 ci = mode == MODE_JULIA ? juliaCi : y;
 
     const float escape = (float) sqrEscapeRadius;
 
@@ -161,8 +166,8 @@ __global__ void compute(
             dr = new_dr;
         }
 
-        tmp = add(sub(zrsqr, zisqr), x);
-        zi = add(mulFloat(mul(zr, zi), 2.0f), y);
+        tmp = add(sub(zrsqr, zisqr), cr);
+        zi = add(mulFloat(mul(zr, zi), 2.0f), ci);
         zr = tmp;
 
     }

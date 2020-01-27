@@ -72,6 +72,8 @@ public class CudaFFMandelImpl extends CudaDoubleMandelImpl {
                 Pointer.to(new int[]{pTile.startX, pTile.startY, pTile.getWidth(), pTile.getHeight()}),
                 Pointer.to(tXmin),
                 Pointer.to(tYmin),
+                Pointer.to(tJuliaCr),
+                Pointer.to(tJuliaCi),
                 Pointer.to(tXinc),
                 Pointer.to(tYinc),
                 Pointer.to(new int[]{pParams.getMaxIterations()}),
