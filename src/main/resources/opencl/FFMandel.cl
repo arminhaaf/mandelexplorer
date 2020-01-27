@@ -1,5 +1,9 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
+#define MODE_MANDEL 1
+#define MODE_MANDEL_DISTANCE 2
+#define MODE_JULIA 3
+
 #define WIDTH get_global_size(0)
 #define HEIGHT get_global_size(1)
 #define X get_global_id(0)
@@ -110,18 +114,23 @@ __kernel void compute(
        __global double *lastValuesI,
        __global double *distancesR,
        __global double *distancesI,
-       int calcDistance,
+       const int mode,
 
-       float2 xStart,
-       float2 yStart,
-       float2 xInc,
-       float2 yInc,
-       int maxIterations,
-       double sqrEscapeRadius
+       const float2 xStart,
+       const float2 yStart,
+       const float2 juliaCr,
+       const float2 juliaCi,
+       const float2 xInc,
+       const float2 yInc,
+       const int maxIterations,
+       const double sqrEscapeRadius
        ) {
 
     const float2 x = add((float2)(xStart.x, xStart.y),mulFloat((float2)(xInc.x,xInc.y),X));
     const float2 y = add((float2)(yStart.x, yStart.y),mulFloat((float2)(yInc.x,yInc.y),Y));
+
+    const float2 cr = mode == MODE_JULIA ? juliaCr : x;
+    const float2 ci = mode == MODE_JULIA ? juliaCi : y;
 
     const float escape = (float)sqrEscapeRadius;
 
@@ -135,8 +144,6 @@ __kernel void compute(
     float2 di = (float2)(0,0);
     float2 new_dr;
 
-    const bool tCalcDistance = calcDistance>0;
-
     int count = 0;
 
     for (; count<maxIterations; count++){
@@ -147,7 +154,7 @@ __kernel void compute(
             break;
         }
 
-        if ( tCalcDistance) {
+        if ( mode == MODE_MANDEL_DISTANCE) {
 //            new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
             new_dr = addFloat(mulFloat(sub(mul(zr,dr),mul(zi,di)),2.0f),1.0f);
 //            di = 2.0f * (zr * di + zi * dr);
@@ -155,8 +162,8 @@ __kernel void compute(
             dr = new_dr;
         }
 
-        tmp = add(sub(zrsqr,zisqr),x);
-        zi = add(mulFloat(mul(zr,zi),2.0f),y);
+        tmp = add(sub(zrsqr,zisqr),cr);
+        zi = add(mulFloat(mul(zr,zi),2.0f),ci);
         zr = tmp;
 
     }
@@ -164,7 +171,7 @@ __kernel void compute(
     iters[tIndex]  = count;
     lastValuesR[tIndex] = (double)zr.x + (double)zr.y;
     lastValuesI[tIndex] = (double)zi.x + (double)zi.y;
-    if ( tCalcDistance ) {
+    if ( mode == MODE_MANDEL_DISTANCE) {
         distancesR[tIndex] = (double)dr.x + (double)dr.y;
         distancesI[tIndex] = (double)di.x + (double)di.y;
     }

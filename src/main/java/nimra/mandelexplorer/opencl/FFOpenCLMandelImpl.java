@@ -69,14 +69,18 @@ public class FFOpenCLMandelImpl extends OpenCLMandelImpl {
             final float[] tYinc = convertToFF(tBDYInc);
             final float[] tXmin = convertToFF(pParams.getXMin(pMandelResult.width, pMandelResult.height).add(tBDXInc.multiply(new BigDecimal(pTile.startX))));
             final float[] tYmin = convertToFF(pParams.getYMin(pMandelResult.width, pMandelResult.height).add(tBDYInc.multiply(new BigDecimal(pTile.startY))));
+            final float[] tJuliaCr = convertToFF(pParams.getJuliaCr());
+            final float[] tJuliaCi = convertToFF(pParams.getJuliaCi());
 
             tOpenCLContext.prepareDefaultKernelBuffers(pParams, pTile);
             clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_float2, Pointer.to(tXmin));
             clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_float2, Pointer.to(tYmin));
-            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_float2, Pointer.to(tXinc));
-            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_float2, Pointer.to(tYinc));
-            clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
-            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
+            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_float2, Pointer.to(tJuliaCr));
+            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_float2, Pointer.to(tJuliaCi));
+            clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_float2, Pointer.to(tXinc));
+            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_float2, Pointer.to(tYinc));
+            clSetKernelArg(tOpenCLContext.kernel, 12, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
+            clSetKernelArg(tOpenCLContext.kernel, 13, Sizeof.cl_double, Pointer.to(new double[]{pParams.getEscapeRadius() * pParams.getEscapeRadius()}));
 
             final long globalWorkSize[] = new long[2];
             globalWorkSize[0] = pTile.getWidth();
