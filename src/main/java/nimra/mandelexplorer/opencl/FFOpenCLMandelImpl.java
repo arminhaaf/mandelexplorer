@@ -30,7 +30,6 @@ public class FFOpenCLMandelImpl extends OpenCLMandelImpl {
         // compile should not optimize (no -cl-unsafe-math-optimizations !) -> however, seems that the optimization is always on
         // only Portable CPU implementation works as expected
         setCompilerOptions(null);
-
     }
 
     private float[] convertToFF(BigDecimal pBD) {
@@ -55,6 +54,16 @@ public class FFOpenCLMandelImpl extends OpenCLMandelImpl {
         return (float)hi;
     }
 
+    @Override
+    protected OpenCLContext prepareProgram(final OpenCLDevice pDevice) {
+        if ( pDevice.getVendor().contains("Intel")) {
+            // seems no intel side there are some compiler defaults which break FF
+            setCompilerOptions("-cl-opt-disable -cl-finite-math-only -cl-mad-enable");
+        } else {
+            setCompilerOptions("-cl-fast-relaxed-math");
+        }
+        return super.prepareProgram(pDevice);
+    }
 
     @Override
     public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {

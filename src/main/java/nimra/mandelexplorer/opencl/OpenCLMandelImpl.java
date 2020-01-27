@@ -92,7 +92,7 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
     }
 
 
-    private OpenCLContext prepareProgram(final OpenCLDevice pDevice) {
+    protected OpenCLContext prepareProgram(final OpenCLDevice pDevice) {
         final OpenCLContext tOpenCLContext = new OpenCLContext();
         // Create a context for the selected device
         tOpenCLContext.context = clCreateContext(
