@@ -46,14 +46,18 @@ public class FP128OpenCLMandelImpl extends OpenCLMandelImpl {
             final int[] tYinc = FP128.from(tBDYInc).vec;
             final int[] tXmin = FP128.from(pParams.getXMin(pMandelResult.width, pMandelResult.height).add(tBDXInc.multiply(new BigDecimal(pTile.startX)))).vec;
             final int[] tYmin = FP128.from(pParams.getYMin(pMandelResult.width, pMandelResult.height).add(tBDYInc.multiply(new BigDecimal(pTile.startY)))).vec;
+            final int[] tJuliaCr = FP128.from(pParams.getJuliaCr()).vec;
+            final int[] tJuliaCi = FP128.from(pParams.getJuliaCi()).vec;
 
             tOpenCLContext.prepareDefaultKernelBuffers(pParams,pTile);
             clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_uint4, Pointer.to(tXmin));
             clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_uint4, Pointer.to(tYmin));
-            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_uint4, Pointer.to(tXinc));
-            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_uint4, Pointer.to(tYinc));
-            clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
-            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_uint, Pointer.to(new int[]{(int)(pParams.getEscapeRadius() * pParams.getEscapeRadius())}));
+            clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_uint4, Pointer.to(tJuliaCr));
+            clSetKernelArg(tOpenCLContext.kernel, 9, Sizeof.cl_uint4, Pointer.to(tJuliaCi));
+            clSetKernelArg(tOpenCLContext.kernel, 10, Sizeof.cl_uint4, Pointer.to(tXinc));
+            clSetKernelArg(tOpenCLContext.kernel, 11, Sizeof.cl_uint4, Pointer.to(tYinc));
+            clSetKernelArg(tOpenCLContext.kernel, 12, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
+            clSetKernelArg(tOpenCLContext.kernel, 13, Sizeof.cl_uint, Pointer.to(new int[]{(int)(pParams.getEscapeRadius() * pParams.getEscapeRadius())}));
 
             final long[] globalWorkSize = new long[2];
             globalWorkSize[0] = pTile.getWidth();
@@ -70,6 +74,6 @@ public class FP128OpenCLMandelImpl extends OpenCLMandelImpl {
 
     @Override
     public String toString() {
-        return "FP128 OpenCL";
+        return "Fixpoint 128 OpenCL";
     }
 }

@@ -1,3 +1,9 @@
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+
+#define MODE_MANDEL 1
+#define MODE_MANDEL_DISTANCE 2
+#define MODE_JULIA 3
+
 #define WIDTH get_global_size(0)
 #define HEIGHT get_global_size(1)
 #define X get_global_id(0)
@@ -178,52 +184,49 @@ __kernel void compute(
     __global double *lastValuesI,
     __global double *distancesR,
     __global double *distancesI,
-    int calcDistance,
+    const int mode,
 
-    uint4 xStart,
-    uint4 yStart,
-    uint4 xInc,
-    uint4 yInc,
+    const uint4 xStart,
+    const uint4 yStart,
+    const uint4 juliaCr,
+    const uint4 juliaCi,
+    const uint4 xInc,
+    const uint4 yInc,
 
-    int maxIterations,
-    int sqrEscapeRadius)
+    const int maxIterations,
+    const int sqrEscapeRadius)
 {
 
 // on my nvidia env FP128 fails. however with this constant it works....
-//      uint4 leftX = (uint4)(0xfffffffd,0x80000000,0x00000000,0x00000000);
-//      uint4 topY = (uint4)(0xfffffffe,0x80000000,0x00000000,0x00000000);
-//      uint4 stepX = (uint4)(0x00000000,0x00c00000,0x00000000,0x00000000);
-//      uint4 stepY = (uint4)(0x00000000,0x00c00000,0x00000000,0x00000000);
+//      uint4 xStart = (uint4)(0xfffffffd,0x80000000,0x00000000,0x00000000);
+//      uint4 yStart = (uint4)(0xfffffffe,0x80000000,0x00000000,0x00000000);
+//      uint4 xInc = (uint4)(0x00000000,0x00c00000,0x00000000,0x00000000);
+//      uint4 yInc = (uint4)(0x00000000,0x00c00000,0x00000000,0x00000000);
 
-    uint4 leftX = xStart;
-    uint4 topY = yStart;
-    uint4 stepX = xInc;
-    uint4 stepY = yInc;
+    const uint4 xc = add128(xStart, mul128(xInc, X)); // xc = xStart + xpix * xInc;
+    const uint4 yc = add128(yStart, mul128(yInc, Y));  // yc = yStart - ypix * yInc;
 
-    const bool tCalcDistance = calcDistance > 0;
+    const uint4 cr = mode == MODE_JULIA ? juliaCr : xc;
+    const uint4 ci = mode == MODE_JULIA ? juliaCi : yc;
 
-    uint4 xc = add128(leftX, mul128(stepX, X)); // xc = leftX + xpix * stepX;
-    uint4 yc = add128(topY, mul128(stepY, Y));  // yc = topY - ypix * stepY;
 
     // distance
     uint4 dr = (uint4)(1, 0, 0, 0);
     uint4 di = (uint4)(0);
 
     int count = 0;
-    uint4 x = set128(0);
-    uint4 y = set128(0);
+    uint4 x = xc;
+    uint4 y = yc;
     for (count = 0; count < maxIterations; count++)
     {
         uint4 x2 = sqrfp(x);        // x2 = x^2
         uint4 y2 = sqrfp(y);        // y2 = y^2
         uint4 aux = add128(x2, y2); // x^2+y^2
-        if (aux.x >= sqrEscapeRadius)
-        {
+        if (aux.x >= sqrEscapeRadius) {
             break; // Out!
         }
 
-        if (tCalcDistance)
-        {
+        if ( mode == MODE_MANDEL_DISTANCE ) {
             // new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
             uint4 new_dr = inc128(shl128(add128(mulfp(x, dr), neg128(mulfp(y, di)))));
             // di = 2.0f * (zr * di + zi * dr);
@@ -232,16 +235,15 @@ __kernel void compute(
         }
 
         uint4 twoxy = shl128(mulfp(x, y));      // 2*x*y
-        x = add128(xc, add128(x2, neg128(y2))); // x' = xc+x^2-y^2
-        y = add128(yc, twoxy);                  // y' = yc+2*x*y
+        x = add128(cr, add128(x2, neg128(y2))); // x' = xc+x^2-y^2
+        y = add128(ci, twoxy);                  // y' = yc+2*x*y
     }
 
     const int tIndex = X + Y * WIDTH;
     iters[tIndex] = count;
     lastValuesR[tIndex] = convert(x);
     lastValuesI[tIndex] = convert(y);
-    if (tCalcDistance)
-    {
+    if ( mode == MODE_MANDEL_DISTANCE ) {
         distancesR[tIndex] = convert(dr);
         distancesI[tIndex] = convert(di);
     }
