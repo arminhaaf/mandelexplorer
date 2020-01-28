@@ -165,12 +165,12 @@ public final class DD
     /**
      * The high-order component of the double-double precision value.
      */
-    private double hi = 0.0;
+    public double hi = 0.0;
 
     /**
      * The low-order component of the double-double precision value.
      */
-    private double lo = 0.0;
+    public double lo = 0.0;
 
     /**
      * Creates a new DoubleDouble with value 0.0.
@@ -363,39 +363,47 @@ public final class DD
      * @return this object, increased by y
      */
     public final DD selfAdd(double pDouble) {
-        double H, h, S, s, e, f;
-        S = hi + pDouble;
-        e = S - hi;
-        s = S - e;
-        s = (pDouble - e) + (hi - s);
-        f = s + lo;
-        H = S + f;
-        h = f + (S - H);
-        hi = H + h;
-        lo = h + (H - hi);
+        double z, q, zz, xh;
+
+        z = hi + pDouble;
+
+        q = hi - z;
+        zz = q + pDouble + (hi - (q + z)) + lo;
+
+        /* Keep -0 result.  */
+        if (zz == 0.0) {
+            hi = z;
+            lo = 0;
+        }
+
+        xh = z + zz;
+
+        hi = xh;
+        lo = z - xh + zz;
+
         return this;
-        // return selfAdd(y, 0.0);
     }
 
+    // a faster implementation
     private final DD selfAdd(double yhi, double ylo) {
-        double H, h, T, t, S, s, e, f;
-        S = hi + yhi;
-        T = lo + ylo;
-        e = S - hi;
-        f = T - lo;
-        s = S - e;
-        t = T - f;
-        s = (yhi - e) + (hi - s);
-        t = (ylo - f) + (lo - t);
-        e = s + T;
-        H = S + e;
-        h = e + (S - H);
-        e = t + h;
+        double z, q, zz, xh;
 
-        final double zhi = H + e;
-        final double zlo = e + (H - zhi);
-        hi = zhi;
-        lo = zlo;
+        z = hi + yhi;
+
+        q = hi - z;
+        zz = q + yhi + (hi - (q + z)) + lo + ylo;
+
+        /* Keep -0 result.  */
+        if (zz == 0.0) {
+            hi = z;
+            lo = 0;
+        }
+
+        xh = z + zz;
+
+        hi = xh;
+        lo = z - xh + zz;
+
         return this;
     }
 
@@ -493,56 +501,48 @@ public final class DD
         return selfMultiply(pDouble.hi, pDouble.lo);
     }
 
-    /**
-     * Multiplies this object by the argument, returning <tt>this</tt>.
-     * To prevent altering constants,
-     * this method <b>must only</b> be used on values known to
-     * be newly created.
-     *
-     * @param yhi the value to multiply by
-     * @return this object, multiplied by y
-     */
     public final DD selfMultiply(double yhi) {
-        double hx, tx, hy, ty, C, c;
-        C = SPLIT * hi;
-        hx = C - hi;
-        c = SPLIT * yhi;
-        hx = C - hx;
-        tx = hi - hx;
-        hy = c - yhi;
-        C = hi * yhi;
-        hy = c - hy;
-        ty = yhi - hy;
-        // CAVEAT fma breaks DD code !
-        c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
-        final double zhi = C + c;
-        hx = C - zhi;
-        final double zlo = c + hx;
-        hi = zhi;
-        lo = zlo;
+        double t, tau, u, w;
+
+        t = hi * yhi;            /* Highest order double term.  */
+
+        if (t == 0) {
+            hi = 0;
+            lo = 0;
+            return this;
+        }
+
+        tau = Math.fma(hi, yhi, -t);
+        w = lo * yhi;
+        tau += w;        /* Add in other second-order terms.	 */
+        u = t + tau;
+
+        hi = u;
+        lo = (t - u) + tau;
         return this;
     }
 
-    private final DD selfMultiply(double yhi, double ylo) {
-        double hx, tx, hy, ty, C, c;
-        C = SPLIT * hi;
-        hx = C - hi;
-        c = SPLIT * yhi;
-        hx = C - hx;
-        tx = hi - hx;
-        hy = c - yhi;
-        C = hi * yhi;
-        hy = c - hy;
-        ty = yhi - hy;
-        // CAVEAT fma breaks DD code !
-        c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
-        double zhi = C + c;
-        hx = C - zhi;
-        double zlo = c + hx;
-        hi = zhi;
-        lo = zlo;
-        return this;
 
+    private final DD selfMultiply(double yhi, double ylo) {
+        double t, tau, u, v, w;
+
+        t = hi * yhi;            /* Highest order double term.  */
+
+        if (t == 0) {
+            hi = 0;
+            lo = 0;
+            return this;
+        }
+
+        tau = Math.fma(hi, yhi, -t);
+        v = hi * ylo;
+        w = lo * yhi;
+        tau += v + w;        /* Add in other second-order terms.	 */
+        u = t + tau;
+
+        hi = u;
+        lo = (t-u) + tau;
+        return this;
     }
 
     /**
@@ -1177,8 +1177,6 @@ public final class DD
      * (as long as its position lies within the extracted digits
      * - if not, the caller must prepend or append the appropriate zeroes and decimal point).
      *
-     * @param y               the number to extract ( >= 0)
-     * @param decimalPointPos the position in which to insert a decimal point
      * @return the string containing the significant digits and possibly a decimal point
      */
     private String extractSignificantDigits(boolean insertDecimalPoint, int[] magnitude) {

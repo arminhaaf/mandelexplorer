@@ -7,31 +7,27 @@
 #define X ((blockIdx.x * blockDim.x) + threadIdx.x)
 #define Y ((blockIdx.y * blockDim.y) + threadIdx.y)
 
-#define SPLIT  134217729.0 // 2^27+1, for IEEE double
-
 __device__ inline double2 mul(const double2 pFF1, const double2 pFF2) {
     const double hi = pFF1.x;
     const double lo = pFF1.y;
     const double yhi = pFF2.x;
     const double ylo = pFF2.y;
 
-    double hx, tx, hy, ty, C, c;
-    C = SPLIT * hi;
-    hx = C - hi;
-    c = SPLIT * yhi;
-    hx = C - hx;
-    tx = hi - hx;
-    hy = c - yhi;
-    C = hi * yhi;
-    hy = c - hy;
-    ty = yhi - hy;
-    c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
+       double t, tau, u, v, w;
 
-    const double zhi = C + c;
-    hx = C - zhi;
-    const double zlo = c + hx;
+           t = hi * yhi;            /* Highest order double term.  */
 
-    return make_double2(zhi, zlo);
+           if (t == 0) {
+               return make_double2(0,0);
+           }
+
+           tau = fma(hi, yhi, -t);
+           v = hi * ylo;
+           w = lo * yhi;
+           tau += v + w;        /* Add in other second-order terms.	 */
+           u = t + tau;
+
+       return make_double2(u, (t - u) + tau);
 }
 
 __device__ inline double2 mulDouble(const double2 pFF1, const double pDouble) {
@@ -39,23 +35,20 @@ __device__ inline double2 mulDouble(const double2 pFF1, const double pDouble) {
     const double lo = pFF1.y;
     const double yhi = pDouble;
 
-    double hx, tx, hy, ty, C, c;
-    C = SPLIT * hi;
-    hx = C - hi;
-    c = SPLIT * yhi;
-    hx = C - hx;
-    tx = hi - hx;
-    hy = c - yhi;
-    C = hi * yhi;
-    hy = c - hy;
-    ty = yhi - hy;
-    c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
+       double t, tau, u, w;
 
-    const double zhi = C + c;
-    hx = C - zhi;
-    const double zlo = c + hx;
+           t = hi * yhi;            /* Highest order double term.  */
 
-    return make_double2(zhi, zlo);
+           if (t == 0) {
+               return make_double2(0,0);
+           }
+
+           tau = fma(hi, yhi, -t);
+           w = lo * yhi;
+           tau += w;        /* Add in other second-order terms.	 */
+           u = t + tau;
+
+       return make_double2(u, (t - u) + tau);
 }
 
 
@@ -65,42 +58,43 @@ __device__ inline double2 add(const double2 pFF1, const double2 pFF2) {
     const double yhi = pFF2.x;
     const double ylo = pFF2.y;
 
-    double H, h, T, t, S, s, e, f;
-    S = hi + yhi;
-    T = lo + ylo;
-    e = S - hi;
-    f = T - lo;
-    s = S - e;
-    t = T - f;
-    s = (yhi - e) + (hi - s);
-    t = (ylo - f) + (lo - t);
-    e = s + T;
-    H = S + e;
-    h = e + (S - H);
-    e = t + h;
+        double z, q, zz, xh;
 
-    const double zhi = H + e;
-    const double zlo = e + (H - zhi);
+        z = hi + yhi;
 
-    return make_double2(zhi, zlo);
+        q = hi - z;
+        zz = q + yhi + (hi - (q + z)) + lo + ylo;
+
+        /* Keep -0 result.  */
+        if (zz == 0.0) {
+            return make_double2(z,0);
+        }
+
+        xh = z + zz;
+
+    return make_double2(xh,z - xh + zz);
+
 }
 
 __device__ inline double2 addDouble(const double2 pFF1, const double y) {
     double hi = pFF1.x;
     double lo = pFF1.y;
 
-    double H, h, S, s, e, f;
-    S = hi + y;
-    e = S - hi;
-    s = S - e;
-    s = (y - e) + (hi - s);
-    f = s + lo;
-    H = S + f;
-    h = f + (S - H);
-    hi = H + h;
-    lo = h + (H - hi);
+        double z, q, zz, xh;
 
-    return make_double2(hi, lo);
+        z = hi + y;
+
+        q = hi - z;
+        zz = q + y + (hi - (q + z)) + lo;
+
+        /* Keep -0 result.  */
+        if (zz == 0.0) {
+            return make_double2(z,0);
+        }
+
+        xh = z + zz;
+
+    return make_double2(xh,z - xh + zz);
 }
 
 __device__ inline double2 sub(const double2 pFF1, const double2 pFF2) {

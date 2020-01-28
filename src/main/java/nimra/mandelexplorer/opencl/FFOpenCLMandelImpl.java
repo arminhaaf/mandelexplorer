@@ -58,7 +58,8 @@ public class FFOpenCLMandelImpl extends OpenCLMandelImpl {
     protected OpenCLContext prepareProgram(final OpenCLDevice pDevice) {
         if ( pDevice.getVendor().contains("Intel")) {
             // seems no intel side there are some compiler defaults which break FF
-            setCompilerOptions("-cl-opt-disable -cl-finite-math-only -cl-mad-enable");
+            // this makes it really slow -> however the only way is to disable all options...
+            setCompilerOptions("-cl-opt-disable");
         } else {
             setCompilerOptions("-cl-fast-relaxed-math");
         }

@@ -17,22 +17,21 @@ inline float2 mul(const float2 pFF1, const float2 pFF2) {
     const float yhi = pFF2.x;
     const float ylo = pFF2.y;
 
-    float hx, tx, hy, ty, C, c;
-    C = SPLIT * hi;
-    hx = C - hi;
-    c = SPLIT * yhi;
-    hx = C - hx;
-    tx = hi - hx;
-    hy = c - yhi;
-    C = hi * yhi;
-    hy = c - hy;
-    ty = yhi - hy;
-    c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
-    const float zhi = C + c;
-    hx = C - zhi;
-    const float zlo = c + hx;
+       float t, tau, u, v, w;
 
-    return (float2)(zhi,zlo);
+           t = hi * yhi;            /* Highest order double term.  */
+
+           if (t == 0) {
+               return (float2)(0,0);
+           }
+
+           tau = fma(hi, yhi, -t);
+           v = hi * ylo;
+           w = lo * yhi;
+           tau += v + w;        /* Add in other second-order terms.	 */
+           u = t + tau;
+
+       return (float2)(u, (t - u) + tau);
 }
 
 inline float2 mulFloat(const float2 pFF1, const float pFloat) {
@@ -40,22 +39,20 @@ inline float2 mulFloat(const float2 pFF1, const float pFloat) {
     const float lo = pFF1.y;
     const float yhi = pFloat;
 
-    float hx, tx, hy, ty, C, c;
-    C = SPLIT * hi;
-    hx = C - hi;
-    c = SPLIT * yhi;
-    hx = C - hx;
-    tx = hi - hx;
-    hy = c - yhi;
-    C = hi * yhi;
-    hy = c - hy;
-    ty = yhi - hy;
-    c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
-    const float zhi = C + c;
-    hx = C - zhi;
-    const float zlo = c + hx;
+        float t, tau, u, w;
 
-    return (float2)(zhi,zlo);
+        t = hi * yhi;            /* Highest order float term.  */
+
+        if (t == 0) {
+            return (float2)(0,0);
+        }
+
+        tau = fma(hi, yhi, -t);
+        w = lo * yhi;
+        tau += w;        /* Add in other second-order terms.	 */
+        u = t + tau;
+
+    return (float2)(u, (t - u) + tau);
 }
 
 
@@ -65,42 +62,42 @@ inline float2 add(const float2 pFF1,  const float2 pFF2) {
     const float yhi = pFF2.x;
     const float ylo = pFF2.y;
 
-    float H, h, T, t, S, s, e, f;
-    S = hi + yhi;
-    T = lo + ylo;
-    e = S - hi;
-    f = T - lo;
-    s = S - e;
-    t = T - f;
-    s = (yhi - e) + (hi - s);
-    t = (ylo - f) + (lo - t);
-    e = s + T;
-    H = S + e;
-    h = e + (S - H);
-    e = t + h;
+        float z, q, zz, xh;
 
-    const float zhi = H + e;
-    const float zlo = e + (H - zhi);
+        z = hi + yhi;
 
-    return (float2)(zhi,zlo);
+        q = hi - z;
+        zz = q + yhi + (hi - (q + z)) + lo + ylo;
+
+        /* Keep -0 result.  */
+        if (zz == 0.0) {
+            return (float2)(z,0);
+        }
+
+        xh = z + zz;
+
+    return (float2)(xh,z - xh + zz);
 }
 
 inline float2 addFloat(const float2 pFF1,const  float y) {
     float hi = pFF1.x;
     float lo = pFF1.y;
 
-    float H, h, S, s, e, f;
-    S = hi + y;
-    e = S - hi;
-    s = S - e;
-    s = (y - e) + (hi - s);
-    f = s + lo;
-    H = S + f;
-    h = f + (S - H);
-    hi = H + h;
-    lo = h + (H - hi);
+    float z, q, zz, xh;
 
-    return (float2)(hi,lo);
+        z = hi + y;
+
+        q = hi - z;
+        zz = q + y + (hi - (q + z)) + lo;
+
+        /* Keep -0 result.  */
+        if (zz == 0.0) {
+            return (float2)(z,0);
+        }
+
+        xh = z + zz;
+
+    return (float2)(xh,z - xh + zz);
 }
 
 inline float2 sub(const float2 pFF1,const  float2 pFF2) {

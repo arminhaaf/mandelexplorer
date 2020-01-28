@@ -127,7 +127,7 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
             final double tXmin = getXmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startX * tXinc;
             final double tYmin = getYmin(pParams, pMandelResult.width, pMandelResult.height) + pTile.startY * tYinc;
 
-            tOpenCLContext.prepareDefaultKernelBuffers(pParams,pTile);
+            tOpenCLContext.prepareDefaultKernelBuffers(pParams, pTile);
             clSetKernelArg(tOpenCLContext.kernel, 6, Sizeof.cl_double4, Pointer.to(new double[]{tXmin, tYmin, tXinc, tYinc}));
             clSetKernelArg(tOpenCLContext.kernel, 7, Sizeof.cl_double2, Pointer.to(new double[]{pParams.getJuliaCr().doubleValue(), pParams.getJuliaCi().doubleValue()}));
             clSetKernelArg(tOpenCLContext.kernel, 8, Sizeof.cl_uint, Pointer.to(new int[]{pParams.getMaxIterations()}));
@@ -249,7 +249,7 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
             final int tTileHeight = pTile.getHeight();
             final int tBufferSize = tTileHeight * tTileWidth;
 
-            if ( bufferSize==tBufferSize && calcMode==pMandelParams.getCalcMode()) {
+            if (bufferSize == tBufferSize && calcMode == pMandelParams.getCalcMode()) {
                 return;
             }
 
@@ -258,16 +258,16 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
             final int tDistanceBufferSize = pMandelParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE ? tBufferSize : 1;
 
             iters = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                                      tBufferSize * Sizeof.cl_int, null, null);
+                                   tBufferSize * Sizeof.cl_int, null, null);
             lastR = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                                      tBufferSize * Sizeof.cl_double, null, null);
+                                   tBufferSize * Sizeof.cl_double, null, null);
             lastI = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                                      tBufferSize * Sizeof.cl_double, null, null);
+                                   tBufferSize * Sizeof.cl_double, null, null);
 
             distanceR = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                                          tDistanceBufferSize * Sizeof.cl_double, null, null);
+                                       tDistanceBufferSize * Sizeof.cl_double, null, null);
             distanceI = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                                          tDistanceBufferSize * Sizeof.cl_double, null, null);
+                                       tDistanceBufferSize * Sizeof.cl_double, null, null);
 
             bufferSize = tBufferSize;
         }
@@ -308,12 +308,12 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
         }
 
         public void freeBuffers() {
-            if (iters != null ) {
+            if (iters != null) {
                 clReleaseMemObject(iters);
                 iters = null;
             }
 
-            if (lastR != null ) {
+            if (lastR != null) {
                 clReleaseMemObject(lastR);
                 lastR = null;
             }
