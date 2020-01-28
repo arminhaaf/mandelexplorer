@@ -73,8 +73,8 @@ public class CudaDevice {
 
     static {
         List<CudaDevice> tDevices = new ArrayList<>();
-        if (cuInit(0) == CUDA_SUCCESS) {
-            try {
+        try {
+            if (cuInit(0) == CUDA_SUCCESS) {
                 JCuda.setExceptionsEnabled(true);
                 JCudaDriver.setExceptionsEnabled(true);
                 int tDeviceCount[] = {0};
@@ -84,9 +84,9 @@ public class CudaDevice {
                     System.out.println("found cuda device " + tCudaDevice);
                     tDevices.add(tCudaDevice);
                 }
-            } catch (Throwable ex) {
-                ex.printStackTrace();
             }
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         }
         DEVICES = Collections.unmodifiableList(tDevices);
     }
