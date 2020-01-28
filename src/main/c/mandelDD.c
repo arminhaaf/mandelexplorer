@@ -142,7 +142,6 @@ mandel_dd(int32_t *iters,
     const DD ddJuliaCi = (DD) {juliaCiHi, juliaCiLo};
 
     #pragma omp parallel for schedule(dynamic, 1)
-
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
         const DD tY = DD_add(ddYStart, DD_mulDouble(ddYInc, y));
