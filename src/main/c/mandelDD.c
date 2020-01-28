@@ -14,23 +14,21 @@
     const double ylo = pFF2.lo;
 
 
-    double hx, tx, hy, ty, C, c;
-    C = SPLIT * hi;
-    hx = C - hi;
-    c = SPLIT * yhi;
-    hx = C - hx;
-    tx = hi - hx;
-    hy = c - yhi;
-    C = hi * yhi;
-    hy = c - hy;
-    ty = yhi - hy;
-    c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (hi * ylo + lo * yhi);
-//    c = fma(tx,ty,fma(tx,hy, fma(hx,ty,fma(hx,hy, - C)))) + fma(hi,ylo,lo * yhi);
-    double zhi = C + c;
-    hx = C - zhi;
-    double zlo = c + hx;
+       double t, tau, u, v, w;
 
-    return (DD){zhi,zlo};
+           t = hi * yhi;            /* Highest order double term.  */
+
+           if (t == 0) {
+               return (DD){0,0};
+           }
+
+           tau = fma(hi, yhi, -t);
+           v = hi * ylo;
+           w = lo * yhi;
+           tau += v + w;        /* Add in other second-order terms.	 */
+           u = t + tau;
+
+       return (DD){u, (t - u) + tau};
 }
 
  DD DD_mulDouble(const DD pFF1, const double pDouble) {
@@ -38,24 +36,20 @@
     const double lo = pFF1.lo;
     const double yhi = pDouble;
 
-    double hx, tx, hy, ty, C, c;
-    C = SPLIT * hi;
-    hx = C - hi;
-    c = SPLIT * yhi;
-    hx = C - hx;
-    tx = hi - hx;
-    hy = c - yhi;
-    C = hi * yhi;
-    hy = c - hy;
-    ty = yhi - hy;
-    c = ((((hx * hy - C) + hx * ty) + tx * hy) + tx * ty) + (lo * yhi);
-//    c = fma(lo, yhi, fma(tx, ty, fma(tx, hy, fma(hx, ty, fma(hx, hy, -C)))));
-    double zhi = C + c;
-    hx = C - zhi;
-    double zlo = c + hx;
+       double t, tau, u, w;
 
-    return (DD){zhi,zlo};
-}
+           t = hi * yhi;            /* Highest order double term.  */
+
+           if (t == 0) {
+               return (DD){0,0};
+           }
+
+           tau = fma(hi, yhi, -t);
+           w = lo * yhi;
+           tau += w;        /* Add in other second-order terms.	 */
+           u = t + tau;
+
+       return (DD){u, (t - u) + tau};}
 
 
  DD DD_add(const DD pFF1, const DD pFF2) {
@@ -64,42 +58,42 @@
     const double yhi = pFF2.hi;
     const double ylo = pFF2.lo;
 
-    double H, h, T, t, S, s, e, f;
-    S = hi + yhi;
-    T = lo + ylo;
-    e = S - hi;
-    f = T - lo;
-    s = S - e;
-    t = T - f;
-    s = (yhi - e) + (hi - s);
-    t = (ylo - f) + (lo - t);
-    e = s + T;
-    H = S + e;
-    h = e + (S - H);
-    e = t + h;
+    double z, q, zz, xh;
 
-    const double zhi = H + e;
-    const double zlo = e + (H - zhi);
+           z = hi + yhi;
 
-    return (DD){zhi,zlo};
+           q = hi - z;
+           zz = q + yhi + (hi - (q + z)) + lo + ylo;
+
+           /* Keep -0 result.  */
+           if (zz == 0.0) {
+               return (DD){z,0};
+           }
+
+           xh = z + zz;
+
+    return (DD){xh,z - xh + zz};
 }
 
  DD DD_addDouble(const DD pFF1, const  double y) {
     double hi = pFF1.hi;
     double lo = pFF1.lo;
 
-    double H, h, S, s, e, f;
-    S = hi + y;
-    e = S - hi;
-    s = S - e;
-    s = (y - e) + (hi - s);
-    f = s + lo;
-    H = S + f;
-    h = f + (S - H);
-    hi = H + h;
-    lo = h + (H - hi);
+    double z, q, zz, xh;
 
-    return (DD){hi,lo};
+           z = hi + y;
+
+           q = hi - z;
+           zz = q + y + (hi - (q + z)) + lo;
+
+           /* Keep -0 result.  */
+           if (zz == 0.0) {
+               return (DD){z,0};
+           }
+
+           xh = z + zz;
+
+    return (DD){xh,z - xh + zz};
 }
 
  DD DD_sub(const DD pFF1, const  DD pFF2) {
