@@ -4,11 +4,13 @@ import nimra.mandelexplorer.palette.DefaultPaletteMapper;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JWindow;
 import javax.swing.event.ChangeListener;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -43,6 +45,8 @@ public class JuliaChooser {
     private MandelParams mandelParams = new MandelParams();
 
     private boolean enabled = false;
+
+    private JWindow window;
 
     // Draw  image
     private final JComponent viewer = new JComponent() {
@@ -174,6 +178,29 @@ public class JuliaChooser {
         }
     }
 
+    public void showInWindow(JComponent pOwner) {
+
+        if (window == null) {
+            window = new JWindow(JOptionPane.getFrameForComponent(pOwner));
+            window.add(getComponent());
+            window.setSize(200, 200);
+            window.setVisible(true);
+            final Point tLocationOnScreen = pOwner.getLocationOnScreen();
+            window.setLocation((tLocationOnScreen.x + pOwner.getWidth()) - window.getWidth(),
+                               (tLocationOnScreen.y + pOwner.getHeight()) - window.getHeight());
+        }
+        window.setVisible(true);
+        setEnabled(true);
+    }
+
+    public void hide() {
+        if (window != null) {
+            window.setVisible(false);
+            setEnabled(false);
+        }
+
+    }
+
     private void start() {
         while (true) {
             doorBell.set(false);
@@ -222,7 +249,7 @@ public class JuliaChooser {
 
         final int[] imageRgb = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
-        if ( imageRgb.length!=tResult.iters.length) {
+        if (imageRgb.length != tResult.iters.length) {
             // inconsistent view sizes
             return;
         }

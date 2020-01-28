@@ -97,7 +97,11 @@ public class MandelConfigPanel {
         modeComboBox.setModel(new DefaultComboBoxModel<>(CalcMode.values()));
         modeComboBox.setSelectedItem(CalcMode.MANDELBROT);
         modeComboBox.addActionListener(e -> {
-            juliaChooser.setEnabled(modeComboBox.getSelectedItem() == CalcMode.JULIA);
+            if (modeComboBox.getSelectedItem() == CalcMode.JULIA) {
+                juliaChooser.showInWindow(getComponent());
+            } else {
+                juliaChooser.hide();
+            }
 
             if (modeComboBox.getSelectedItem() == CalcMode.MANDELBROT_DISTANCE) {
                 if (getEscapeRadius() < 100) {
@@ -133,7 +137,7 @@ public class MandelConfigPanel {
         ServiceLoader.load(PaletteMapper.class).forEach(this::addPalette);
 
         paletteComboBox.addActionListener(e -> {
-            paletteConfigTextArea.setText(((PaletteMapper) paletteComboBox.getSelectedItem()).toJson().toString(2));
+            paletteConfigTextArea.setText(((PaletteMapper)paletteComboBox.getSelectedItem()).toJson().toString(2));
             paletteChanged();
         });
 
@@ -171,14 +175,14 @@ public class MandelConfigPanel {
                 tMandelConfig.mandelParams.setEscapeRadius(getEscapeRadius());
                 tMandelConfig.mandelParams.setJuliaCr(getJuliaCr());
                 tMandelConfig.mandelParams.setJuliaCi(getJuliaCi());
-                tMandelConfig.palette = ((PaletteMapper) paletteComboBox.getSelectedItem()).getName();
+                tMandelConfig.palette = ((PaletteMapper)paletteComboBox.getSelectedItem()).getName();
                 tMandelConfig.paletteConfigJson = paletteConfigTextArea.getText();
             }
             saveConfigs(configFile);
         });
 
         removeSelectedConfig.addActionListener(e -> {
-            MandelConfig tMandelConfig = (MandelConfig) configsComboBox.getSelectedItem();
+            MandelConfig tMandelConfig = (MandelConfig)configsComboBox.getSelectedItem();
             if (tMandelConfig != null) {
                 configsComboBox.removeItemAt(configsComboBox.getSelectedIndex());
                 configs.remove(tMandelConfig.name);
@@ -194,12 +198,11 @@ public class MandelConfigPanel {
 
         configsComboBox.addActionListener(e -> setSelectedConfig());
 
-        juliaChooserPanel.add(juliaChooser.getComponent());
-
+//        juliaChooserPanel.add(juliaChooser.getComponent());
     }
 
     public int getTiles() {
-        return (int) tileComboBox.getSelectedItem();
+        return (int)tileComboBox.getSelectedItem();
     }
 
     public double getEscapeRadius() {
@@ -215,7 +218,7 @@ public class MandelConfigPanel {
     }
 
     private void setSelectedConfig() {
-        MandelConfig tMandelConfig = (MandelConfig) configsComboBox.getSelectedItem();
+        MandelConfig tMandelConfig = (MandelConfig)configsComboBox.getSelectedItem();
 
         if (tMandelConfig == null) {
             return;
@@ -280,7 +283,7 @@ public class MandelConfigPanel {
     }
 
     public PaletteMapper getPaletteMapper() {
-        final PaletteMapper tPaletteMapper = (PaletteMapper) paletteComboBox.getSelectedItem();
+        final PaletteMapper tPaletteMapper = (PaletteMapper)paletteComboBox.getSelectedItem();
 
         final String tText = paletteConfigTextArea.getText();
         if (StringUtils.isNotEmpty(tText)) {
@@ -290,7 +293,7 @@ public class MandelConfigPanel {
     }
 
     public int getMaxIterations() {
-        String tMaxIterationsString = (String) maxIterationChooser.getSelectedItem();
+        String tMaxIterationsString = (String)maxIterationChooser.getSelectedItem();
 
         try {
             return Integer.parseInt(tMaxIterationsString);
@@ -325,11 +328,11 @@ public class MandelConfigPanel {
     }
 
     public void setData(MandelParams pMandelParams) {
-        xInfoTextField.setText(Double.toString(pMandelParams.getX_Double()));
+        xInfoTextField.setText(pMandelParams.getX().toString());
         xTextField.setText(null);
-        yInfoTextField.setText(Double.toString(pMandelParams.getY_Double()));
+        yInfoTextField.setText(pMandelParams.getY().toString());
         yTextField.setText(null);
-        scaleInfoTextField.setText(Double.toString(pMandelParams.getScale_double()));
+        scaleInfoTextField.setText(pMandelParams.getScale().toString());
         scaleTextField.setText(null);
         maxIterInfoTextField.setText(Integer.toString(pMandelParams.getMaxIterations()));
         escapeRadiusTextField.setText(Double.toString(pMandelParams.getEscapeRadius()));
@@ -479,7 +482,7 @@ public class MandelConfigPanel {
     }
 
     /**
-     * @noinspection
+     * @noinspection ALL
      */
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
@@ -547,7 +550,7 @@ public class MandelConfigPanel {
     }
 
     public CalcMode getMode() {
-        return (CalcMode) modeComboBox.getSelectedItem();
+        return (CalcMode)modeComboBox.getSelectedItem();
     }
 
     public BigDecimal getJuliaCr() {
@@ -559,7 +562,7 @@ public class MandelConfigPanel {
     }
 
     public MandelImpl getMandelImpl() {
-        final MandelImpl tMandel = (MandelImpl) algorithmComboBox.getSelectedItem();
+        final MandelImpl tMandel = (MandelImpl)algorithmComboBox.getSelectedItem();
         juliaChooser.setMandelImpl(tMandel);
         return tMandel;
     }
