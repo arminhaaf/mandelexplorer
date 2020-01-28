@@ -19,52 +19,58 @@ DD4 DD4_mul(const DD4 pDD1, const DD4 pDD2) {
     const __m256d lo = pDD1.lo;
     const __m256d yhi = pDD2.hi;
     const __m256d ylo = pDD2.lo;
-       __m256d t, tau, u, v, w;
+    __m256d t, tau, u, v, w;
 
-           t = hi * yhi;            /* Highest order double term.  */
+    t = hi * yhi;            /* Highest order double term.  */
 
-           tau = _mm256_fmsub_pd(hi, yhi, t);
-           v = hi * ylo;
-           w = lo * yhi;
-           tau += v + w;        /* Add in other second-order terms.	 */
-           u = t + tau;
+    tau = _mm256_fmsub_pd(hi, yhi, t);
+    v = hi * ylo;
+    w = lo * yhi;
+    tau += v + w;        /* Add in other second-order terms.	 */
+    u = t + tau;
 
-    return (DD4){u,(t - u)  + tau};
+    const __m256d rlo = (t - u)  + tau;
+
+    return (DD4){u, rlo};
 }
 
 DD4 DD4_mul_m256d(const DD4 pDD1, const __m256d pDouble4) {
     const __m256d hi = pDD1.hi;
     const __m256d lo = pDD1.lo;
     const __m256d yhi = pDouble4;
-       __m256d t, tau, u, w;
+    __m256d t, tau, u, w;
 
-           t = hi * yhi;            /* Highest order double term.  */
+    t = hi * yhi;            /* Highest order double term.  */
 
-           tau = _mm256_fmsub_pd(hi, yhi, t);
-           w = lo * yhi;
-           tau += w;        /* Add in other second-order terms.	 */
-           u = t + tau;
+    tau = _mm256_fmsub_pd(hi, yhi, t);
+    w = lo * yhi;
+    tau += w;        /* Add in other second-order terms.	 */
+    u = t + tau;
 
-    return (DD4){u,(t - u)  + tau};
+    const __m256d rlo = (t - u)  + tau;
+
+    return (DD4){u, rlo};
 }
 
 
 DD4 DD4_add(const DD4 pDD1,  const DD4 pDD2) {
- const __m256d hi = pDD1.hi;
+    const __m256d hi = pDD1.hi;
     const __m256d lo = pDD1.lo;
     const __m256d yhi = pDD2.hi;
     const __m256d ylo = pDD2.lo;
 
     __m256d z, q, zz, xh;
 
-           z = hi + yhi;
+    z = hi + yhi;
 
-           q = hi - z;
-           zz = q + yhi + (hi - (q + z)) + lo + ylo;
+    q = hi - z;
+    zz = q + yhi + (hi - (q + z)) + lo + ylo;
 
-           xh = z + zz;
+    xh = z + zz;
 
-    return (DD4){xh,z - xh + zz};
+    const __m256d rlo = z - xh + zz;
+
+    return (DD4){xh, rlo};
 }
 
 DD4 DD4_add__m256d(const DD4 pDD1, const  __m256d y) {
@@ -73,14 +79,16 @@ DD4 DD4_add__m256d(const DD4 pDD1, const  __m256d y) {
 
     __m256d z, q, zz, xh;
 
-           z = hi + y;
+    z = hi + y;
 
-           q = hi - z;
-           zz = q + y + (hi - (q + z)) + lo;
+    q = hi - z;
+    zz = q + y + (hi - (q + z)) + lo;
 
-           xh = z + zz;
+    xh = z + zz;
 
-    return (DD4){xh,z - xh + zz};
+    const __m256d rlo = z - xh + zz;
+
+    return (DD4){xh, rlo};
 }
 
 DD4 DD4_sub(const DD4 pDD1,const  DD4 pDD2) {
