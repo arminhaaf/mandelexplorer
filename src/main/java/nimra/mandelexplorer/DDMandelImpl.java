@@ -27,22 +27,44 @@ public class DDMandelImpl extends AbstractDDMandelImpl {
         final double escapeSqr = getEscapeSqr(pParams);
 
         IntStream.range(pTile.startY, pTile.endY).parallel().forEach(y -> {
+            // distance
+            final DD dr = new DD();
+            final DD di = new DD();
+            final DD tTmpD1 = new DD();
+            final DD tTmpD2 = new DD();
+            final DD tX = new DD();
+            final DD tCr = new DD();
+            final DD zr = new DD();
+            final DD zi = new DD();
+            final DD zrsqr = new DD();
+            final DD zisqr = new DD();
+
             final DD tY = new DD(yinc).selfMultiply(y).selfAdd(ymin);
             final DD tCi = pParams.getCalcMode() == CalcMode.JULIA ? juliaCi : tY;
             for (int x = pTile.startX; x < pTile.endX; x++) {
-                final DD tX = new DD(xinc).selfMultiply(x).selfAdd(xmin);
-                final DD tCr = pParams.getCalcMode() == CalcMode.JULIA ? juliaCr : tX;
+                tX.setValue(xinc).selfMultiply(x).selfAdd(xmin);
+                tCr.setValue(pParams.getCalcMode() == CalcMode.JULIA ? juliaCr : tX);
 
                 int count = 0;
 
-                final DD zr = new DD(tX);
-                final DD zi = new DD(tY);
+                zr.setValue(tX);
+                zi.setValue(tY);
 
                 // cache the squares -> 10% faster
-                final DD zrsqr = new DD(zr).selfSqr();
-                final DD zisqr = new DD(zi).selfSqr();
+                zrsqr.setValue(zr).selfSqr();
+                zisqr.setValue(zi).selfSqr();
+
+                dr.setValue(1);
+                di.setValue(0);
 
                 while ((count < pParams.getMaxIterations()) && ((zrsqr.hi + zisqr.hi) < escapeSqr)) {
+                    if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
+                        tTmpD2.setValue(zi).selfMultiply(di);
+                        tTmpD1.setValue(zr).selfMultiply(dr).selfSubtract(tTmpD2).selfMultiply(2).selfAdd(1);
+                        tTmpD2.setValue(zi).selfMultiply(dr);
+                        di.selfMultiply(zr).selfAdd(tTmpD2).selfMultiply(2);
+                        dr.setValue(tTmpD1);
+                    }
 
                     zi.selfMultiply(zr).selfMultiply(2).selfAdd(tCi);
                     zr.setValue(zrsqr).selfSubtract(zisqr).selfAdd(tCr);
@@ -56,6 +78,10 @@ public class DDMandelImpl extends AbstractDDMandelImpl {
                 pMandelResult.iters[tIndex] = count;
                 pMandelResult.lastValuesR[tIndex] = zr.hi;
                 pMandelResult.lastValuesI[tIndex] = zi.hi;
+                if (pParams.getCalcMode() == CalcMode.MANDELBROT_DISTANCE) {
+                    pMandelResult.distancesR[tIndex] = dr.hi;
+                    pMandelResult.distancesI[tIndex] = di.hi;
+                }
             }
         });
     }
