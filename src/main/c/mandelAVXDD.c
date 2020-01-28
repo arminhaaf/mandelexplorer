@@ -14,11 +14,6 @@ es können 4 DD auf einmal bearbeitet werden, d.h. in einem Register stehen 4 hi
 
 */
 
-#define DD4_SPLIT  134217729.0 // 2^27+1, for IEEE __m256d
-
-
-
-
 DD4 DD4_mul(const DD4 pDD1, const DD4 pDD2) {
     const __m256d hi = pDD1.hi;
     const __m256d lo = pDD1.lo;

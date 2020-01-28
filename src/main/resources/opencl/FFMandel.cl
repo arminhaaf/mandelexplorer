@@ -9,8 +9,6 @@
 #define X get_global_id(0)
 #define Y get_global_id(1)
 
-#define SPLIT  4097.0f // 2^12+1, for IEEE float
-
 inline float2 mul(const float2 pFF1, const float2 pFF2) {
     const float hi = pFF1.x;
     const float lo = pFF1.y;

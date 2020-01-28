@@ -4,8 +4,6 @@
 #include <float.h>
 #include "mandel.h"
 
-#define SPLIT  134217729.0 // 2^27+1, for IEEE double
-
 
  DD DD_mul(const DD pFF1, const DD pFF2) {
     const double hi = pFF1.hi;
