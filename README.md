@@ -34,12 +34,19 @@ All calculations without distance calc. QuadFloat implementation is broken for m
 
 |Implementation  | Duration Millis |
 | --- | --- |
-| GPU Double | 700 |
-| GPU FloatFloat | 320 |
-| GPU QuadFloat (unprecise) | 2200 |
-| GPU DoubleDouble | 5500 |
-| CPU Double | 1400 |
-| CPU DoubleDouble | 38000 |
+| GPU Cuda FloatFloat | 150 |
+| GPU OpenCL FloatFloat | 160 |
+| CPU Native AVX2 Double | 400 |
+| GPU Cuda Double | 450 |
+| GPU OpenCL Double | 460 |
+| CPU Java Double | 1400 |
+| GPU Aparapi Double | 1100 |
+| CPU Native Double | 1100 |
+| GPU Cuda DoubleDouble | 3150 |
+| CPU Native AVX2 DoubleDouble | 3150 |
+| GPU OpenCL DoubleDouble | 3400 |
+| CPU Java DoubleDouble | 9800 |
+| CPU Native DoubleDouble | hangs |
 
 
 
@@ -49,12 +56,19 @@ All calculations without distance calc. QuadFloat implementation is broken for m
 
 |Implementation  | Duration Millis |
 | --- | --- |
-| GPU Double | 1200 |
-| GPU FloatFloat | 470 |
-| GPU QuadFloat (unprecise)| 2900 |
-| GPU DoubleDouble| 16000 |
-| CPU Double | 2350 |
-| CPU DoubleDouble | 41000 |
+| GPU Cuda FloatFloat | 280 |
+| GPU OpenCL FloatFloat | 360 |
+| CPU Native AVX2 Double | 850 |
+| GPU Cuda Double | 1150 |
+| GPU OpenCL Double | 1250 |
+| CPU Java Double | 1400 |
+| GPU Aparapi Double | 1100 |
+| CPU Native Double | 2250 |
+| GPU Cuda DoubleDouble | 8750 |
+| CPU Native AVX2 DoubleDouble | 7650 |
+| GPU OpenCL DoubleDouble | 9900 |
+| CPU Java DoubleDouble | 21550 |
+| CPU Native DoubleDouble | hangs |
 
 
 ## Some Examples
