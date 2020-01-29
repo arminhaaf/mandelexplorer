@@ -28,27 +28,18 @@ mandel_avxd(int32_t *iters,
             const int32_t maxIterations,
             const double sqrEscapeRadius)
 {
-    const __m256d xmin = _mm256_set1_pd(xStart);
-    const __m256d ymin = _mm256_set1_pd(yStart);
-    const __m256d xscale = _mm256_set1_pd(xInc);
-    const __m256d yscale = _mm256_set1_pd(yInc);
     const __m256d threshold = _mm256_set1_pd(sqrEscapeRadius);
-    const __m256d one = _mm256_set1_pd(1);
-    const __m256d zero = _mm256_set1_pd(0);
-    const __m256d oneminus = _mm256_set1_pd(-1);
-    const __m256d jcr = _mm256_set1_pd(juliaCr);
-    const __m256d jci = _mm256_set1_pd(juliaCi);
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
         const __m256d my = _mm256_set1_pd(y);
-        const __m256d tY = ymin + my * yscale;
-        const __m256d ci = mode == MODE_JULIA ? jci : tY;
+        const __m256d tY = _mm256_set1_pd(yStart) + my * _mm256_set1_pd(yInc);
+        const __m256d ci = mode == MODE_JULIA ? _mm256_set1_pd(juliaCi) : tY;
         for (int x = 0; x < width; x += 4) {
             __m256d mx = _mm256_set_pd(x + 3, x + 2, x + 1, x + 0);
-            const __m256d tX = xmin + mx * xscale;
-            const __m256d cr = mode == MODE_JULIA ? jcr : tX;
+            const __m256d tX = _mm256_set1_pd(xStart) + mx * _mm256_set1_pd(xInc);
+            const __m256d cr = mode == MODE_JULIA ? _mm256_set1_pd(juliaCr) : tX;
             __m256d zr = tX;
             __m256d zi = tY;
 
@@ -57,12 +48,12 @@ mandel_avxd(int32_t *iters,
             __m256d mk = _mm256_set1_pd(k);
 
             // last Zr/Zi values -> make them accessible as float vector
-            __m256d mlastZr = zero;
-            __m256d mlastZi = zero;
+            __m256d mlastZr = _mm256_setzero_pd();
+            __m256d mlastZi = _mm256_setzero_pd();
 
             // distance
-            __m256d dr = one;
-            __m256d di = zero;
+            __m256d dr = _mm256_set1_pd(1);
+            __m256d di = _mm256_setzero_pd();
 
             __m256d lastDr = dr;
             __m256d lastDi = di;
@@ -88,12 +79,12 @@ mandel_avxd(int32_t *iters,
                 previousInsideMask = insideMask;
 
                 /* Early bailout? */
-                if (_mm256_testz_pd(insideMask, oneminus)) {
+                if (_mm256_testz_pd(insideMask, _mm256_set1_pd(-1))) {
                     break;
                 }
 
                 /* Increment k for all vectors inside */
-                mk = _mm256_and_pd(insideMask, one) + mk;
+                mk = _mm256_and_pd(insideMask, _mm256_set1_pd(1)) + mk;
 
                 if( mode==MODE_MANDEL_DISTANCE ) {
                     const __m256d new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
@@ -137,6 +128,8 @@ mandel_avxd(int32_t *iters,
                     distancesI[tIndex+i] = tLastDis[i];
                 }
             }
+
+            // next step
 
 
             //            const int32_t *counts = (int *)&mCount;

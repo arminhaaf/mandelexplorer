@@ -146,8 +146,8 @@ mandel_dd(int32_t *iters,
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
         const DD tY = DD_add(ddYStart, DD_mulDouble(ddYInc, y));
         const DD ci = mode == MODE_JULIA ? ddJuliaCi : tY;
-        for (int x = 0; x < width; x ++) {
-            const DD tX = DD_add(ddXStart, DD_mulDouble(ddXInc, x));
+        DD tX = ddXStart;
+        for (int x = 0; x < width; x++) {
             const DD cr = mode == MODE_JULIA ? ddJuliaCr : tX;
 
             DD zr = tX;
@@ -188,6 +188,8 @@ mandel_dd(int32_t *iters,
                 distancesR[tIndex] = (double)dr.hi + (double)dr.lo;
                 distancesI[tIndex] = (double)di.hi + (double)di.lo;
             }
+
+            tX = DD_add(tX, ddXInc);
         }
     }
 

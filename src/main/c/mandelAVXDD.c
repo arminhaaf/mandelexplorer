@@ -146,14 +146,15 @@ void mandel_avxdd(
     const DD4 juliaCi = (DD4){_mm256_set1_pd(juliaCiHi), _mm256_set1_pd(juliaCiLo)};
     const DD4 zero = (DD4){mZero, mZero};
     const DD4 one = (DD4){mOne, mZero};
+    const DD4 xInc = DD4_mul_m256d(xScale, _mm256_set1_pd(4));
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
         // as long as the assignment loop is failing, we calc some pixels less to avoid writing outside array limits
         const DD4 tY = DD4_add(ymin,DD4_mul_m256d(yScale,_mm256_set1_pd(y)));
         const DD4 ci = mode == MODE_JULIA ? juliaCi : tY;
+        DD4 tX = DD4_add(xmin,DD4_mul_m256d(xScale,_mm256_set_pd(3,2,1,0)));
         for (int x = 0; x < width; x += 4) {
-            const DD4 tX = DD4_add(xmin,DD4_mul_m256d(xScale,_mm256_set_pd(x+3,x+2,x+1,x)));
             const DD4 cr = mode == MODE_JULIA ? juliaCr : tX;
 
             DD4 zr = tX;
@@ -249,6 +250,8 @@ void mandel_avxdd(
                     distancesI[tIndex+i] = tLastDis[i];
                 }
             }
+
+            tX = DD4_add(tX, xInc);
         }
     }
 
