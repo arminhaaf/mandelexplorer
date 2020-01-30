@@ -28,14 +28,10 @@ __global__ void compute(
         return;
     }
 
-    const float x = area.x + X * area.z;
-    const float y = area.y + Y * area.w;
+    const float x = (float)area.x + X * (float)area.z;
+    const float y = (float)area.y + Y * (float)area.w;
     const float cr = mode == MODE_JULIA ? julia.x : x;
     const float ci = mode == MODE_JULIA ? julia.y : y;
-
-//    if ( X % 100 == 0 )
-//   printf("compute %d %d ",X,Y);
-//
 
     const float escape = sqrEscapeRadius;
 
