@@ -221,7 +221,6 @@ public class AparapiFloatMandelImpl extends Kernel implements MandelImpl {
 
     @Override
     public void done() {
-        dispose();
     }
 
     @Override
