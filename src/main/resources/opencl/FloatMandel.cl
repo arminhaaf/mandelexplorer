@@ -26,8 +26,8 @@ __kernel void compute(
       double sqrEscapeRadius
       ) {
 
-   const float x = area.x + X*area.z;
-   const float y = area.y + Y*area.w;
+   const float x = (float)area.x + X*(float)area.z;
+   const float y = (float)area.y + Y*(float)area.w;
    const float cr = mode == MODE_JULIA ? julia.x : x;
    const float ci = mode == MODE_JULIA ? julia.y : y;
 
