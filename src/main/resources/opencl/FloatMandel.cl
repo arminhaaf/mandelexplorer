@@ -1,5 +1,9 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
+#ifndef UNROLL
+#define UNROLL 20
+#endif
+
 #define MODE_MANDEL 1
 #define MODE_MANDEL_DISTANCE 2
 #define MODE_JULIA 3
@@ -39,6 +43,8 @@ __kernel void compute(
    float new_dr;
 
    int count = 0;
+
+   #pragma unroll UNROLL
    for (; count<maxIterations; count++){
         const float zrsqr = zr * zr;
         const float zisqr = zi * zi;
