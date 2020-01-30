@@ -1,11 +1,13 @@
 package nimra.mandelexplorer.opencl;
 
 import org.jocl.CL;
+import org.jocl.NativePointerObject;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_device_id;
 import org.jocl.cl_platform_id;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +23,7 @@ import static org.jocl.CL.clGetPlatformIDs;
  * @author Armin Haaf
  */
 public class OpenCLDevice {
-    private final cl_device_id deviceId;
+    private final cl_device_id clDeviceId;
 
     private final String name;
     private final String vendor;
@@ -29,14 +31,17 @@ public class OpenCLDevice {
 
     private final Type deviceType;
 
-    private OpenCLDevice(final cl_device_id pDeviceId) {
-        deviceId = pDeviceId;
+    // the native pointer
+    private final long deviceId;
 
-        name = getString(deviceId, CL.CL_DEVICE_NAME);
-        vendor = getString(deviceId, CL.CL_DEVICE_VENDOR);
-        version = getString(deviceId, CL.CL_DEVICE_VERSION);
+    private OpenCLDevice(final cl_device_id pClDeviceId) {
+        clDeviceId = pClDeviceId;
 
-        long tDeviceType = getLong(deviceId, CL.CL_DEVICE_TYPE);
+        name = getString(clDeviceId, CL.CL_DEVICE_NAME);
+        vendor = getString(clDeviceId, CL.CL_DEVICE_VENDOR);
+        version = getString(clDeviceId, CL.CL_DEVICE_VERSION);
+
+        long tDeviceType = getLong(clDeviceId, CL.CL_DEVICE_TYPE);
         if ((tDeviceType & CL.CL_DEVICE_TYPE_CPU) != 0) {
             deviceType = Type.CPU;
         } else if ((tDeviceType & CL.CL_DEVICE_TYPE_GPU) != 0) {
@@ -46,6 +51,17 @@ public class OpenCLDevice {
         } else {
             deviceType = Type.UNKNOWN;
         }
+
+        // we need the device id to match with aparapi device -> no public getter...
+        long tDeviceId = 0;
+        try {
+            final Method tMethod = NativePointerObject.class.getDeclaredMethod("getNativePointer");
+            tMethod.setAccessible(true);
+            tDeviceId = (long)tMethod.invoke(clDeviceId);
+        } catch (Exception pE) {
+            pE.printStackTrace();
+        }
+        deviceId = tDeviceId;
     }
 
     private String getString(cl_device_id device, int paramName) {
@@ -61,7 +77,11 @@ public class OpenCLDevice {
         return new String(buffer, 0, buffer.length - 1);
     }
 
-    public cl_device_id getDeviceId() {
+    public cl_device_id getCLDeviceId() {
+        return clDeviceId;
+    }
+
+    public long getDeviceId() {
         return deviceId;
     }
 
@@ -93,7 +113,7 @@ public class OpenCLDevice {
 
     @Override
     public String toString() {
-        return deviceId.toString() + " " + name;
+        return clDeviceId.toString() + " " + name;
     }
 
 

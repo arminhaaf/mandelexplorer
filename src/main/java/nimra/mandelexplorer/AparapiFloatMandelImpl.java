@@ -12,20 +12,20 @@ import java.util.List;
  *
  * @author Armin Haaf
  */
-public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
+public class AparapiFloatMandelImpl extends Kernel implements MandelImpl {
 
     private static int MODE_JULIA = CalcMode.JULIA.getModeNumber();
     private static int MODE_DISTANCE = CalcMode.MANDELBROT_DISTANCE.getModeNumber();
 
     public int maxIterations = 100;
 
-    protected double xStart;
-    protected double yStart;
+    protected float xStart;
+    protected float yStart;
 
-    protected double xInc;
-    protected double yInc;
+    protected float xInc;
+    protected float yInc;
 
-    protected double escapeSqr;
+    protected float escapeSqr;
 
 
     protected int width;
@@ -54,8 +54,8 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
     protected double[] distancesR;
     protected double[] distancesI;
 
-    protected double juliaCr;
-    protected double juliaCi;
+    protected float juliaCr;
+    protected float juliaCi;
 
     // boolean is not available !?
     protected int mode;
@@ -63,14 +63,14 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
     public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         final int tWidth = pMandelResult.width;
         final int tHeight = pMandelResult.height;
-        xInc = pParams.getXInc(tWidth, tHeight).doubleValue();
-        yInc = pParams.getYInc(tWidth, tHeight).doubleValue();
-        xStart = pParams.getXMin(tWidth, tHeight).doubleValue() + pTile.startX * xInc;
-        yStart = pParams.getYMin(tWidth, tHeight).doubleValue() + pTile.startY * yInc;
-        escapeSqr = pParams.getEscapeRadius() * pParams.getEscapeRadius();
+        xInc = pParams.getXInc(tWidth, tHeight).floatValue();
+        yInc = pParams.getYInc(tWidth, tHeight).floatValue();
+        xStart = pParams.getXMin(tWidth, tHeight).floatValue() + pTile.startX * xInc;
+        yStart = pParams.getYMin(tWidth, tHeight).floatValue() + pTile.startY * yInc;
+        escapeSqr = (float)(pParams.getEscapeRadius() * pParams.getEscapeRadius());
 
-        juliaCr = pParams.getJuliaCr().doubleValue();
-        juliaCi = pParams.getJuliaCi().doubleValue();
+        juliaCr = pParams.getJuliaCr().floatValue();
+        juliaCi = pParams.getJuliaCi().floatValue();
 
         maxIterations = pParams.getMaxIterations();
 
@@ -97,7 +97,7 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
                 distancesR = new double[tileWidth * tileHeight];
                 distancesI = new double[tileWidth * tileHeight];
             } else {
-                // minimal buffer to copy to GPU -> null buffer or zero size buffer is not allowed 
+                // minimal buffer to copy to GPU -> null buffer or zero size buffer is not allowed
                 distancesR = distancesI = new double[1];
             }
         } else {
@@ -153,30 +153,30 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
         final int tX = getGlobalId(0);
         final int tY = getGlobalId(1);
 
-        final double x = xStart + tX * xInc;
-        final double y = yStart + tY * yInc;
+        final float x = xStart + tX * xInc;
+        final float y = yStart + tY * yInc;
 
-        final double tCr = mode == MODE_JULIA ? juliaCr : x;
-        final double tCi = mode == MODE_JULIA ? juliaCi : y;
+        final float tCr = mode == MODE_JULIA ? juliaCr : x;
+        final float tCi = mode == MODE_JULIA ? juliaCi : y;
 
         int count = 0;
 
-        double zr = x;
-        double zi = y;
+        float zr = x;
+        float zi = y;
 
         // cache the squares -> 10% faster
-        double zrsqr = zr * zr;
-        double zisqr = zi * zi;
+        float zrsqr = zr * zr;
+        float zisqr = zi * zi;
 
         // distance
-        double dr = 1;
-        double di = 0;
-        double new_dr;
+        float dr = 1;
+        float di = 0;
+        float new_dr;
 
         while ((count < maxIterations) && ((zrsqr + zisqr) < escapeSqr)) {
             if (mode == MODE_DISTANCE) {
-                new_dr = 2.0 * (zr * dr - zi * di) + 1.0;
-                di = 2.0 * (zr * di + zi * dr);
+                new_dr = 2.0f * (zr * dr - zi * di) + 1.0f;
+                di = 2.0f * (zr * di + zi * dr);
                 dr = new_dr;
             }
 
@@ -216,7 +216,7 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
 
     @Override
     public boolean supports(final ComputeDevice pDevice) {
-        return pDevice == ComputeDevice.CPU || pDevice.getDeviceDescriptor() instanceof nimra.mandelexplorer.opencl.OpenCLDevice;
+        return pDevice==ComputeDevice.CPU || pDevice.getDeviceDescriptor() instanceof nimra.mandelexplorer.opencl.OpenCLDevice;
     }
 
     @Override
@@ -226,6 +226,6 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
 
     @Override
     public String toString() {
-        return "Aparapi Double";
+        return "Aparapi Float";
     }
 }

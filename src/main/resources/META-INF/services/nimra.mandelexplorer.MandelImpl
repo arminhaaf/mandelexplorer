@@ -3,6 +3,7 @@ nimra.mandelexplorer.DDMandelImpl
 nimra.mandelexplorer.FastDDMandelImpl
 nimra.mandelexplorer.opencl.FloatOpenCLMandelImpl
 nimra.mandelexplorer.AparapiDoubleMandelImpl
+nimra.mandelexplorer.AparapiFloatMandelImpl
 nimra.mandelexplorer.opencl.DefaultDoubleOpenCLMandelImpl
 nimra.mandelexplorer.opencl.QFOpenCLMandelImpl
 nimra.mandelexplorer.opencl.DDOpenCLMandelImpl

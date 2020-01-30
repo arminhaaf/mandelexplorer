@@ -96,7 +96,7 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
         final OpenCLContext tOpenCLContext = new OpenCLContext();
         // Create a context for the selected device
         tOpenCLContext.context = clCreateContext(
-                null, 1, new cl_device_id[]{pDevice.getDeviceId()},
+                null, 1, new cl_device_id[]{pDevice.getCLDeviceId()},
                 null, null, null);
 
         // Create the program
@@ -110,7 +110,7 @@ public class OpenCLMandelImpl extends AbstractDoubleMandelImpl implements Mandel
         tOpenCLContext.kernel = clCreateKernel(tOpenCLContext.program, "compute", null);
 
         tOpenCLContext.commandQueue = clCreateCommandQueueWithProperties(
-                tOpenCLContext.context, pDevice.getDeviceId(), new cl_queue_properties(), null);
+                tOpenCLContext.context, pDevice.getCLDeviceId(), new cl_queue_properties(), null);
 
         return tOpenCLContext;
 
