@@ -211,7 +211,7 @@ public class AparapiFloatMandelImpl extends Kernel implements MandelImpl {
 
     @Override
     public MandelImpl copy() {
-        return new AparapiDoubleMandelImpl();
+        return new AparapiFloatMandelImpl();
     }
 
     @Override
