@@ -11,11 +11,6 @@ import java.util.stream.IntStream;
 public class StreamParallelDoubleMandelImpl extends AbstractDoubleMandelImpl implements MandelImpl {
 
     @Override
-    public boolean isPreciseFor(final BigDecimal pPixelSize) {
-        return true;
-    }
-
-    @Override
     public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
         final double xmin = getXmin(pParams, pMandelResult.width, pMandelResult.height);
         final double ymin = getYmin(pParams, pMandelResult.width, pMandelResult.height);
@@ -29,9 +24,8 @@ public class StreamParallelDoubleMandelImpl extends AbstractDoubleMandelImpl imp
             final double tY = ymin + y * yinc;
             
             final double tCi = pParams.getCalcMode() == CalcMode.JULIA ? juliaCi : tY;
-
-            double tX = xmin + pTile.startX * xinc;
             for (int x = pTile.startX; x < pTile.endX; x++) {
+                final double tX = xmin + x * xinc;
                 final double tCr = pParams.getCalcMode() == CalcMode.JULIA ? juliaCr : tX;
 
                 int count = 0;
@@ -76,8 +70,6 @@ public class StreamParallelDoubleMandelImpl extends AbstractDoubleMandelImpl imp
                     pMandelResult.distancesR[tIndex] = dr;
                     pMandelResult.distancesI[tIndex] = di;
                 }
-
-                tX += xinc;
             }
         });
     }
