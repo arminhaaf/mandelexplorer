@@ -2,6 +2,7 @@ package nimra.mandelexplorer;
 
 import nimra.mandelexplorer.math.DD;
 
+import java.math.BigDecimal;
 import java.util.stream.IntStream;
 
 /**
@@ -42,8 +43,8 @@ public class DDMandelImpl extends AbstractDDMandelImpl {
             final DD tY = new DD(yinc).selfMultiply(y).selfAdd(ymin);
             final DD tCi = pParams.getCalcMode() == CalcMode.JULIA ? juliaCi : tY;
 
-            tX.setValue(xinc).selfMultiply(pTile.startX).selfAdd(xmin);
             for (int x = pTile.startX; x < pTile.endX; x++) {
+                tX.setValue(xinc).selfMultiply(x).selfAdd(xmin);
                 tCr.setValue(pParams.getCalcMode() == CalcMode.JULIA ? juliaCr : tX);
 
                 int count = 0;
@@ -83,7 +84,6 @@ public class DDMandelImpl extends AbstractDDMandelImpl {
                     pMandelResult.distancesR[tIndex] = dr.hi;
                     pMandelResult.distancesI[tIndex] = di.hi;
                 }
-                tX.selfAdd(xinc);
             }
         });
     }
