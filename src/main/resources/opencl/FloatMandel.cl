@@ -19,11 +19,11 @@ __kernel void compute(
       __global double *lastValuesI,
       __global double *distancesR,
       __global double *distancesI,
-      int mode,
-      double4 area,
-      double2 julia,
-      int maxIterations,
-      double sqrEscapeRadius
+      const int mode,
+      const double4 area,
+      const double2 julia,
+      const int maxIterations,
+      const double sqrEscapeRadius
       ) {
 
    const float x = (float)area.x + X*(float)area.z;
@@ -59,8 +59,8 @@ __kernel void compute(
             dr = new_dr;
         }
 
-        new_zr = (zrsqr - zisqr) + x;
-        zi = ((2.0f * zr) * zi) + y;
+        new_zr = (zrsqr - zisqr) + cr;
+        zi = ((2.0f * zr) * zi) + ci;
         zr = new_zr;
 
         //If in a periodic orbit, assume it is trapped
