@@ -1,6 +1,7 @@
 nimra.mandelexplorer.StreamParallelDoubleMandelImpl
 nimra.mandelexplorer.DDMandelImpl
 nimra.mandelexplorer.FastDDMandelImpl
+nimra.mandelexplorer.FastDMandelImpl
 nimra.mandelexplorer.opencl.FloatOpenCLMandelImpl
 nimra.mandelexplorer.AparapiDoubleMandelImpl
 nimra.mandelexplorer.AparapiFloatMandelImpl

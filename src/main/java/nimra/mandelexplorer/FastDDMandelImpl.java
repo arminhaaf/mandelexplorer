@@ -41,6 +41,6 @@ public class FastDDMandelImpl implements MandelImpl {
 
     @Override
     public String toString() {
-        return "Fast DD";
+        return "DD AVX + Open CL";
     }
 }

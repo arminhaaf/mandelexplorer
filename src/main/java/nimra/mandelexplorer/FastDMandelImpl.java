@@ -22,7 +22,7 @@ public class FastDMandelImpl implements MandelImpl {
         if ( pDevice.getDeviceDescriptor() instanceof OpenCLDevice ) {
             return ((OpenCLDevice)pDevice.getDeviceDescriptor()).getDeviceType() != OpenCLDevice.Type.CPU;
         }
-        return true;
+        return false;
     }
 
     @Override
