@@ -40,7 +40,7 @@ All calculations without distance calc. QuadFloat implementation is broken for m
 | GPU Cuda Double | 450 |
 | GPU OpenCL Double | 460 |
 | CPU Java Double | 1400 |
-| GPU Aparapi Double | 1100 |
+| GPU Aparapi Double | 500 |
 | CPU Native Double | 1100 |
 | GPU Cuda DoubleDouble | 3150 |
 | CPU Native AVX2 DoubleDouble | 3150 |
