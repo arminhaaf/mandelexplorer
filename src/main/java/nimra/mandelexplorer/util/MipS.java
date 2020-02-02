@@ -1,5 +1,13 @@
-package nimra.mandelexplorer;
+package nimra.mandelexplorer.util;
 
+import nimra.mandelexplorer.CalcMode;
+import nimra.mandelexplorer.ComputeDevice;
+import nimra.mandelexplorer.MandelImpl;
+import nimra.mandelexplorer.MandelImplFactory;
+import nimra.mandelexplorer.MandelParams;
+import nimra.mandelexplorer.MandelResult;
+import nimra.mandelexplorer.Tile;
+import nimra.mandelexplorer.TileGenerator;
 import nimra.mandelexplorer.opencl.OpenCLDevice;
 
 import java.math.BigDecimal;
@@ -21,11 +29,7 @@ public class MipS {
     private int tiles = 5;
     private long minTestDurationMillis = 5000;
 
-    public long getMipS(ComputeDevice pComputeDevice, MandelImpl pMandelImpl) {
-        return 1;
-    }
-
-    private long calcMipS(ComputeDevice pComputeDevice, MandelImpl pMandelImpl) {
+    public long calcMipS(ComputeDevice pComputeDevice, MandelImpl pMandelImpl) {
         if (!pMandelImpl.supports(pComputeDevice)) {
             return -1;
         }
@@ -54,13 +58,10 @@ public class MipS {
         final long tStart = System.currentTimeMillis();
         final long tEndTime = System.currentTimeMillis() + minTestDurationMillis;
         int tCount = 0;
-        while (true) {
+        while (tEndTime > System.currentTimeMillis()) {
             tCount++;
             for (Tile tTile : tTilesList) {
                 pMandelImpl.mandel(pComputeDevice, tParams, tMandelResult, tTile);
-            }
-            if (tEndTime <= System.currentTimeMillis()) {
-                break;
             }
         }
         long tDuration = System.currentTimeMillis() - tStart;
@@ -74,7 +75,9 @@ public class MipS {
 
     public static void main(String[] args) {
         MipS tMipS = new MipS();
-        ComputeDevice.DEVICES.toString();
+        
+        // load opencl and cuda
+        System.out.println("Devices: " + ComputeDevice.DEVICES);
 
         final List<MandelImpl> tImpls = new ArrayList<>();
         for (MandelImplFactory tMandelImplFactory : ServiceLoader.load(MandelImplFactory.class)) {
@@ -83,6 +86,7 @@ public class MipS {
         for (MandelImpl tImpl : ServiceLoader.load(MandelImpl.class)) {
             tImpls.add(tImpl);
         }
+        System.out.println("Algorithms: " + tImpls);
 
         for (ComputeDevice tDevice : ComputeDevice.DEVICES) {
             if ( tDevice.getDeviceDescriptor() instanceof OpenCLDevice &&
@@ -94,7 +98,7 @@ public class MipS {
                     if (tImpl.supports(tDevice)) {
                         Thread.sleep(1000);
                         System.out.print(tDevice.getName() + ":" + tImpl + " = ");
-                        System.out.println("" + tMipS.calcMipS(tDevice, tImpl) / 1024 / 1024);
+                        System.out.println("" + tMipS.calcMipS(tDevice, tImpl) / 1024 / 1024 + " M-MipS");
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
