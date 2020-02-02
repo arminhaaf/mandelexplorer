@@ -30,6 +30,20 @@ public class MandelParams {
 
     private CalcMode calcMode = CalcMode.MANDELBROT;
 
+    public MandelParams() {
+    }
+
+    public MandelParams(final MandelParams other) {
+        this.x = other.x;
+        this.y = other.y;
+        this.scale = other.scale;
+        this.juliaCr = other.juliaCr;
+        this.juliaCi = other.juliaCi;
+        this.maxIterations = other.maxIterations;
+        this.escapeRadius = other.escapeRadius;
+        this.calcMode = other.calcMode;
+    }
+
     public double getX_Double() {
         return x.doubleValue();
     }

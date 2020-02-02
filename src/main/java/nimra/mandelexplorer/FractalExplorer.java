@@ -1,6 +1,5 @@
 package nimra.mandelexplorer;
 
-import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -10,14 +9,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.MenuBar;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -65,13 +62,22 @@ public class FractalExplorer {
     private final JComponent viewer = new JComponent() {
         @Override
         public void paintComponent(Graphics g) {
-            g.drawImage(image, 0, 0, getImageWidth(), viewer.getHeight(), this);
+            g.drawImage(image, 0, 0, getImageWidth(), getImageHeight(), null);
+
+            if ( paintRenderTime && calcStatistics.calcMillis>0  ) {
+                String tRenderTimeString = String.format("calc: %d color: %d", calcStatistics.calcMillis, calcStatistics.colorMillis);
+
+                g.setColor(Color.WHITE);
+                g.drawString(tRenderTimeString, 10,getImageHeight()-g.getFontMetrics().getDescent());
+            }
         }
     };
 
     private final JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, false, explorerConfigPanel.getComponent(), viewer);
 
     private JMenuBar menuBar = new JMenuBar();
+
+    private boolean paintRenderTime = true;
 
     public FractalExplorer() {
         setSize(1024, 1024);
@@ -321,7 +327,7 @@ public class FractalExplorer {
         tPaletteMapper.startMap();
         final IntStream tMapStream = IntStream.range(0, imageRgb.length);
         tMapStream.parallel().forEach(i -> imageRgb[i] = tPaletteMapper.map(tIters[i], tLastR[i], tLastI[i], tDistancesR[i], tDistancesI[i]));
-        calcStatistics.addPaintDuration(tStartMillis);
+        calcStatistics.addColorDuration(tStartMillis);
 
         tStartMillis = System.currentTimeMillis();
         viewer.repaint();
@@ -376,7 +382,6 @@ public class FractalExplorer {
             try {
                 viewer.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 calcTiles(tMandelImpl);
-                explorerConfigPanel.setRenderMillis(calcStatistics.calcMillis, calcStatistics.paintMillis);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, ex.getMessage());
@@ -429,7 +434,7 @@ public class FractalExplorer {
 
         long calcMillis;
 
-        long paintMillis;
+        long colorMillis;
 
         long repaintMillis;
 
@@ -441,12 +446,12 @@ public class FractalExplorer {
             calcMillis += System.currentTimeMillis() - pStartMillis;
         }
 
-        public void addPaintDuration(long pStartMillis) {
-            paintMillis += System.currentTimeMillis() - pStartMillis;
+        public void addColorDuration(long pStartMillis) {
+            colorMillis += System.currentTimeMillis() - pStartMillis;
         }
 
         public void reset() {
-            calcMillis = paintMillis = 0;
+            calcMillis = colorMillis = 0;
         }
 
         public void addRepaintDuration(final long pStartMillis) {
