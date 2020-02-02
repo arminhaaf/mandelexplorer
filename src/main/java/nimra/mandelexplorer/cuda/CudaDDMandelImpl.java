@@ -23,6 +23,7 @@ public class CudaDDMandelImpl extends CudaDoubleMandelImpl {
 
     public CudaDDMandelImpl() {
         super("/cuda/DDMandel.ptx");
+        setPixelPrecision(new BigDecimal("1E-32"));
     }
 
     private double[] convertToDD(BigDecimal pBD) {

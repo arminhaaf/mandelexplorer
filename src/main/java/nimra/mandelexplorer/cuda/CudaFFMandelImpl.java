@@ -22,6 +22,7 @@ public class CudaFFMandelImpl extends CudaDoubleMandelImpl {
 
     public CudaFFMandelImpl() {
         super("/cuda/FFMandel.ptx");
+        setPixelPrecision(new BigDecimal("1E-15"));
     }
 
     private float[] convertToFF(BigDecimal pBD) {

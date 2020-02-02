@@ -3,6 +3,7 @@ package nimra.mandelexplorer;
 import nimra.mandelexplorer.math.DD;
 import nimra.mandelexplorer.util.NativeLoader;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,15 +103,18 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
     }
 
     public enum Algo {
-        AVXDoubleDouble(1, "AVX-DD"), DoubleDouble(2, "DD"), Float128(3, "Float128"), Float80(4, "Float80");
+        AVXDoubleDouble(1, "AVX-DD", new BigDecimal("1E-32")), DoubleDouble(2, "DD", new BigDecimal("1E-32")), Float128(3, "Float128", new BigDecimal("4E-34")), Float80(4, "Float80", new BigDecimal("4E-19"));
 
         final int code;
 
         final String name;
 
-        Algo(final int pCode, final String pName) {
+        final BigDecimal pixelPrecision;
+
+        Algo(final int pCode, final String pName, final BigDecimal pPixelPrecision) {
             code = pCode;
             name = pName;
+            pixelPrecision = pPixelPrecision;
         }
     }
 }

@@ -32,6 +32,8 @@ public class DDOpenCLMandelImpl extends OpenCLMandelImpl {
         // only Portable CPU implementation works as expected
         setCompilerOptions(null);
 
+        setPixelPrecision(new BigDecimal("1E-32"));
+
     }
 
     private double[] convertToDD(BigDecimal pBD) {

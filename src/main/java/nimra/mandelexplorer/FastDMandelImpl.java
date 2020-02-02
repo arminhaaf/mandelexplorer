@@ -1,6 +1,6 @@
 package nimra.mandelexplorer;
 
-import nimra.mandelexplorer.opencl.DefaultDoubleOpenCLMandelImpl;
+import nimra.mandelexplorer.opencl.DoubleOpenCLMandelImpl;
 import nimra.mandelexplorer.opencl.OpenCLDevice;
 
 /**
@@ -12,7 +12,7 @@ public class FastDMandelImpl implements MandelImpl {
     // avx2 double und opencl double für nicht CPU
 
     private final MandelImpl cpuImpl = new DoubleMandelNative(DoubleMandelNative.Algo.AVX2Double);
-    private final MandelImpl gpuImpl = new DefaultDoubleOpenCLMandelImpl();
+    private final MandelImpl gpuImpl = new DoubleOpenCLMandelImpl();
 
     @Override
     public boolean supports(final ComputeDevice pDevice) {

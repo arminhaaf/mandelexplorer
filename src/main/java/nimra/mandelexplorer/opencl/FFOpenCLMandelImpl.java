@@ -30,6 +30,8 @@ public class FFOpenCLMandelImpl extends OpenCLMandelImpl {
         // compile should not optimize (no -cl-unsafe-math-optimizations !) -> however, seems that the optimization is always on
         // only Portable CPU implementation works as expected
         setCompilerOptions(null);
+
+        setPixelPrecision(new BigDecimal("1E-15"));
     }
 
     private float[] convertToFF(BigDecimal pBD) {

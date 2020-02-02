@@ -1,11 +1,24 @@
 package nimra.mandelexplorer;
 
+import java.math.BigDecimal;
+
 /**
  * Created: 15.01.20   by: Armin Haaf
  *
  * @author Armin Haaf
  */
 public abstract class AbstractDoubleMandelImpl implements MandelImpl {
+    private BigDecimal pixelPrecision = new BigDecimal("3E-16");
+
+    public void setPixelPrecision(final BigDecimal pPixelPrecision) {
+        pixelPrecision = pPixelPrecision;
+    }
+
+    @Override
+    public boolean isPreciseFor(final BigDecimal pPixelSize) {
+        return pPixelSize.compareTo(pixelPrecision) >= 0;
+    }
+
     protected double getEscapeSqr(final MandelParams pParams) {
         return pParams.getEscapeRadius() * pParams.getEscapeRadius();
     }

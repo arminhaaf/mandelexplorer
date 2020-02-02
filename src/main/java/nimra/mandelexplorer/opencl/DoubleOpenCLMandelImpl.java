@@ -7,8 +7,8 @@ import java.util.Scanner;
  *
  * @author Armin Haaf
  */
-public class DefaultDoubleOpenCLMandelImpl extends OpenCLMandelImpl {
-    public DefaultDoubleOpenCLMandelImpl() {
+public class DoubleOpenCLMandelImpl extends OpenCLMandelImpl {
+    public DoubleOpenCLMandelImpl() {
         super(new Scanner(OpenCLDevice.class.getResourceAsStream("/opencl/DoubleMandel.cl"), "UTF-8").useDelimiter("\\A").next());
     }
 

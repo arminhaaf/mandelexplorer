@@ -5,6 +5,7 @@ import com.aparapi.Range;
 import com.aparapi.device.Device;
 import com.aparapi.device.OpenCLDevice;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -221,6 +222,13 @@ public class AparapiDoubleMandelImpl extends Kernel implements MandelImpl {
 
     @Override
     public void done() {
+    }
+
+    private static final BigDecimal PIXEL_PRECISION = new BigDecimal("3E-16");
+
+    @Override
+    public boolean isPreciseFor(final BigDecimal pPixelSize) {
+        return pPixelSize.compareTo(PIXEL_PRECISION) >= 0;
     }
 
     @Override

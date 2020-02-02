@@ -2,12 +2,21 @@ package nimra.mandelexplorer;
 
 import nimra.mandelexplorer.math.DD;
 
+import java.math.BigDecimal;
+
 /**
  * Created: 12.01.20   by: Armin Haaf
  *
  * @author Armin Haaf
  */
 public abstract class AbstractDDMandelImpl implements MandelImpl {
+
+    private static final BigDecimal PIXEL_PRECISION = new BigDecimal("1E-32");
+
+    @Override
+    public boolean isPreciseFor(final BigDecimal pPixelSize) {
+        return pPixelSize.compareTo(PIXEL_PRECISION) >= 0;
+    }
 
     protected double getEscapeSqr(final MandelParams pParams) {
         return pParams.getEscapeRadius() * pParams.getEscapeRadius();
