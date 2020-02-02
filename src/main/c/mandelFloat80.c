@@ -32,12 +32,12 @@ mandel_float80(int32_t *iters,
               const int32_t maxIterations,
               const double sqrEscapeRadius)
 {
-    __float80 xStart = pxStartHi + pxStartLo;
-    __float80 yStart = pyStartHi + pyStartLo;
-    __float80 juliaCr = pjuliaCrHi + pjuliaCrLo;
-    __float80 juliaCi = pjuliaCiHi + pjuliaCiLo;
-    __float80 xInc = pxIncHi + pxIncLo;
-    __float80 yInc = pyIncHi + pyIncLo;
+    __float80 xStart = (__float80)pxStartHi + (__float80)pxStartLo;
+    __float80 yStart = (__float80)pyStartHi + (__float80)pyStartLo;
+    __float80 juliaCr = (__float80)pjuliaCrHi + (__float80)pjuliaCrLo;
+    __float80 juliaCi = (__float80)pjuliaCiHi + (__float80)pjuliaCiLo;
+    __float80 xInc = (__float80)pxIncHi + (__float80)pxIncLo;
+    __float80 yInc = (__float80)pyIncHi + (__float80)pyIncLo;
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {

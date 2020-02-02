@@ -30,12 +30,12 @@ mandel_float128(int32_t *iters,
               const int32_t maxIterations,
               const double sqrEscapeRadius)
 {
-    __float128 xStart = pxStartHi + pxStartLo;
-    __float128 yStart = pyStartHi + pyStartLo;
-    __float128 juliaCr = pjuliaCrHi + pjuliaCrLo;
-    __float128 juliaCi = pjuliaCiHi + pjuliaCiLo;
-    __float128 xInc = pxIncHi + pxIncLo;
-    __float128 yInc = pyIncHi + pyIncLo;
+    __float128 xStart = (__float128)pxStartHi + (__float128)pxStartLo;
+    __float128 yStart = (__float128)pyStartHi + (__float128)pyStartLo;
+    __float128 juliaCr = (__float128)pjuliaCrHi + (__float128)pjuliaCrLo;
+    __float128 juliaCi = (__float128)pjuliaCiHi + (__float128)pjuliaCiLo;
+    __float128 xInc = (__float128)pxIncHi + (__float128)pxIncLo;
+    __float128 yInc = (__float128)pyIncHi + (__float128)pyIncLo;
 
     #pragma omp parallel for schedule(dynamic, 1)
     for (int y = 0; y < height; y++) {
@@ -71,7 +71,7 @@ mandel_float128(int32_t *iters,
                 }
 
                 new_zr = (zrsqr - zisqr) + cr;
-                zi = ((2.0f * zr) * zi) + ci;
+                zi = ((2.0 * zr) * zi) + ci;
                 zr = new_zr;
 
                 //If in a periodic orbit, assume it is trapped
