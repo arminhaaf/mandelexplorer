@@ -163,7 +163,7 @@ mandel_dd(int32_t *iters,
                 const DD zrsqr = DD_mul(zr, zr);
                 const DD zisqr = DD_mul(zi, zi);
 
-                if (DD_add(zrsqr, zisqr).hi >= (double) sqrEscapeRadius) {
+                if (DD_add(zrsqr, zisqr).hi >= sqrEscapeRadius) {
                     break;
                 }
 
