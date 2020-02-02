@@ -2,6 +2,7 @@ package nimra.mandelexplorer;
 
 import nimra.mandelexplorer.util.NativeLoader;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,6 +89,11 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
     }
 
     @Override
+    public boolean isPreciseFor(final BigDecimal pPixelSize) {
+        return pPixelSize.compareTo(algo.pixelPrecision)>=0;
+    }
+
+    @Override
     public String toString() {
         return "Native " + algo.name;
     }
@@ -98,15 +104,19 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
     }
 
     public enum Algo {
-        AVX2Double(1, "AVX2 Double"), AVX2Single(2, "AVX2 Single"), Double(3, "Double");
+        AVX2Double(1, "AVX2 Double", new BigDecimal("3E-16")), AVX2Single(2, "AVX2 Single", new BigDecimal("1E-7")), Double(3, "Double", new BigDecimal("3E-16"));
 
-        int code;
+        final int code;
 
-        String name;
+        final String name;
 
-        Algo(final int pCode, final String pName) {
+        final BigDecimal pixelPrecision;
+
+        Algo(final int pCode, final String pName, final BigDecimal pPixelPrecision) {
             code = pCode;
             name = pName;
+            pixelPrecision = pPixelPrecision;
         }
+
     }
 }
