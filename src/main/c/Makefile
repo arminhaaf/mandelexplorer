@@ -35,7 +35,7 @@ endif
 install : $(LIBNAME)
 	cp $(LIBNAME) $(TARGETDIR)
 
-$(LIBNAME) :  mandeljni.o mandelDouble.o mandelAVXS.o mandelAVXD.o mandelAVXDD.o mandelDD.o mandelFloat128.o mandelFloat80.o
+$(LIBNAME) :  mandeljni.o mandelDouble.o mandelAVXS.o mandelAVXD.o mandelAVXDD.o mandelDD.o mandelFloat128.o mandelFloat80.o  mandelSSEDD.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -I. -shared -D_JNI_IMPLEMENTATION_ -o $@ $^ $(LDLIBS)
 
 mandeljni.o : mandeljni.c
@@ -49,6 +49,12 @@ mandelAVXS.o : mandelAVXS.c
 
 mandelAVXDD.o : mandelAVXDD.c
 	$(CC) -c $(CFLAGS) -mavx2 -mfma -fno-unsafe-math-optimizations -o $@ $^
+
+mandelSSEDD.o : mandelSSEDD.c
+	$(CC) -c $(CFLAGS) -msse3 -mfma -fno-unsafe-math-optimizations -o $@ $^
+
+mandelSSED.o : mandelSSED.c
+	$(CC) -c $(CFLAGS) -Ofast -msse3 -mfma -o $@ $^
 
 mandelDD.o : mandelDD.c
 	$(CC) -c $(CFLAGS) -Ofast -fno-unsafe-math-optimizations  -o $@ $^

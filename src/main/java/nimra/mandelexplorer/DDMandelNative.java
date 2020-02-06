@@ -36,10 +36,10 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
     }
 
     public static native void mandelDD(int pType, int[] pIters, double[] pLastZr, double[] pLastZi, double[] distancesR, double[] distancesI, int pMode,
-                                       int pWidth, int pHeight,
-                                       double pXStartHi, double pXStartLo, double pYStartHi, double pYStartLo,
-                                       double pJuliaCrHi, double pJuliaCrLo, double pJuliaCiHi, double pJuliaCiLo,
-                                       double pXIncHi, double pXIncLo, double pYIncHi, double pYIncLo, int pMaxIter, double pEscSqr);
+            int pWidth, int pHeight,
+            double pXStartHi, double pXStartLo, double pYStartHi, double pYStartLo,
+            double pJuliaCrHi, double pJuliaCrLo, double pJuliaCiHi, double pJuliaCiLo,
+            double pXIncHi, double pXIncLo, double pYIncHi, double pYIncLo, int pMaxIter, double pEscSqr);
 
     @Override
     public void mandel(final ComputeDevice pComputeDevice, final MandelParams pParams, final MandelResult pMandelResult, final Tile pTile) {
@@ -59,13 +59,13 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
         final DD tJuliaCr = new DD(pParams.getJuliaCr());
         final DD tJuliaCi = new DD(pParams.getJuliaCi());
         mandelDD(algo.code, tItersTile, tLastZrTile, tLastZiTile, tDistanceRTile, tDistanceITile,
-                pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
-                tXmin.getHi(), tXmin.getLo(),
-                tYmin.getHi(), tYmin.getLo(),
-                tJuliaCr.getHi(), tJuliaCr.getLo(), tJuliaCi.getHi(), tJuliaCi.getLo(),
-                tXinc.getHi(), tXinc.getLo(),
-                tYinc.getHi(), tYinc.getLo(),
-                pParams.getMaxIterations(), getEscapeSqr(pParams));
+                 pParams.getCalcMode().getModeNumber(), tTileWidth, tTileHeight,
+                 tXmin.getHi(), tXmin.getLo(),
+                 tYmin.getHi(), tYmin.getLo(),
+                 tJuliaCr.getHi(), tJuliaCr.getLo(), tJuliaCi.getHi(), tJuliaCi.getLo(),
+                 tXinc.getHi(), tXinc.getLo(),
+                 tYinc.getHi(), tYinc.getLo(),
+                 pParams.getMaxIterations(), getEscapeSqr(pParams));
 
         for (int y = 0; y < tTileHeight; y++) {
             final int tDestPos = pMandelResult.width * (pTile.startY + y) + pTile.startX;
@@ -78,7 +78,6 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
         }
 
     }
-
 
 
     @Override
@@ -103,7 +102,11 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
     }
 
     public enum Algo {
-        AVXDoubleDouble(1, "AVX-DD", new BigDecimal("1E-32")), DoubleDouble(2, "DD", new BigDecimal("1E-32")), Float128(3, "Float128", new BigDecimal("4E-34")), Float80(4, "Float80", new BigDecimal("4E-19"));
+        AVXDoubleDouble(1, "AVX-DD", new BigDecimal("1E-32")),
+        DoubleDouble(2, "DD", new BigDecimal("1E-32")),
+        Float128(3, "Float128", new BigDecimal("4E-34")),
+        Float80(4, "Float80", new BigDecimal("4E-19")),
+        SSEDoubleDouble(5, "SSE-DD", new BigDecimal("1E-32"));
 
         final int code;
 

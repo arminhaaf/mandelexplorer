@@ -30,6 +30,23 @@ mandel_avxd(int32_t *iters,
             const double yInc,
             const int32_t maxIterations,
             const double sqrEscapeRadius);
+void
+mandel_ssed(int32_t *iters,
+            double *lastZrs,
+            double *lastZis,
+            double *distancesR,
+            double *distancesI,
+            const int32_t mode,
+            const int32_t width,
+            const int32_t height,
+            const double xStart,
+            const double yStart,
+            const double juliaCr,
+            const double juliaCi,
+            const double xInc,
+            const double yInc,
+            const int32_t maxIterations,
+            const double sqrEscapeRadius);
 
 void
 mandel_avxs(int32_t *iters,
