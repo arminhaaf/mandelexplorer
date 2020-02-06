@@ -107,7 +107,7 @@ public class DoubleMandelNative extends AbstractDoubleMandelImpl implements Mand
         AVX2Double(1, "AVX2 Double", new BigDecimal("3E-16")),
         AVX2Single(2, "AVX2 Single", new BigDecimal("1E-7")),
         Double(3, "Double", new BigDecimal("3E-16")),
-        SSEDouble(3, "SSE3 Double", new BigDecimal("3E-16"));
+        SSEDouble(3, "SSE2 Double", new BigDecimal("3E-16"));
 
         final int code;
 

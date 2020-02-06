@@ -51,10 +51,10 @@ mandelAVXDD.o : mandelAVXDD.c
 	$(CC) -c $(CFLAGS) -mavx2 -mfma -fno-unsafe-math-optimizations -o $@ $^
 
 mandelSSEDD.o : mandelSSEDD.c
-	$(CC) -c $(CFLAGS) -msse3 -mfma -fno-unsafe-math-optimizations -o $@ $^
+	$(CC) -c $(CFLAGS) -msse2 -mfma -fno-unsafe-math-optimizations -o $@ $^
 
 mandelSSED.o : mandelSSED.c
-	$(CC) -c $(CFLAGS) -Ofast -msse3 -mfma -o $@ $^
+	$(CC) -c $(CFLAGS) -Ofast -msse2 -mfma -o $@ $^
 
 mandelDD.o : mandelDD.c
 	$(CC) -c $(CFLAGS) -Ofast -fno-unsafe-math-optimizations  -o $@ $^

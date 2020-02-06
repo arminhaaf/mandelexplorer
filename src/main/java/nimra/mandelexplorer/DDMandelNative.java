@@ -106,7 +106,7 @@ public class DDMandelNative extends AbstractDDMandelImpl implements MandelImplFa
         DoubleDouble(2, "DD", new BigDecimal("1E-32")),
         Float128(3, "Float128", new BigDecimal("4E-34")),
         Float80(4, "Float80", new BigDecimal("4E-19")),
-        SSEDoubleDouble(5, "SSE-DD", new BigDecimal("1E-32"));
+        SSEDoubleDouble(5, "SSE2-DD", new BigDecimal("1E-32"));
 
         final int code;
 
