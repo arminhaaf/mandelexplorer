@@ -35,7 +35,7 @@ endif
 install : $(LIBNAME)
 	cp $(LIBNAME) $(TARGETDIR)
 
-$(LIBNAME) :  mandeljni.o mandelDouble.o mandelAVXS.o mandelAVXD.o mandelAVXDD.o mandelDD.o mandelFloat128.o mandelFloat80.o  mandelSSEDD.o
+$(LIBNAME) :  mandeljni.o mandelDouble.o mandelAVXS.o mandelAVXD.o mandelAVXDD.o mandelDD.o mandelFloat128.o mandelFloat80.o  mandelSSEDD.o mandelSSED.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -I. -shared -D_JNI_IMPLEMENTATION_ -o $@ $^ $(LDLIBS)
 
 mandeljni.o : mandeljni.c
